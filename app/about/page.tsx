@@ -3,18 +3,19 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/layout/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCachedDisplayedEcclesias } from '@/lib/db/queries/cached';
-import { BookOpen, MapPin, Clock, Heart, Users, ShieldCheck } from 'lucide-react';
+import { AboutEcclesiasDirectory } from '@/components/domain/ecclesias/about-ecclesias-directory';
+import { BookOpen, Heart, Users, ShieldCheck } from 'lucide-react';
 
 export const metadata = {
   title: 'About PCYC & History',
   description:
-    'Learn about the Philippine Christadelphian Youth Circle, our faith rooted in the Scriptures, history, and nationwide ecclesias.',
+    'Learn about the Philippine Christadelphian Youth Circle, our faith rooted in the Scriptures, history, and nationwide ecclesias across Luzon, Visayas, and Mindanao.',
 };
 
 export default async function AboutPage() {
   const displayedEcclesias = await getCachedDisplayedEcclesias();
+
   return (
     <div className="flex flex-col w-full">
       <PageHeader
@@ -150,9 +151,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* 3. PHILIPPINE ECCLESIAS DIRECTORY */}
+      {/* 3. PHILIPPINE ECCLESIAS DIRECTORY - REGIONALLY CATEGORIZED */}
       <section className="py-16 sm:py-20 bg-[#fefcf1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <Badge variant="gold" size="md">
               Find a Fellowship
@@ -161,47 +162,12 @@ export default async function AboutPage() {
               Philippine Ecclesia Directory
             </h2>
             <p className="text-sm sm:text-base text-[#707666]">
-              Visitors and friends are always welcome to join our Sunday memorial services and youth classes.
+              Categorized by major island regions across Luzon, Visayas, and Mindanao. Visitors and friends are always welcome to join our Sunday memorial services and youth classes.
             </p>
           </div>
 
-          {displayedEcclesias.length === 0 ? (
-            <div className="mt-12 max-w-md mx-auto p-8 rounded-2xl bg-white border border-[#e6dfcb] text-center space-y-3 shadow-xs">
-              <MapPin className="h-8 w-8 text-[#e0a861] mx-auto" />
-              <h3 className="font-serif font-bold text-lg text-[#2c3324]">Directory Updating</h3>
-              <p className="text-xs sm:text-sm text-[#707666]">
-                No ecclesias listed in the public directory yet. Verified ecclesias will appear here once added by administrators.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedEcclesias.map((ecc) => (
-                <Card key={ecc.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="space-y-1.5">
-                    <div className="text-[11px] font-semibold tracking-wider text-[#9a6423] uppercase">
-                      {ecc.region}
-                    </div>
-                    <CardTitle className="text-xl">{ecc.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2.5 text-xs text-[#505748]">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
-                      <span>{ecc.address}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Clock className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
-                      <span>{ecc.meetingSchedule}</span>
-                    </div>
-                    {ecc.contactPerson && (
-                      <div className="text-[11px] text-[#707666]">
-                        Contact: {ecc.contactPerson}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          {/* Regionally Categorized Directory with search and filtering */}
+          <AboutEcclesiasDirectory ecclesias={displayedEcclesias} />
         </div>
       </section>
 
