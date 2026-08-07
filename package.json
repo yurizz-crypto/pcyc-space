@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts",
-    "create:admin": "tsx --env-file=.env.local scripts/create-admin.ts"
+    "create:admin": "tsx --env-file=.env.local scripts/create-admin.ts",
+    "sync:profiles": "tsx --env-file=.env.local scripts/sync-profiles.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
