@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cache, updateTag, revalidateTag } from 'next/cache';
 import { getPublishedEvents, getEventBySlug } from './events';
 import { getAvailableProducts, getProductBySlug } from './products';
 import { getDisplayedEcclesias, getEcclesiaCount } from './ecclesias';
@@ -188,14 +188,13 @@ export function invalidateCacheTag(...tags: string[]): void {
   for (const tag of tags) {
     if (!tag) continue;
     try {
-      const cacheModule = require('next/cache');
-      if (typeof cacheModule.updateTag === 'function') {
-        cacheModule.updateTag(tag);
-      } else if (typeof cacheModule.revalidateTag === 'function') {
-        cacheModule.revalidateTag(tag, { expire: 0 });
+      if (typeof updateTag === 'function') {
+        updateTag(tag);
+      } else if (typeof revalidateTag === 'function') {
+        (revalidateTag as any)(tag, 'max');
       }
     } catch {
-      // Safe fallback
+      // Safe fallback - suppresses invariant errors outside request context
     }
   }
 }
