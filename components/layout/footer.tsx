@@ -112,11 +112,11 @@ export async function Footer() {
               </li>
               <li className="pt-2">
                 <a
-                  href="mailto:contact@pcyc.ph"
+                  href="mailto:bumadillal@gmail.com"
                   className="inline-flex items-center gap-1.5 text-xs text-[#e0a861] hover:underline"
                 >
                   <Mail className="h-3.5 w-3.5" />
-                  <span>contact@pcyc.ph</span>
+                  <span>bumadillal@gmail.com</span>
                 </a>
               </li>
             </ul>

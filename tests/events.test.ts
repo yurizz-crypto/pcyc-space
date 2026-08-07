@@ -63,6 +63,25 @@ describe('Event Creation & Update Schema Tests', () => {
     const result = eventSchema.safeParse(invalidFeeEvent);
     assert.equal(result.success, false, 'Negative fee must be rejected');
   });
+
+  it('should accept ARCHIVED status for historical events', () => {
+    const archivedEvent = {
+      title: 'PCYC National Youth Camp 2024',
+      slug: 'pcyc-national-youth-camp-2024',
+      description: 'Historical archive of the 2024 national youth gathering.',
+      location: 'Baguio City',
+      startDate: '2024-12-26',
+      endDate: '2024-12-30',
+      registrationFee: 0,
+      status: 'ARCHIVED' as const,
+    };
+
+    const result = eventSchema.safeParse(archivedEvent);
+    assert.equal(result.success, true, 'ARCHIVED status should be valid');
+    if (result.success) {
+      assert.equal(result.data.status, 'ARCHIVED');
+    }
+  });
 });
 
 describe('Event Registration Schema Tests', () => {

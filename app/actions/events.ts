@@ -89,7 +89,7 @@ export async function createEventAction(
       maxAttendees: parsed.data.maxAttendees || null,
       registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
       isPublished: parsed.data.isPublished ?? true,
-      status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED') || 'UPCOMING',
+      status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED') || 'UPCOMING',
     });
 
     logger.info({ slug: parsed.data.slug, adminId: profile.id }, 'New event created by admin');
@@ -198,7 +198,7 @@ export async function updateEventAction(
         maxAttendees: parsed.data.maxAttendees || null,
         registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
         isPublished: parsed.data.isPublished ?? true,
-        status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED') || 'UPCOMING',
+        status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED') || 'UPCOMING',
         updatedAt: new Date(),
       })
       .where(eq(events.id, eventId));
@@ -230,7 +230,7 @@ export async function updateEventAction(
 }
 
 /**
- * Server Action for Admins to delete an Event via form submission.
+ * Server Action for Admins to delete an Event and all its attendees.
  */
 export async function deleteEventAction(formData: FormData): Promise<void> {
   const eventId = formData.get('eventId') as string;
@@ -243,13 +243,82 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
   }
 
   try {
+    // 1. Remove all attendee registrations for this event first
+    const { eventRegistrations } = await import('@/lib/db/schema/events');
+    await db.delete(eventRegistrations).where(eq(eventRegistrations.eventId, eventId));
+    
+    // 2. Delete the event itself
     await db.delete(events).where(eq(events.id, eventId));
-    logger.info({ eventId, adminId: profile.id }, 'Event deleted by administrator');
+
+    logger.info({ eventId, adminId: profile.id }, 'Event and associated attendees deleted by administrator');
+    revalidatePath('/events');
+    revalidatePath('/admin/events');
+    revalidatePath('/portal');
+    revalidatePath('/');
+  } catch (error: any) {
+    logger.error({ error: error?.message, eventId }, 'Failed to delete event and attendees');
+  }
+}
+
+/**
+ * Server Action for Admins to archive an Event.
+ */
+export async function archiveEventAction(formData: FormData): Promise<void> {
+  const eventId = formData.get('eventId') as string;
+  if (!eventId) return;
+
+  const profile = await getCurrentUserProfile();
+  if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPERADMIN')) {
+    logger.warn({ eventId }, 'Unauthorized attempt to archive event');
+    return;
+  }
+
+  try {
+    await db
+      .update(events)
+      .set({
+        status: 'ARCHIVED',
+        updatedAt: new Date(),
+      })
+      .where(eq(events.id, eventId));
+
+    logger.info({ eventId, adminId: profile.id }, 'Event archived by administrator');
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
   } catch (error: any) {
-    logger.error({ error: error?.message, eventId }, 'Failed to delete event');
+    logger.error({ error: error?.message, eventId }, 'Failed to archive event');
+  }
+}
+
+/**
+ * Server Action for Admins to unarchive an Event.
+ */
+export async function unarchiveEventAction(formData: FormData): Promise<void> {
+  const eventId = formData.get('eventId') as string;
+  if (!eventId) return;
+
+  const profile = await getCurrentUserProfile();
+  if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPERADMIN')) {
+    logger.warn({ eventId }, 'Unauthorized attempt to unarchive event');
+    return;
+  }
+
+  try {
+    await db
+      .update(events)
+      .set({
+        status: 'UPCOMING',
+        updatedAt: new Date(),
+      })
+      .where(eq(events.id, eventId));
+
+    logger.info({ eventId, adminId: profile.id }, 'Event unarchived by administrator');
+    revalidatePath('/events');
+    revalidatePath('/admin/events');
+    revalidatePath('/');
+  } catch (error: any) {
+    logger.error({ error: error?.message, eventId }, 'Failed to unarchive event');
   }
 }
 

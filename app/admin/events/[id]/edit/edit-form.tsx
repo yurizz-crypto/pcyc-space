@@ -241,6 +241,7 @@ export function EditEventForm({ event }: EditEventFormProps) {
                 { value: 'ONGOING', label: 'Ongoing (Currently running)' },
                 { value: 'COMPLETED', label: 'Completed' },
                 { value: 'CANCELLED', label: 'Cancelled' },
+                { value: 'ARCHIVED', label: 'Archived (Historical record)' },
               ]}
             />
 

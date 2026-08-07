@@ -185,8 +185,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   <p>
                     If you are traveling from distant islands or in need of financial assistance,
                     please email the PCYC committee at{' '}
-                    <a href="mailto:contact@pcyc.ph" className="text-[#9a6423] underline font-medium">
-                      contact@pcyc.ph
+                    <a href="mailto:bumadillal@gmail.com" className="text-[#9a6423] underline font-medium">
+                      bumadillal@gmail.com
                     </a>
                     .
                   </p>

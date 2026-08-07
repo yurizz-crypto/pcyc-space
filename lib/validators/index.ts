@@ -93,7 +93,7 @@ export const eventSchema = z.object({
   isPublished: z.boolean().default(false),
   maxAttendees: z.number().int().positive().optional(),
   registrationDeadline: z.string().optional(),
-  status: z.enum(['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']).default('UPCOMING'),
+  status: z.enum(['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).default('UPCOMING'),
 });
 
 export const eventRegistrationSchema = z

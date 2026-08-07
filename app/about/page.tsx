@@ -216,7 +216,7 @@ export default async function AboutPage() {
             materials, we are happy to assist you.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="mailto:contact@pcyc.ph">
+            <a href="mailto:bumadillal@gmail.com">
               <Button variant="primary" size="lg">
                 <span>Email Youth Committee</span>
               </Button>

@@ -161,6 +161,15 @@ export async function createOrderAction(
       })
       .returning();
 
+    // Persist phone number to profile if not previously set
+    if (data.contactNumber && !profile.phoneNumber) {
+      const { profiles } = await import('@/lib/db/schema/users');
+      await db
+        .update(profiles)
+        .set({ phoneNumber: data.contactNumber, updatedAt: new Date() })
+        .where(eq(profiles.id, profile.id));
+    }
+
     // 6. Insert Order Item
     await db.insert(orderItems).values({
       orderId: newOrder.id,

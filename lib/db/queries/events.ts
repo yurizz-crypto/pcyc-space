@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { events, eventRegistrations, type Event } from '@/lib/db/schema/events';
-import { eq, desc, asc, and } from 'drizzle-orm';
+import { eq, desc, asc, and, ne } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 
 /**
@@ -11,7 +11,7 @@ export async function getPublishedEvents(): Promise<Event[]> {
     return await db
       .select()
       .from(events)
-      .where(eq(events.isPublished, true))
+      .where(and(eq(events.isPublished, true), ne(events.status, 'ARCHIVED')))
       .orderBy(asc(events.startDate));
   } catch (error) {
     logger.error({ error }, 'Failed to fetch published events');

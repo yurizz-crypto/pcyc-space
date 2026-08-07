@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, timestamp, boolean, integer, numeric, pgEnum } from 'drizzle-orm/pg-core';
 import { profiles } from './users';
 
-export const eventStatusEnum = pgEnum('event_status', ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']);
+export const eventStatusEnum = pgEnum('event_status', ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']);
 export const registrationStatusEnum = pgEnum('registration_status', ['CONFIRMED', 'PENDING_PAYMENT', 'VERIFICATION_QUEUED', 'CANCELLED']);
 
 /**

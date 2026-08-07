@@ -19,6 +19,7 @@ export function EventCard({ event, showStatusBadge = true }: EventCardProps) {
     ONGOING: 'success',
     COMPLETED: 'cream',
     CANCELLED: 'error',
+    ARCHIVED: 'slate',
   } as const;
 
   return (
