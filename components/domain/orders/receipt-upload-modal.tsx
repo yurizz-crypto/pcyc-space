@@ -82,7 +82,7 @@ export function ReceiptUploadModal({
             </div>
             <div className="border-t border-[#e6dfcb]/80 pt-2 flex items-center justify-between">
               <span className="text-[#707666]">GCash Number:</span>
-              <span className="font-mono font-bold text-[#2c3324]">0917-829-1926 (Mark S.)</span>
+              <span className="font-mono font-bold text-[#2c3324]">0912-734-1648 (Yuri S.)</span>
             </div>
           </div>
 

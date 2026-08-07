@@ -123,31 +123,39 @@ export const orderSchema = z
     selectedSize: z.string().optional(),
     fulfillmentType: z.enum(['EVENT_PICKUP', 'DELIVERY']).default('EVENT_PICKUP'),
     recipientName: z.string().min(2, 'Recipient name is required'),
-    contactNumber: z
-      .string()
-      .min(7, 'Valid contact number is required')
-      .regex(/^[0-9+\s()-]+$/, 'Invalid phone number format'),
+    contactNumber: z.string().optional(),
     targetEventTitle: z.string().optional(),
     deliveryAddress: z.string().optional(),
     city: z.string().optional(),
     province: z.string().optional(),
     zipCode: z.string().optional(),
     notes: z.string().optional(),
+    referenceNumber: z.string().optional(),
   })
   .refine(
     (data) => {
       if (data.fulfillmentType === 'DELIVERY') {
-        return !!(
+        const hasAddress = !!(
           data.deliveryAddress &&
           data.deliveryAddress.trim().length >= 5 &&
           data.city &&
           data.city.trim().length >= 2
         );
+        const hasContact = !!(
+          data.contactNumber &&
+          data.contactNumber.trim().length >= 7 &&
+          /^[0-9+\s()-]+$/.test(data.contactNumber.trim())
+        );
+        const hasPaymentRef = !!(
+          data.referenceNumber &&
+          data.referenceNumber.trim().length >= 3
+        );
+        return hasAddress && hasContact && hasPaymentRef;
       }
       return true;
     },
     {
-      message: 'Complete delivery address and city are required for courier delivery',
+      message: 'Complete delivery address, contact number, and GCash reference are required for courier delivery',
       path: ['deliveryAddress'],
     }
   );

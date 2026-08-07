@@ -107,7 +107,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
               Please send <strong>{formatCurrency(totalAmount)}</strong> to the official PCYC GCash:
             </p>
             <div className="p-3 rounded-xl bg-white border border-[#d3dec2] font-mono text-center text-sm font-bold text-[#2c3324]">
-              0917-829-1926 (PCYC / Treas. Mark S.)
+              0912-734-1648 (Yuri S.)
             </div>
             <p className="text-[11px] text-[#707666]">
               Upload your receipt in the Member Portal to fast-track verification.
@@ -249,7 +249,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   <span>Event Pickup (Free)</span>
                 </div>
                 <p className="text-[11px] text-[#707666] mt-1">
-                  Claim at upcoming PCYC Youth Camp registration desk.
+                  Claim at upcoming PCYC Youth Camp registration desk. Payment optional upon pickup.
                 </p>
               </button>
 
@@ -267,76 +267,156 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   <span>Door Delivery (+₱120)</span>
                 </div>
                 <p className="text-[11px] text-[#707666] mt-1">
-                  Delivered straight to your address via courier.
+                  Shipped directly to your home address. GCash payment required upfront.
                 </p>
               </button>
             </div>
           </div>
 
-          {/* Conditional Delivery Address Form */}
-          {fulfillmentType === 'DELIVERY' && (
-            <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4 animate-fadeIn">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324]">
-                <MapPin className="h-4 w-4 text-[#9a6423]" />
-                <span>Courier Delivery Details</span>
+          {/* Conditional Delivery Form & Mandatory Payment */}
+          {fulfillmentType === 'DELIVERY' ? (
+            <div className="space-y-4 animate-fadeIn">
+              <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324]">
+                  <MapPin className="h-4 w-4 text-[#9a6423]" />
+                  <span>Courier Delivery Details</span>
+                </div>
+
+                <Input
+                  label="Recipient Full Name"
+                  name="recipientName"
+                  defaultValue={`${user.firstName} ${user.lastName}`}
+                  required
+                />
+
+                <Input
+                  label="Contact Phone Number"
+                  name="contactNumber"
+                  defaultValue={user.phoneNumber || ''}
+                  placeholder="0912 734 1648"
+                  required
+                />
+
+                <Input
+                  label="Street Address / Building / Unit"
+                  name="deliveryAddress"
+                  placeholder="Block 12 Lot 5, Sampaguita St., Brgy..."
+                  required
+                  error={state?.fieldErrors?.deliveryAddress?.[0]}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    label="City / Municipality"
+                    name="city"
+                    placeholder="e.g. Quezon City"
+                    required
+                  />
+                  <Input
+                    label="Province / Region"
+                    name="province"
+                    placeholder="e.g. Metro Manila"
+                    required
+                  />
+                </div>
+
+                <Input
+                  label="Postal ZIP Code (Optional)"
+                  name="zipCode"
+                  placeholder="e.g. 1100"
+                />
+              </div>
+
+              {/* Mandatory Payment Proof for Delivery */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-[#f8f4e3] to-[#fefcf1] border-2 border-[#e0a861] space-y-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324]">
+                    <QrCode className="h-4 w-4 text-[#9a6423]" />
+                    <span>GCash Payment (Required for Delivery)</span>
+                  </div>
+                  <Badge variant="gold" size="sm">Required</Badge>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-white border border-[#e6dfcb] space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#707666]">Official GCash:</span>
+                    <span className="font-mono font-bold text-sm text-[#2c3324]">0912-734-1648 (Yuri S.)</span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-[#f0f4eb] pt-2">
+                    <span className="text-[#707666]">Total Amount to Send:</span>
+                    <strong className="text-sm text-[#9a6423] font-serif">{formatCurrency(totalAmount)}</strong>
+                  </div>
+                </div>
+
+                <Input
+                  label="GCash Reference Number"
+                  name="referenceNumber"
+                  placeholder="e.g. 1004 8920 1827"
+                  required
+                />
+
+                <ImageUpload
+                  label="Proof of Payment (Screenshot)"
+                  name="receiptImage"
+                  helperText="Attach your GCash transaction confirmation screenshot (PNG/JPG)."
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-fadeIn">
+              {/* Event Pickup Note */}
+              <div className="p-3.5 rounded-xl bg-[#f0f4eb] border border-[#d3dec2] text-xs text-[#505748] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-[#2c3324]">
+                  <Info className="h-3.5 w-3.5 text-[#2e7d32]" />
+                  <span>Pre-Order Pickup Protocol</span>
+                </div>
+                <p>
+                  Your order will be prepared for claiming at the official PCYC Registration Desk during the next fellowship camp. You may pay now via GCash or pay upon pickup.
+                </p>
               </div>
 
               <Input
-                label="Recipient Full Name"
-                name="recipientName"
-                defaultValue={`${user.firstName} ${user.lastName}`}
-                required
-              />
-
-              <Input
-                label="Contact Phone Number"
+                label="Contact Phone Number (Optional)"
                 name="contactNumber"
                 defaultValue={user.phoneNumber || ''}
-                placeholder="0917 123 4567"
-                required
+                placeholder="0912 734 1648"
               />
 
-              <Input
-                label="Street Address / Building / Unit"
-                name="deliveryAddress"
-                placeholder="Block 12 Lot 5, Sampaguita St., Brgy..."
-                required
-                error={state?.fieldErrors?.deliveryAddress?.[0]}
-              />
+              {/* Optional GCash Attachment for Event Pickup */}
+              <div className="border-t border-[#e6dfcb] pt-4 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setShowReceiptUpload(!showReceiptUpload)}
+                  className="text-xs font-bold text-[#9a6423] hover:underline flex items-center gap-1.5"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span>{showReceiptUpload ? '− Hide GCash Receipt Upload' : '+ Pay Now via GCash & Attach Screenshot (Optional)'}</span>
+                </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                  label="City / Municipality"
-                  name="city"
-                  placeholder="e.g. Quezon City"
-                  required
-                />
-                <Input
-                  label="Province / Region"
-                  name="province"
-                  placeholder="e.g. Metro Manila"
-                  required
-                />
+                {showReceiptUpload && (
+                  <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4 animate-fadeIn">
+                    <div className="text-xs text-[#505748] space-y-1">
+                      <p className="font-bold text-[#2c3324]">PCYC Official GCash:</p>
+                      <p className="font-mono text-sm font-bold text-[#9a6423]">0912-734-1648 (Yuri S.)</p>
+                      <p className="text-[11px] text-[#707666]">
+                        Amount to send: <strong>{formatCurrency(totalAmount)}</strong>
+                      </p>
+                    </div>
+
+                    <Input
+                      label="GCash Reference Number"
+                      name="referenceNumber"
+                      placeholder="e.g. 1004 8920 1827"
+                    />
+
+                    <ImageUpload
+                      label="Screenshot of GCash Receipt"
+                      name="receiptImage"
+                      helperText="Attach GCash payment confirmation screenshot (PNG/JPG)."
+                    />
+                  </div>
+                )}
               </div>
-
-              <Input
-                label="Postal ZIP Code (Optional)"
-                name="zipCode"
-                placeholder="e.g. 1100"
-              />
-            </div>
-          )}
-
-          {/* Event Pickup Note */}
-          {fulfillmentType === 'EVENT_PICKUP' && (
-            <div className="p-3.5 rounded-xl bg-[#f0f4eb] border border-[#d3dec2] text-xs text-[#505748] space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-[#2c3324]">
-                <Info className="h-3.5 w-3.5 text-[#2e7d32]" />
-                <span>Pre-Order Pickup Protocol</span>
-              </div>
-              <p>
-                Your order will be packaged and prepared for claiming at the official PCYC Registration Desk during the next fellowship camp. No shipping fee required.
-              </p>
             </div>
           )}
 
@@ -347,42 +427,6 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
             placeholder="e.g. Please inform brother John upon arrival, preferred packaging..."
             rows={2}
           />
-
-          {/* Optional Direct Proof of Payment Attachment */}
-          <div className="border-t border-[#e6dfcb] pt-4 space-y-3">
-            <button
-              type="button"
-              onClick={() => setShowReceiptUpload(!showReceiptUpload)}
-              className="text-xs font-bold text-[#9a6423] hover:underline flex items-center gap-1.5"
-            >
-              <QrCode className="h-4 w-4" />
-              <span>{showReceiptUpload ? '− Hide GCash Receipt Upload' : '+ Pay Now via GCash & Attach Screenshot (Optional)'}</span>
-            </button>
-
-            {showReceiptUpload && (
-              <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4 animate-fadeIn">
-                <div className="text-xs text-[#505748] space-y-1">
-                  <p className="font-bold text-[#2c3324]">PCYC Official GCash:</p>
-                  <p className="font-mono text-sm font-bold text-[#9a6423]">0917-829-1926 (Mark S.)</p>
-                  <p className="text-[11px] text-[#707666]">
-                    Amount to send: <strong>{formatCurrency(totalAmount)}</strong>
-                  </p>
-                </div>
-
-                <Input
-                  label="GCash Reference Number"
-                  name="referenceNumber"
-                  placeholder="e.g. 1004 8920 1827"
-                />
-
-                <ImageUpload
-                  label="Screenshot of GCash Receipt"
-                  name="receiptImage"
-                  helperText="Attach GCash payment confirmation screenshot (PNG/JPG)."
-                />
-              </div>
-            )}
-          </div>
 
           {/* Summary Calculation */}
           <div className="p-4 rounded-xl bg-[#2c3324] text-[#fefcf1] space-y-2">

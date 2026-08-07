@@ -8,38 +8,37 @@ import assert from 'node:assert/strict';
 import { orderSchema, receiptUploadSchema, isSizeAvailable } from '../lib/validators';
 
 describe('Order Schema Validation & Security Tests', () => {
-  it('should validate a valid EVENT_PICKUP order (no delivery address required)', () => {
+  it('should validate a valid EVENT_PICKUP order without notes or immediate payment', () => {
     const validPickupOrder = {
       productId: 'df2435e4-5d09-43fd-a306-429d579280a6',
       quantity: 2,
       selectedSize: 'L',
       fulfillmentType: 'EVENT_PICKUP' as const,
       recipientName: 'Brother Juan Dela Cruz',
-      contactNumber: '09171234567',
       targetEventTitle: 'PCYC National Youth Camp 2026',
-      notes: 'Will pick up at the registration desk on Day 1',
     };
 
     const result = orderSchema.safeParse(validPickupOrder);
-    assert.equal(result.success, true, 'Valid EVENT_PICKUP order should pass validation');
+    assert.equal(result.success, true, 'Valid EVENT_PICKUP order should pass validation without optional fields');
     if (result.success) {
       assert.equal(result.data.fulfillmentType, 'EVENT_PICKUP');
       assert.equal(result.data.quantity, 2);
     }
   });
 
-  it('should validate a valid DELIVERY order with complete shipping details', () => {
+  it('should validate a valid DELIVERY order with complete shipping details and GCash payment reference', () => {
     const validDeliveryOrder = {
       productId: 'df2435e4-5d09-43fd-a306-429d579280a6',
       quantity: 1,
       selectedSize: 'M',
       fulfillmentType: 'DELIVERY' as const,
       recipientName: 'Sister Maria Santos',
-      contactNumber: '09289876543',
+      contactNumber: '09127341648',
       deliveryAddress: 'Block 12 Lot 5, Grace Village, Brgy. San Jose',
       city: 'Antipolo City',
       province: 'Rizal',
       zipCode: '1870',
+      referenceNumber: '100492817264',
       notes: 'Leave with guard if not at home',
     };
 
@@ -48,7 +47,26 @@ describe('Order Schema Validation & Security Tests', () => {
     if (result.success) {
       assert.equal(result.data.fulfillmentType, 'DELIVERY');
       assert.equal(result.data.deliveryAddress, 'Block 12 Lot 5, Grace Village, Brgy. San Jose');
+      assert.equal(result.data.referenceNumber, '100492817264');
     }
+  });
+
+  it('should reject a DELIVERY order if payment referenceNumber is missing', () => {
+    const invalidDeliveryOrder = {
+      productId: 'df2435e4-5d09-43fd-a306-429d579280a6',
+      quantity: 1,
+      selectedSize: 'M',
+      fulfillmentType: 'DELIVERY' as const,
+      recipientName: 'Sister Maria Santos',
+      contactNumber: '09127341648',
+      deliveryAddress: 'Block 12 Lot 5, Grace Village, Brgy. San Jose',
+      city: 'Antipolo City',
+      province: 'Rizal',
+      // missing referenceNumber!
+    };
+
+    const result = orderSchema.safeParse(invalidDeliveryOrder);
+    assert.equal(result.success, false, 'DELIVERY order without payment reference must be rejected');
   });
 
   it('should reject a DELIVERY order if deliveryAddress or city is missing', () => {
@@ -58,25 +76,13 @@ describe('Order Schema Validation & Security Tests', () => {
       selectedSize: 'M',
       fulfillmentType: 'DELIVERY' as const,
       recipientName: 'Sister Maria Santos',
-      contactNumber: '09289876543',
+      contactNumber: '09127341648',
+      referenceNumber: '100492817264',
       // missing deliveryAddress and city!
     };
 
     const result = orderSchema.safeParse(invalidDeliveryOrder);
     assert.equal(result.success, false, 'DELIVERY order without delivery address must be rejected');
-  });
-
-  it('should sanitize and validate phone numbers properly', () => {
-    const invalidPhoneOrder = {
-      productId: 'df2435e4-5d09-43fd-a306-429d579280a6',
-      quantity: 1,
-      fulfillmentType: 'EVENT_PICKUP' as const,
-      recipientName: 'Juan Dela Cruz',
-      contactNumber: 'invalid-phone-string',
-    };
-
-    const result = orderSchema.safeParse(invalidPhoneOrder);
-    assert.equal(result.success, false, 'Invalid phone number format should fail validation');
   });
 
   it('should enforce quantity bounds (min 1, max 50)', () => {
@@ -85,7 +91,6 @@ describe('Order Schema Validation & Security Tests', () => {
       quantity: 0,
       fulfillmentType: 'EVENT_PICKUP' as const,
       recipientName: 'Juan Dela Cruz',
-      contactNumber: '09171234567',
     };
 
     const result = orderSchema.safeParse(zeroQuantityOrder);

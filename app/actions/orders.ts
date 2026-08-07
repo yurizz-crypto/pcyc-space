@@ -54,19 +54,40 @@ export async function createOrderAction(
     };
   }
 
+  const receiptFile = formData.get('receiptImage') as File | null;
+  const refNumber = ((formData.get('referenceNumber') as string) || '').trim();
+  const fulfillmentType = (formData.get('fulfillmentType') as 'EVENT_PICKUP' | 'DELIVERY') || 'EVENT_PICKUP';
+
+  // For Door Delivery, payment proof is mandatory
+  if (fulfillmentType === 'DELIVERY') {
+    if (!refNumber || refNumber.length < 3) {
+      return {
+        success: false,
+        error: 'Please enter your GCash reference number for door delivery payment verification.',
+      };
+    }
+    if (!receiptFile || receiptFile.size === 0) {
+      return {
+        success: false,
+        error: 'Proof of payment screenshot is required for door delivery. Please attach your GCash transaction confirmation.',
+      };
+    }
+  }
+
   const rawData = {
     productId: formData.get('productId') as string,
     quantity: Number(formData.get('quantity') || 1),
     selectedSize: (formData.get('selectedSize') as string) || undefined,
-    fulfillmentType: (formData.get('fulfillmentType') as 'EVENT_PICKUP' | 'DELIVERY') || 'EVENT_PICKUP',
+    fulfillmentType,
     recipientName: (formData.get('recipientName') as string) || `${profile.firstName} ${profile.lastName}`,
-    contactNumber: (formData.get('contactNumber') as string) || profile.phoneNumber || '',
+    contactNumber: ((formData.get('contactNumber') as string) || profile.phoneNumber || '').trim() || undefined,
     targetEventTitle: (formData.get('targetEventTitle') as string) || 'Upcoming PCYC Youth Camp',
-    deliveryAddress: (formData.get('deliveryAddress') as string) || undefined,
-    city: (formData.get('city') as string) || undefined,
-    province: (formData.get('province') as string) || undefined,
-    zipCode: (formData.get('zipCode') as string) || undefined,
-    notes: (formData.get('notes') as string) || undefined,
+    deliveryAddress: ((formData.get('deliveryAddress') as string) || '').trim() || undefined,
+    city: ((formData.get('city') as string) || '').trim() || undefined,
+    province: ((formData.get('province') as string) || '').trim() || undefined,
+    zipCode: ((formData.get('zipCode') as string) || '').trim() || undefined,
+    notes: ((formData.get('notes') as string) || '').trim() || undefined,
+    referenceNumber: refNumber || undefined,
   };
 
   const validation = orderSchema.safeParse(rawData);
@@ -125,7 +146,7 @@ export async function createOrderAction(
         status: 'PENDING_PAYMENT',
         shippingInfo: {
           recipientName: data.recipientName,
-          contactNumber: data.contactNumber,
+          contactNumber: data.contactNumber || profile.phoneNumber || 'N/A',
           deliveryAddress: data.deliveryAddress || 'Event Pickup at Registration Desk',
           city: data.city || 'Event Venue',
           province: data.province || 'Event Venue',
@@ -149,9 +170,7 @@ export async function createOrderAction(
       selectedSize: data.selectedSize || null,
     });
 
-    // 7. Optional Immediate Receipt Upload (if attached in form)
-    const receiptFile = formData.get('receiptImage') as File | null;
-    const refNumber = formData.get('referenceNumber') as string | null;
+    // 7. Process Proof of Payment Attachment (Mandatory for Delivery, Optional for Event Pickup)
     const amountPaidStr = formData.get('amountPaid') as string | null;
 
     if (receiptFile && receiptFile.size > 0 && refNumber) {
@@ -161,7 +180,7 @@ export async function createOrderAction(
           orderId: newOrder.id,
           receiptImageUrl: uploadResult.url,
           paymentMethod: 'GCASH',
-          referenceNumber: refNumber.trim(),
+          referenceNumber: refNumber,
           amountPaid: (amountPaidStr ? Number(amountPaidStr) : totalAmount).toFixed(2),
           verificationStatus: 'PENDING',
         });
