@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, X, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { UploadCloud, X, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface ImageUploadProps {
@@ -14,13 +14,77 @@ interface ImageUploadProps {
   required?: boolean;
 }
 
-const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB input limit from user device
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+
+/**
+ * Compresses and resizes large images in-browser to prevent payload limit errors
+ * and guarantee rapid uploads over mobile or low-bandwidth connections.
+ */
+async function compressImageClientSide(file: File, maxDimension = 1600, quality = 0.88): Promise<File> {
+  // If file is already small (< 500KB) and not huge, skip recompression
+  if (file.size <= 500 * 1024) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file); // Fallback to original
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              const compressedFile = new File([blob], file.name, {
+                type: outputType,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          outputType,
+          quality
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   name,
   label = 'Attach Image from Device',
-  helperText = 'Maximum 5MB • PNG or JPG/JPEG format only',
+  helperText = 'Maximum 10MB • PNG, JPG, or WEBP format',
   defaultPreview,
   error: externalError,
   onFileSelect,
@@ -29,35 +93,61 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const [preview, setPreview] = useState<string | null>(defaultPreview || null);
   const [fileDetails, setFileDetails] = useState<{ name: string; size: string } | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const validateAndProcessFile = (file: File) => {
+  const validateAndProcessFile = async (rawFile: File) => {
     setClientError(null);
 
     // Validate MIME Type
-    if (!ALLOWED_TYPES.includes(file.type.toLowerCase())) {
-      setClientError('Invalid file format. Please attach a PNG or JPG/JPEG image.');
+    if (!ALLOWED_TYPES.includes(rawFile.type.toLowerCase())) {
+      setClientError('Invalid file format. Please attach a PNG, JPG, or WEBP image.');
       return;
     }
 
-    // Validate File Size (5MB)
-    if (file.size > MAX_SIZE_BYTES) {
-      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-      setClientError(`File size exceeds 5MB limit (${sizeMb}MB). Please choose a smaller image.`);
+    // Validate File Size (10MB maximum input)
+    if (rawFile.size > MAX_SIZE_BYTES) {
+      const sizeMb = (rawFile.size / (1024 * 1024)).toFixed(2);
+      setClientError(`File size exceeds 10MB limit (${sizeMb}MB). Please choose a smaller image.`);
       return;
     }
 
-    // Generate browser preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-    setFileDetails({
-      name: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-    });
+    try {
+      setIsProcessing(true);
+      const processedFile = await compressImageClientSide(rawFile);
 
-    if (onFileSelect) {
-      onFileSelect(file);
+      // Attach processed file to input element via DataTransfer
+      if (fileInputRef.current && typeof DataTransfer !== 'undefined') {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(processedFile);
+        fileInputRef.current.files = dataTransfer.files;
+      }
+
+      // Generate browser preview
+      const objectUrl = URL.createObjectURL(processedFile);
+      setPreview(objectUrl);
+      setFileDetails({
+        name: processedFile.name,
+        size: `${(processedFile.size / (1024 * 1024)).toFixed(2)} MB`,
+      });
+
+      if (onFileSelect) {
+        onFileSelect(processedFile);
+      }
+    } catch {
+      // Fallback
+      const objectUrl = URL.createObjectURL(rawFile);
+      setPreview(objectUrl);
+      setFileDetails({
+        name: rawFile.name,
+        size: `${(rawFile.size / (1024 * 1024)).toFixed(2)} MB`,
+      });
+      if (onFileSelect) {
+        onFileSelect(rawFile);
+      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -73,12 +163,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      if (fileInputRef.current) {
-        // Create DataTransfer to assign to input element
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        fileInputRef.current.files = dataTransfer.files;
-      }
       validateAndProcessFile(file);
     }
   };
@@ -111,7 +195,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         ref={fileInputRef}
         type="file"
         name={name}
-        accept="image/png, image/jpeg, image/jpg"
+        accept="image/png, image/jpeg, image/jpg, image/webp"
         onChange={handleInputChange}
         className="hidden"
         id={`file-upload-${name}`}
@@ -133,11 +217,17 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             {/* Meta and actions */}
             <div className="flex-1 space-y-1 text-center sm:text-left min-w-0">
               <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-[#2c3324]">
-                <CheckCircle2 className="h-4 w-4 text-[#2e7d32]" />
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-[#e0a861]" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 text-[#2e7d32]" />
+                )}
                 <span className="truncate">{fileDetails?.name || 'Attached Image'}</span>
               </div>
               {fileDetails && (
-                <p className="text-[11px] text-[#707666]">File size: {fileDetails.size}</p>
+                <p className="text-[11px] text-[#707666]">
+                  Optimized size: {fileDetails.size}
+                </p>
               )}
               <p className="text-[11px] text-[#505748]">
                 Ready to be uploaded with this submission.
@@ -180,7 +270,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           )}
         >
           <div className="h-12 w-12 rounded-full bg-white border border-[#e6dfcb] flex items-center justify-center shadow-xs text-[#e0a861] group-hover:scale-110 transition-transform">
-            <UploadCloud className="h-6 w-6" />
+            {isProcessing ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <UploadCloud className="h-6 w-6" />
+            )}
           </div>
 
           <div className="mt-3 space-y-1">
