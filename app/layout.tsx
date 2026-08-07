@@ -16,8 +16,21 @@ const serifFont = Playfair_Display({
   display: 'swap',
 });
 
+function getBaseUrl(): URL {
+  let raw = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || 'https://pcyc.ph';
+  raw = raw.trim();
+  if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+    raw = `https://${raw}`;
+  }
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL('https://pcyc.ph');
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://pcyc.ph'),
+  metadataBase: getBaseUrl(),
   title: {
     default: 'PCYC Space — Philippine Christadelphian Youth Circle',
     template: '%s | PCYC Space',
@@ -34,7 +47,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Philippine Christadelphian Youth Circle' }],
   icons: {
-    icon: '/images/logo/pcyc-transparent-logo.png',
+    icon: '/images/logo/pcyc-logo.jpg',
     apple: '/images/logo/pcyc-logo.jpg',
   },
   openGraph: {

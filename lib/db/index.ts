@@ -12,6 +12,9 @@ const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:post
 const client = postgres(connectionString, {
   prepare: false,
   ssl: process.env.NODE_ENV === 'production' ? 'require' : undefined,
+  max: 10,
+  idle_timeout: 10,
+  connect_timeout: 10,
 });
 
 export const db = drizzle(client, { schema });

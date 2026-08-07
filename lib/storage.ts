@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '@/lib/logger';
@@ -13,14 +14,16 @@ export interface SaveImageResult {
 }
 
 /**
- * Validates and saves an uploaded image file to the local public/uploads directory.
+ * Validates and uploads an image to Supabase Storage (public bucket).
+ * Falls back to local disk storage if Supabase credentials are not configured.
+ * 
  * @param file Uploaded File object from FormData
- * @param folder Subfolder name within public/uploads (e.g. 'events' or 'merch')
- * @param prefix Slug or identifier prefix for unique naming
+ * @param bucket Bucket/Folder name ('events' | 'merch' | 'receipts')
+ * @param prefix Identifier or slug prefix for unique naming
  */
 export async function saveUploadedImage(
   file: File | null,
-  folder: 'events' | 'merch',
+  bucket: 'events' | 'merch' | 'receipts' = 'merch',
   prefix: string = 'media'
 ): Promise<SaveImageResult> {
   if (!file || file.size === 0) {
@@ -53,27 +56,57 @@ export async function saveUploadedImage(
   const cleanPrefix = prefix.toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 40);
   const fileName = `${cleanPrefix}-${Date.now()}${extension}`;
 
-  const targetDir = path.join(process.cwd(), 'public', 'uploads', folder);
-  const targetPath = path.join(targetDir, fileName);
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
 
+  // 3. Primary: Upload to Supabase Storage (Public Cloud Bucket)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && serviceKey && !supabaseUrl.includes('placeholder')) {
+    try {
+      const supabase = createClient(supabaseUrl, serviceKey, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, buffer, {
+          contentType: mimeType || 'image/jpeg',
+          upsert: true,
+        });
+
+      if (error) {
+        logger.warn({ error: error.message, bucket, fileName }, 'Supabase Storage upload warning, falling back to local');
+      } else {
+        const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        logger.info({ publicUrl: publicUrlData.publicUrl, bucket, fileName }, 'Image uploaded to Supabase Storage successfully');
+        return {
+          success: true,
+          url: publicUrlData.publicUrl,
+        };
+      }
+    } catch (supaErr: any) {
+      logger.warn({ error: supaErr?.message }, 'Failed Supabase Storage upload, attempting local fallback');
+    }
+  }
+
+  // 4. Fallback: Save to Local filesystem (public/uploads/[bucket]/[fileName])
   try {
-    // Ensure directory exists
+    const targetDir = path.join(process.cwd(), 'public', 'uploads', bucket);
     await fs.mkdir(targetDir, { recursive: true });
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
+    const targetPath = path.join(targetDir, fileName);
     await fs.writeFile(targetPath, buffer);
 
-    const publicUrl = `/uploads/${folder}/${fileName}`;
-    logger.info({ publicUrl, size: file.size }, 'Image uploaded and saved successfully');
+    const publicUrl = `/uploads/${bucket}/${fileName}`;
+    logger.info({ publicUrl, size: file.size }, 'Image saved to local uploads directory fallback');
 
     return {
       success: true,
       url: publicUrl,
     };
   } catch (error: any) {
-    logger.error({ error: error?.message, targetPath }, 'Failed to save uploaded image');
+    logger.error({ error: error?.message }, 'Failed to save image to storage');
     return {
       success: false,
       error: 'Server failed to store image file. Please try again.',

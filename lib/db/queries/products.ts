@@ -1,25 +1,28 @@
 import { db } from '@/lib/db';
 import { products, type Product } from '@/lib/db/schema/products';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, or } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 
 /**
  * Fetches all available products for the public merch store.
+ * Includes items in active stock (isAvailable: true) or open for Pre-Order (isPreorder: true).
  */
 export async function getAvailableProducts(category?: string): Promise<Product[]> {
   try {
+    const isStoreVisible = or(eq(products.isAvailable, true), eq(products.isPreorder, true));
+
     if (category && category !== 'All') {
       return await db
         .select()
         .from(products)
-        .where(and(eq(products.isAvailable, true), eq(products.category, category)))
+        .where(and(isStoreVisible, eq(products.category, category)))
         .orderBy(desc(products.createdAt));
     }
 
     return await db
       .select()
       .from(products)
-      .where(eq(products.isAvailable, true))
+      .where(isStoreVisible)
       .orderBy(desc(products.createdAt));
   } catch (error) {
     logger.error({ error, category }, 'Failed to fetch available products');
