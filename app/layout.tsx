@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -15,6 +16,21 @@ const serifFont = Playfair_Display({
   variable: '--font-serif',
   display: 'swap',
 });
+
+const themeScript = `
+  (function() {
+    try {
+      var key = 'pcyc-theme-preference';
+      var saved = localStorage.getItem(key);
+      var supportDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && supportDark) || (saved === 'system' && supportDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+`;
 
 function getBaseUrl(): URL {
   let raw = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || 'https://pcyc.ph';
@@ -90,11 +106,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${sansFont.variable} ${serifFont.variable} scroll-smooth`}
+      suppressHydrationWarning
     >
-      <body className="min-h-screen flex flex-col bg-[#fefcf1] text-[#2c3324] antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324]">
-        <Navbar />
-        <main className="flex-1 flex flex-col">{children}</main>
-        <Footer />
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-screen flex flex-col bg-[#fefcf1] dark:bg-[#131710] text-[#2c3324] dark:text-[#fefcf1] antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324] transition-colors duration-200">
+        <ThemeProvider>
+          <Navbar />
+          <main className="flex-1 flex flex-col">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

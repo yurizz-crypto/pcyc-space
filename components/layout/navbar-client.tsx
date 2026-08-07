@@ -8,6 +8,7 @@ import { Menu, User, LogIn, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { NavUserMenu } from '@/components/layout/nav-user-menu';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import type { Profile } from '@/lib/db/schema/users';
 
 export interface NavbarClientProps {
@@ -39,8 +40,8 @@ export function NavbarClient({ profile }: NavbarClientProps) {
       <header
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#fefcf1]/90 backdrop-blur-md border-b border-[#e6dfcb] shadow-sm py-3'
-            : 'bg-[#fefcf1] py-4'
+            ? 'bg-[#fefcf1]/90 dark:bg-[#131710]/90 backdrop-blur-md border-b border-[#e6dfcb] dark:border-[#323d2b] shadow-sm py-3'
+            : 'bg-[#fefcf1] dark:bg-[#131710] py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,7 +51,7 @@ export function NavbarClient({ profile }: NavbarClientProps) {
               href="/"
               className="flex items-center gap-3 group focus:outline-none"
             >
-              <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-2xl overflow-hidden bg-[#2c3324] p-1.5 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200">
+              <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-2xl overflow-hidden bg-[#2c3324] dark:bg-[#1f271a] p-1.5 flex items-center justify-center shadow-sm border border-transparent dark:border-[#38452f] group-hover:scale-105 transition-transform duration-200">
                 <Image
                   src="/images/logo/pcyc-transparent-logo.png"
                   alt="PCYC Logo"
@@ -61,17 +62,17 @@ export function NavbarClient({ profile }: NavbarClientProps) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-serif font-bold text-lg sm:text-xl text-[#2c3324] leading-tight tracking-tight">
+                <span className="font-serif font-bold text-lg sm:text-xl text-[#2c3324] dark:text-[#fefcf1] leading-tight tracking-tight">
                   PCYC Space
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-medium text-[#707666] tracking-wider uppercase">
+                <span className="text-[10px] sm:text-[11px] font-medium text-[#707666] dark:text-[#a3ab98] tracking-wider uppercase">
                   Philippine Christadelphians
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1 bg-[#f8f4e3] px-3 py-1.5 rounded-2xl border border-[#e6dfcb]">
+            <nav className="hidden md:flex items-center gap-1 bg-[#f8f4e3] dark:bg-[#1b2117] px-3 py-1.5 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b]">
               {navLinks.map((link) => {
                 const isActive =
                   pathname === link.href ||
@@ -83,8 +84,8 @@ export function NavbarClient({ profile }: NavbarClientProps) {
                     href={link.href}
                     className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-white text-[#2c3324] shadow-xs font-semibold'
-                        : 'text-[#5f6654] hover:text-[#2c3324] hover:bg-white/50'
+                        ? 'bg-white dark:bg-[#252e1f] text-[#2c3324] dark:text-[#fefcf1] shadow-xs font-semibold'
+                        : 'text-[#5f6654] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-white/50 dark:hover:bg-[#20271c]'
                     }`}
                   >
                     {link.label}
@@ -95,16 +96,18 @@ export function NavbarClient({ profile }: NavbarClientProps) {
 
             {/* Desktop Right Actions */}
             <div className="hidden md:flex items-center gap-3">
+              <ThemeToggle />
+
               <Link
                 href="/merch"
-                className="relative p-2 rounded-xl text-[#2c3324] hover:bg-[#2c3324]/5 transition-colors"
+                className="relative p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5 transition-colors"
                 title="PCYC Merch Catalog"
               >
                 <ShoppingBag className="h-5 w-5" />
                 <span className="sr-only">Merchandise</span>
               </Link>
 
-              <div className="h-5 w-px bg-[#e6dfcb]" />
+              <div className="h-5 w-px bg-[#e6dfcb] dark:bg-[#323d2b]" />
 
               {/* Dynamic Auth State */}
               {profile ? (
@@ -130,12 +133,13 @@ export function NavbarClient({ profile }: NavbarClientProps) {
 
             {/* Mobile Menu Trigger & Actions */}
             <div className="flex md:hidden items-center gap-2">
-              <Link href="/merch" className="p-2 rounded-xl text-[#2c3324]">
+              <ThemeToggle size="sm" />
+              <Link href="/merch" className="p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1]">
                 <ShoppingBag className="h-5 w-5" />
               </Link>
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="p-2 rounded-xl text-[#2c3324] hover:bg-[#2c3324]/10 transition-colors"
+                className="p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/10 dark:hover:bg-white/10 transition-colors"
                 aria-label="Open navigation menu"
               >
                 <Menu className="h-6 w-6" />

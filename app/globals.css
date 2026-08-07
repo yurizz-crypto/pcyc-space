@@ -35,6 +35,37 @@
     --font-serif: var(--font-serif, Georgia, serif);
   }
 
+  .dark {
+    --background: #131710;
+    --foreground: #fefcf1;
+
+    --primary: #e0a861;
+    --primary-hover: #f0be7c;
+    --primary-light: #2b2315;
+    --primary-foreground: #131710;
+
+    --secondary: #fefcf1;
+    --secondary-hover: #e6dfcb;
+    --secondary-light: #2c3324;
+    --secondary-foreground: #131710;
+
+    --surface: #1b2117;
+    --surface-muted: #22291d;
+    --surface-hover: #2b3524;
+
+    --border: #323d2b;
+    --border-subtle: #262f21;
+
+    --muted: #a3ab98;
+    --muted-foreground: #7c8571;
+
+    --success: #4caf50;
+    --success-foreground: #ffffff;
+    --error: #e57373;
+    --error-foreground: #ffffff;
+    --warning: #ffb74d;
+  }
+
   * {
     border-color: var(--border);
   }
@@ -112,6 +143,13 @@
   border: 1px solid rgba(230, 223, 203, 0.8);
 }
 
+.dark .glass-panel {
+  background: rgba(20, 25, 17, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(50, 61, 43, 0.8);
+}
+
 .glass-panel-dark {
   background: rgba(44, 51, 36, 0.92);
   backdrop-filter: blur(14px);
@@ -123,12 +161,20 @@
   background: linear-gradient(135deg, rgba(224, 168, 97, 0.15) 0%, rgba(44, 51, 36, 0.05) 100%);
 }
 
+.dark .gold-gradient-overlay {
+  background: linear-gradient(135deg, rgba(224, 168, 97, 0.18) 0%, rgba(20, 25, 17, 0.8) 100%);
+}
+
 .forest-gradient {
   background: linear-gradient(135deg, #2c3324 0%, #1c2217 100%);
 }
 
 .hero-glow {
   background: radial-gradient(circle at 50% 30%, rgba(224, 168, 97, 0.25) 0%, rgba(254, 252, 241, 0) 70%);
+}
+
+.dark .hero-glow {
+  background: radial-gradient(circle at 50% 30%, rgba(224, 168, 97, 0.15) 0%, rgba(19, 23, 16, 0) 70%);
 }
 
 /* Smooth micro-interactions */
@@ -141,6 +187,10 @@
   box-shadow: 0 12px 24px -10px rgba(44, 51, 36, 0.12);
 }
 
+.dark .card-hover:hover {
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.4);
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
@@ -148,12 +198,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8f4e3;
+  background: var(--surface-muted);
 }
 
 ::-webkit-scrollbar-thumb {
   background: #d8ceb4;
   border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3d4934;
 }
 
 ::-webkit-scrollbar-thumb:hover {
