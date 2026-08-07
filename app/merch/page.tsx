@@ -2,7 +2,7 @@ import React from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { ProductGrid } from '@/components/domain/merch/product-grid';
 import { getCachedAvailableProducts } from '@/lib/db/queries/cached';
-import { QrCode, Sparkles } from 'lucide-react';
+import { QrCode, Sparkles, AlertTriangle, Clock } from 'lucide-react';
 
 export const metadata = {
   title: 'PCYC Merchandise & Apparel',
@@ -15,6 +15,22 @@ export default async function MerchPage() {
 
   return (
     <div className="flex flex-col w-full">
+      {/* Testing Notice Banner */}
+      <div className="w-full bg-[#fbf1e2] border-b border-[#e0a861]/40 text-[#422e1b] py-3 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-xs sm:text-sm">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <span>
+              <strong className="text-[#2c3324]">Testing Phase Notice:</strong> Merchandise catalog is currently in preview mode. Ordering and checkout are temporarily disabled during platform testing.
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] shrink-0">
+            <Clock className="h-3.5 w-3.5" />
+            <span>Store Checkout Opening Soon</span>
+          </div>
+        </div>
+      </div>
+
       <PageHeader
         badge="Fundraising Store"
         title="PCYC Merchandise & Apparel"
@@ -36,7 +52,7 @@ export default async function MerchPage() {
                 <p className="text-xs sm:text-sm text-[#707666] max-w-2xl">
                   To keep our merchandise prices low and completely fee-free, orders are paid directly via{' '}
                   <strong className="text-[#2c3324]">GCash (0912-734-1648, Yuri S.)</strong>. Simply upload
-                  your receipt screenshot upon ordering.
+                  your receipt screenshot upon ordering once checkout goes live.
                 </p>
               </div>
             </div>

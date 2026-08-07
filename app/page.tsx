@@ -1,7 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Calendar, ShoppingBag, ArrowRight, BookOpen, Users, Sparkles } from 'lucide-react';
+import {
+  Calendar,
+  ShoppingBag,
+  ArrowRight,
+  BookOpen,
+  Users,
+  Sparkles,
+  AlertTriangle,
+  Info,
+  Clock,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EventGrid } from '@/components/domain/events/event-grid';
@@ -32,8 +42,34 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col w-full">
+      {/* TESTING PHASE ANNOUNCEMENT BANNER */}
+      <div className="w-full bg-[#fbf1e2] border-b border-[#e0a861]/40 text-[#422e1b] py-3.5 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-[#e0a861]/20 flex items-center justify-center shrink-0 text-[#9a6423]">
+              <AlertTriangle className="h-4 w-4" />
+            </div>
+            <div className="text-xs sm:text-sm">
+              <span className="font-bold text-[#2c3324] uppercase tracking-wide mr-1.5 px-2 py-0.5 bg-[#e0a861]/20 rounded-md">
+                Testing Phase
+              </span>
+              <span className="text-[#5c4936]">
+                This website is currently in its active development and testing phase.{' '}
+                <strong className="font-semibold text-[#2c3324]">
+                  Event registration and merchandise ordering are currently disabled.
+                </strong>
+              </span>
+            </div>
+          </div>
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] shrink-0">
+            <Clock className="h-3.5 w-3.5" />
+            <span>Full Launch Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-[#2c3324] text-[#fefcf1] py-20 sm:py-28 lg:py-36 border-b border-[#3d4632]">
+      <section className="relative overflow-hidden bg-[#2c3324] text-[#fefcf1] py-16 sm:py-24 lg:py-32 border-b border-[#3d4632]">
         {/* Background Atmospheric Lighting */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#e0a861]/20 via-transparent to-transparent pointer-events-none" />
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#e0a861]/10 blur-3xl pointer-events-none" />
@@ -42,11 +78,16 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Hero Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-[#e0a861]/30 backdrop-blur-xs">
-                <Sparkles className="h-4 w-4 text-[#e0a861]" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#e0a861]">
-                  Official Portal of PCYC
-                </span>
+              <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-[#e0a861]/30 backdrop-blur-xs">
+                  <Sparkles className="h-4 w-4 text-[#e0a861]" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#e0a861]">
+                    Official Portal of PCYC
+                  </span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e0a861]/20 border border-[#e0a861]/40 text-[#e0a861] text-xs font-medium">
+                  <span>🚧 Preview & Testing Mode</span>
+                </div>
               </div>
 
               <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#fefcf1] leading-[1.12]">
@@ -63,7 +104,19 @@ export default async function HomePage() {
                 through Bible study camps, fellowship, and faith-driven fundraising.
               </p>
 
-              <div className="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+              {/* Status Notice Callout Box */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-[#e0a861]/30 backdrop-blur-xs text-left">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-[#e0a861] shrink-0 mt-0.5" />
+                  <div className="text-xs sm:text-sm text-[#f8f4e3]/90 leading-relaxed">
+                    <strong className="text-[#e0a861] font-semibold">Public Testing Preview:</strong> You
+                    can browse upcoming camps and preview merchandise items. Registration and ordering features
+                    will officially open upon committee announcement.
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link href="/events" className="w-full sm:w-auto">
                   <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 shadow-lg">
                     <Calendar className="h-5 w-5" />
@@ -77,7 +130,7 @@ export default async function HomePage() {
                     className="w-full sm:w-auto gap-2 border-white/30 text-[#fefcf1] hover:bg-white/10 hover:border-white/50"
                   >
                     <ShoppingBag className="h-5 w-5" />
-                    <span>Support via Merch</span>
+                    <span>Browse Merch Store</span>
                   </Button>
                 </Link>
               </div>
@@ -195,7 +248,7 @@ export default async function HomePage() {
       {/* 3. FEATURED UPCOMING EVENTS (LIVE DB) */}
       <section className="py-20 bg-[#f8f4e3] border-y border-[#e6dfcb]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-8">
             <div className="space-y-2">
               <Badge variant="forest" size="md">
                 Gatherings & Camps
@@ -204,7 +257,7 @@ export default async function HomePage() {
                 Upcoming Youth Events
               </h2>
               <p className="text-sm sm:text-base text-[#707666]">
-                Mark your calendars and join our fellowship camps and study circles.
+                Mark your calendars and preview upcoming camp and fellowship schedules.
               </p>
             </div>
             <Link href="/events">
@@ -213,6 +266,14 @@ export default async function HomePage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
+          </div>
+
+          {/* Testing Notice inside Events section */}
+          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 flex items-center gap-3 text-xs sm:text-sm">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>Registration Notice:</strong> Camp registration is currently in testing mode and not yet accepting submissions. Dates and details are for preview purposes.
+            </span>
           </div>
 
           <EventGrid
@@ -226,7 +287,7 @@ export default async function HomePage() {
       {/* 4. MERCHANDISE & FUNDRAISING HIGHLIGHT (LIVE DB) */}
       <section className="py-20 bg-[#fefcf1]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-8">
             <div className="space-y-2">
               <Badge variant="gold" size="md">
                 PCYC Merch Shop
@@ -244,6 +305,14 @@ export default async function HomePage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
+          </div>
+
+          {/* Testing Notice inside Merch section */}
+          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 flex items-center gap-3 text-xs sm:text-sm">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>Store Preview Notice:</strong> Merchandise catalog is currently in preview mode. Checkout and order fulfillment are temporarily paused during website testing.
+            </span>
           </div>
 
           <ProductGrid
