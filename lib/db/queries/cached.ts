@@ -1,0 +1,202 @@
+import { unstable_cache } from 'next/cache';
+import { getPublishedEvents, getEventBySlug } from './events';
+import { getAvailableProducts, getProductBySlug } from './products';
+import { getDisplayedEcclesias, getEcclesiaCount } from './ecclesias';
+import { getSiteSetting, getYouthAndFriendsCount } from './settings';
+import type { Event } from '@/lib/db/schema/events';
+import type { Product } from '@/lib/db/schema/products';
+import type { Ecclesia } from '@/lib/db/schema/ecclesias';
+
+/**
+ * Cache Tag Constants for Precise On-Demand Revalidation
+ */
+export const CACHE_TAGS = {
+  events: 'events',
+  eventsPublished: 'events:published',
+  event: (slug: string) => `event:${slug}`,
+  products: 'products',
+  productsAvailable: 'products:available',
+  product: (slug: string) => `product:${slug}`,
+  ecclesias: 'ecclesias',
+  ecclesiasDisplayed: 'ecclesias:displayed',
+  ecclesiasCount: 'ecclesias:count',
+  settings: 'settings',
+  settingsKey: (key: string) => `settings:${key}`,
+  youthCount: 'settings:youth_count',
+} as const;
+
+/**
+ * Safe caching wrapper that utilizes Next.js Data Cache in HTTP/SSR context
+ * while cleanly falling back to direct query execution in standalone worker/test scripts.
+ */
+function safeCache<T extends (...args: any[]) => Promise<any>>(
+  cb: T,
+  keyParts?: string[],
+  options?: { revalidate?: number | false; tags?: string[] }
+): T {
+  const cachedFn = unstable_cache(cb, keyParts, options);
+  return (async (...args: Parameters<T>) => {
+    try {
+      return await cachedFn(...args);
+    } catch (err: any) {
+      if (err?.message?.includes('incrementalCache missing')) {
+        return await cb(...args);
+      }
+      throw err;
+    }
+  }) as unknown as T;
+}
+
+/**
+ * Cached Published Events for Public Feed
+ * Revalidated on-demand when admin updates events or every 1 hour (3600s).
+ */
+export const getCachedPublishedEvents = safeCache(
+  async (): Promise<Event[]> => {
+    return getPublishedEvents();
+  },
+  ['cached-published-events'],
+  {
+    revalidate: 3600,
+    tags: [CACHE_TAGS.events, CACHE_TAGS.eventsPublished],
+  }
+);
+
+/**
+ * Cached Event by Slug for Public Detail View
+ * Revalidated on-demand when event is updated or every 1 hour (3600s).
+ */
+export function getCachedEventBySlug(slug: string): Promise<Event | null> {
+  return safeCache(
+    async (): Promise<Event | null> => {
+      return getEventBySlug(slug);
+    },
+    [`cached-event-${slug}`],
+    {
+      revalidate: 3600,
+      tags: [CACHE_TAGS.events, CACHE_TAGS.event(slug)],
+    }
+  )();
+}
+
+/**
+ * Cached Available Products for Public Merch Store
+ * Revalidated on-demand when admin updates products/stock or every 1 hour (3600s).
+ */
+export function getCachedAvailableProducts(category?: string): Promise<Product[]> {
+  const catKey = category && category !== 'All' ? category : 'all';
+  return safeCache(
+    async (): Promise<Product[]> => {
+      return getAvailableProducts(category);
+    },
+    [`cached-products-${catKey}`],
+    {
+      revalidate: 3600,
+      tags: [
+        CACHE_TAGS.products,
+        CACHE_TAGS.productsAvailable,
+        category ? `products:category:${category}` : 'products:all',
+      ],
+    }
+  )();
+}
+
+/**
+ * Cached Product by Slug for Public Merch Detail View
+ * Revalidated on-demand when product is updated or every 1 hour (3600s).
+ */
+export function getCachedProductBySlug(slug: string): Promise<Product | null> {
+  return safeCache(
+    async (): Promise<Product | null> => {
+      return getProductBySlug(slug);
+    },
+    [`cached-product-${slug}`],
+    {
+      revalidate: 3600,
+      tags: [CACHE_TAGS.products, CACHE_TAGS.product(slug)],
+    }
+  )();
+}
+
+/**
+ * Cached Displayed Ecclesias Directory
+ * Revalidated on-demand when ecclesias are added/edited or every 24 hours (86400s).
+ */
+export const getCachedDisplayedEcclesias = safeCache(
+  async (): Promise<Ecclesia[]> => {
+    return getDisplayedEcclesias();
+  },
+  ['cached-displayed-ecclesias'],
+  {
+    revalidate: 86400,
+    tags: [CACHE_TAGS.ecclesias, CACHE_TAGS.ecclesiasDisplayed],
+  }
+);
+
+/**
+ * Cached Ecclesia Count
+ * Revalidated on-demand when ecclesias change or every 24 hours (86400s).
+ */
+export const getCachedEcclesiaCount = safeCache(
+  async (): Promise<number> => {
+    return getEcclesiaCount();
+  },
+  ['cached-ecclesia-count'],
+  {
+    revalidate: 86400,
+    tags: [CACHE_TAGS.ecclesias, CACHE_TAGS.ecclesiasCount],
+  }
+);
+
+/**
+ * Cached Youth and Friends Count Metric
+ * Revalidated on-demand when admin updates count or every 1 hour (3600s).
+ */
+export const getCachedYouthAndFriendsCount = safeCache(
+  async (): Promise<number> => {
+    return getYouthAndFriendsCount();
+  },
+  ['cached-youth-friends-count'],
+  {
+    revalidate: 3600,
+    tags: [CACHE_TAGS.settings, CACHE_TAGS.youthCount],
+  }
+);
+
+/**
+ * Cached Site Setting Value
+ * Revalidated on-demand when setting is updated or every 1 hour (3600s).
+ */
+export function getCachedSiteSetting(key: string, defaultValue: string = ''): Promise<string> {
+  return safeCache(
+    async (): Promise<string> => {
+      return getSiteSetting(key, defaultValue);
+    },
+    [`cached-site-setting-${key}`],
+    {
+      revalidate: 3600,
+      tags: [CACHE_TAGS.settings, CACHE_TAGS.settingsKey(key)],
+    }
+  )();
+}
+
+/**
+ * Invalidate cache tag(s) immediately from Server Actions.
+ * Utilizes Next.js 16 updateTag API with revalidateTag fallback.
+ */
+export function invalidateCacheTag(...tags: string[]): void {
+  for (const tag of tags) {
+    if (!tag) continue;
+    try {
+      const cacheModule = require('next/cache');
+      if (typeof cacheModule.updateTag === 'function') {
+        cacheModule.updateTag(tag);
+      } else if (typeof cacheModule.revalidateTag === 'function') {
+        cacheModule.revalidateTag(tag, { expire: 0 });
+      }
+    } catch {
+      // Safe fallback
+    }
+  }
+}
+

@@ -6,6 +6,7 @@ import { ecclesiaSchema } from '@/lib/validators';
 import { verifyCurrentUserRole } from '@/lib/db/queries/users';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
 import { logger } from '@/lib/logger';
 
@@ -61,6 +62,7 @@ export async function createEcclesiaAction(formData: FormData): Promise<void> {
     throw new Error('Failed to create ecclesia in database');
   }
 
+  invalidateCacheTag(CACHE_TAGS.ecclesias, CACHE_TAGS.ecclesiasDisplayed, CACHE_TAGS.ecclesiasCount);
   revalidatePath('/');
   revalidatePath('/about');
   revalidatePath('/register');
@@ -154,6 +156,7 @@ export async function updateEcclesiaAction(
     };
   }
 
+  invalidateCacheTag(CACHE_TAGS.ecclesias, CACHE_TAGS.ecclesiasDisplayed, CACHE_TAGS.ecclesiasCount);
   revalidatePath('/');
   revalidatePath('/about');
   revalidatePath('/register');
@@ -185,10 +188,10 @@ export async function deleteEcclesiaAction(formData: FormData): Promise<void> {
     throw new Error('Failed to delete ecclesia');
   }
 
+  invalidateCacheTag(CACHE_TAGS.ecclesias, CACHE_TAGS.ecclesiasDisplayed, CACHE_TAGS.ecclesiasCount);
   revalidatePath('/');
   revalidatePath('/about');
   revalidatePath('/register');
   revalidatePath('/admin');
   revalidatePath('/admin/ecclesias');
-  redirect('/admin/ecclesias');
 }

@@ -7,6 +7,7 @@ import { eventSchema } from '@/lib/validators';
 import { logger } from '@/lib/logger';
 import { saveUploadedImage } from '@/lib/storage';
 import { revalidatePath } from 'next/cache';
+import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 
@@ -118,6 +119,7 @@ export async function createEventAction(
     };
   }
 
+  invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.eventsPublished);
   revalidatePath('/events');
   revalidatePath('/admin/events');
   revalidatePath('/');
@@ -252,6 +254,11 @@ export async function updateEventAction(
     };
   }
 
+  invalidateCacheTag(
+    CACHE_TAGS.events,
+    CACHE_TAGS.eventsPublished,
+    CACHE_TAGS.event(parsed.data.slug)
+  );
   revalidatePath('/events');
   revalidatePath(`/events/${parsed.data.slug}`);
   revalidatePath('/admin/events');
@@ -281,6 +288,7 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
     await db.delete(events).where(eq(events.id, eventId));
 
     logger.info({ eventId, adminId: profile.id }, 'Event and associated attendees deleted by administrator');
+    invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.eventsPublished);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/portal');
@@ -313,6 +321,7 @@ export async function archiveEventAction(formData: FormData): Promise<void> {
       .where(eq(events.id, eventId));
 
     logger.info({ eventId, adminId: profile.id }, 'Event archived by administrator');
+    invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.eventsPublished);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
@@ -344,6 +353,7 @@ export async function unarchiveEventAction(formData: FormData): Promise<void> {
       .where(eq(events.id, eventId));
 
     logger.info({ eventId, adminId: profile.id }, 'Event unarchived by administrator');
+    invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.eventsPublished);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
@@ -465,6 +475,7 @@ export async function registerForEventAction(
       'User registered for event successfully'
     );
 
+    invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.event(event.slug));
     revalidatePath('/events');
     revalidatePath(`/events/${event.slug}`);
     revalidatePath('/portal');

@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getDisplayedEcclesias } from '@/lib/db/queries/ecclesias';
+import { getCachedDisplayedEcclesias } from '@/lib/db/queries/cached';
 import { BookOpen, MapPin, Clock, Heart, Users, ShieldCheck } from 'lucide-react';
 
 export const metadata = {
@@ -14,7 +14,7 @@ export const metadata = {
 };
 
 export default async function AboutPage() {
-  const displayedEcclesias = await getDisplayedEcclesias();
+  const displayedEcclesias = await getCachedDisplayedEcclesias();
   return (
     <div className="flex flex-col w-full">
       <PageHeader

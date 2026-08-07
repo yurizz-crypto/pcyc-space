@@ -5,6 +5,7 @@ import { siteSettings } from '@/lib/db/schema/settings';
 import { youthCountSettingSchema } from '@/lib/validators';
 import { verifyCurrentUserRole } from '@/lib/db/queries/users';
 import { revalidatePath } from 'next/cache';
+import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { logger } from '@/lib/logger';
 
 export async function updateYouthCountAction(formData: FormData): Promise<void> {
@@ -44,6 +45,7 @@ export async function updateYouthCountAction(formData: FormData): Promise<void> 
     throw new Error('Failed to update setting in database.');
   }
 
+  invalidateCacheTag(CACHE_TAGS.settings, CACHE_TAGS.youthCount);
   revalidatePath('/');
   revalidatePath('/admin');
 }

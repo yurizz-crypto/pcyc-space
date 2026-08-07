@@ -6,13 +6,12 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { getEventBySlug, getUserEventRegistration } from '@/lib/db/queries/events';
+import { getUserEventRegistration } from '@/lib/db/queries/events';
+import { getCachedEventBySlug } from '@/lib/db/queries/cached';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { formatPHP, formatDate, formatEventSchedule } from '@/lib/utils';
 import { Calendar, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { EventRegistrationBox } from '@/components/domain/events/event-registration-box';
-
-export const dynamic = 'force-dynamic';
 
 interface EventDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -20,7 +19,7 @@ interface EventDetailPageProps {
 
 export async function generateMetadata({ params }: EventDetailPageProps) {
   const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const event = await getCachedEventBySlug(slug);
 
   if (!event) {
     return { title: 'Event Not Found — PCYC Space' };
@@ -35,7 +34,7 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
   const [event, profile] = await Promise.all([
-    getEventBySlug(slug),
+    getCachedEventBySlug(slug),
     getCurrentUserProfile(),
   ]);
 

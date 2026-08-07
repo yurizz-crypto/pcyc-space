@@ -7,6 +7,7 @@ import { productSchema } from '@/lib/validators';
 import { logger } from '@/lib/logger';
 import { saveUploadedImage } from '@/lib/storage';
 import { revalidatePath } from 'next/cache';
+import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 
@@ -100,6 +101,7 @@ export async function createProductAction(
     };
   }
 
+  invalidateCacheTag(CACHE_TAGS.products, CACHE_TAGS.productsAvailable);
   revalidatePath('/merch');
   revalidatePath('/admin/merch');
   revalidatePath('/');
@@ -225,6 +227,11 @@ export async function updateProductAction(
   }
 
   // 5. Cache Revalidation & Navigation
+  invalidateCacheTag(
+    CACHE_TAGS.products,
+    CACHE_TAGS.productsAvailable,
+    CACHE_TAGS.product(parsed.data.slug)
+  );
   revalidatePath('/merch');
   revalidatePath(`/merch/${parsed.data.slug}`);
   revalidatePath('/admin/merch');
@@ -248,6 +255,7 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   try {
     await db.delete(products).where(eq(products.id, productId));
     logger.info({ productId, adminId: profile.id }, 'Product deleted by administrator');
+    invalidateCacheTag(CACHE_TAGS.products, CACHE_TAGS.productsAvailable);
     revalidatePath('/merch');
     revalidatePath('/admin/merch');
     revalidatePath('/');

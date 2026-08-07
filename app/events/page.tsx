@@ -1,9 +1,7 @@
 import React from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { EventGrid } from '@/components/domain/events/event-grid';
-import { getPublishedEvents } from '@/lib/db/queries/events';
-
-export const dynamic = 'force-dynamic';
+import { getCachedPublishedEvents } from '@/lib/db/queries/cached';
 
 export const metadata = {
   title: 'PCYC Events & Youth Gatherings',
@@ -12,7 +10,7 @@ export const metadata = {
 };
 
 export default async function EventsPage() {
-  const events = await getPublishedEvents();
+  const events = await getCachedPublishedEvents();
 
   return (
     <div className="flex flex-col w-full">

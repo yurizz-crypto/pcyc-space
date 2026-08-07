@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { db } from '@/lib/db';
 import { products, type Product } from '@/lib/db/schema/products';
 import { eq, desc, and, or } from 'drizzle-orm';
@@ -6,8 +7,9 @@ import { logger } from '@/lib/logger';
 /**
  * Fetches all available products for the public merch store.
  * Includes items in active stock (isAvailable: true) or open for Pre-Order (isPreorder: true).
+ * Memoized per server request lifecycle.
  */
-export async function getAvailableProducts(category?: string): Promise<Product[]> {
+export const getAvailableProducts = cache(async function getAvailableProducts(category?: string): Promise<Product[]> {
   try {
     const isStoreVisible = or(eq(products.isAvailable, true), eq(products.isPreorder, true));
 
@@ -24,28 +26,44 @@ export async function getAvailableProducts(category?: string): Promise<Product[]
       .from(products)
       .where(isStoreVisible)
       .orderBy(desc(products.createdAt));
-  } catch (error) {
-    logger.error({ error, category }, 'Failed to fetch available products');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, category }, 'Failed to fetch available products');
     return [];
   }
-}
+});
 
 /**
  * Fetches all products (including archived or unavailable items) for Admin inventory.
+ * Memoized per server request lifecycle.
  */
-export async function getAllProducts(): Promise<Product[]> {
+export const getAllProducts = cache(async function getAllProducts(): Promise<Product[]> {
   try {
     return await db.select().from(products).orderBy(desc(products.createdAt));
-  } catch (error) {
-    logger.error({ error }, 'Failed to fetch all products for admin');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error }, 'Failed to fetch all products for admin');
     return [];
   }
-}
+});
 
 /**
  * Fetches a single product by slug for product detail view.
+ * Memoized per server request lifecycle.
  */
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export const getProductBySlug = cache(async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     const results = await db
       .select()
@@ -54,16 +72,24 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       .limit(1);
 
     return results[0] || null;
-  } catch (error) {
-    logger.error({ error, slug }, 'Failed to fetch product by slug');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, slug }, 'Failed to fetch product by slug');
     return null;
   }
-}
+});
 
 /**
  * Fetches a single product by ID for admin editor.
+ * Memoized per server request lifecycle.
  */
-export async function getProductById(id: string): Promise<Product | null> {
+export const getProductById = cache(async function getProductById(id: string): Promise<Product | null> {
   try {
     const results = await db
       .select()
@@ -72,8 +98,15 @@ export async function getProductById(id: string): Promise<Product | null> {
       .limit(1);
 
     return results[0] || null;
-  } catch (error) {
-    logger.error({ error, id }, 'Failed to fetch product by id');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, id }, 'Failed to fetch product by id');
     return null;
   }
-}
+});

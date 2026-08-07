@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EventGrid } from '@/components/domain/events/event-grid';
 import { ProductGrid } from '@/components/domain/merch/product-grid';
-import { getPublishedEvents } from '@/lib/db/queries/events';
-import { getAvailableProducts } from '@/lib/db/queries/products';
-import { getEcclesiaCount } from '@/lib/db/queries/ecclesias';
-import { getYouthAndFriendsCount } from '@/lib/db/queries/settings';
-
-export const dynamic = 'force-dynamic';
+import {
+  getCachedPublishedEvents,
+  getCachedAvailableProducts,
+  getCachedEcclesiaCount,
+  getCachedYouthAndFriendsCount,
+} from '@/lib/db/queries/cached';
 
 export const metadata = {
   title: 'PCYC Space — Philippine Christadelphian Youth Circle',
@@ -21,10 +21,10 @@ export const metadata = {
 
 export default async function HomePage() {
   const [allEvents, allProducts, ecclesiaCount, youthCount] = await Promise.all([
-    getPublishedEvents(),
-    getAvailableProducts(),
-    getEcclesiaCount(),
-    getYouthAndFriendsCount(),
+    getCachedPublishedEvents(),
+    getCachedAvailableProducts(),
+    getCachedEcclesiaCount(),
+    getCachedYouthAndFriendsCount(),
   ]);
 
   const featuredEvents = allEvents.slice(0, 3);

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { db } from '@/lib/db';
 import { orders, orderItems, paymentReceipts, type Order, type OrderItem, type PaymentReceipt } from '@/lib/db/schema/orders';
 import { products, type Product } from '@/lib/db/schema/products';
@@ -20,9 +21,9 @@ export type OrderWithReceipt = OrderWithDetails;
 
 /**
  * Fetches all orders belonging to a specific user for the Member Portal.
- * Optimized with batch queries to eliminate N+1 latency in serverless environments.
+ * Optimized with batch queries and memoized per server request lifecycle.
  */
-export async function getUserOrders(userId: string): Promise<OrderWithDetails[]> {
+export const getUserOrders = cache(async function getUserOrders(userId: string): Promise<OrderWithDetails[]> {
   try {
     const userOrders = await db
       .select()
@@ -73,17 +74,25 @@ export async function getUserOrders(userId: string): Promise<OrderWithDetails[]>
         user: null,
       };
     });
-  } catch (error) {
-    logger.error({ error, userId }, 'Failed to fetch user orders');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, userId }, 'Failed to fetch user orders');
     return [];
   }
-}
+});
 
 /**
  * Fetches all orders with payment receipts, items, and user profiles for Admin.
  * Batch queries provide sub-100ms response time even with hundreds of records.
+ * Memoized per server request lifecycle.
  */
-export async function getAllOrdersWithReceipts(): Promise<OrderWithDetails[]> {
+export const getAllOrdersWithReceipts = cache(async function getAllOrdersWithReceipts(): Promise<OrderWithDetails[]> {
   try {
     const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt));
     if (allOrders.length === 0) return [];
@@ -137,8 +146,15 @@ export async function getAllOrdersWithReceipts(): Promise<OrderWithDetails[]> {
         user: ord.userId ? profileMap.get(ord.userId) || null : null,
       };
     });
-  } catch (error) {
-    logger.error({ error }, 'Failed to fetch all orders for admin');
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error }, 'Failed to fetch all orders for admin');
     return [];
   }
-}
+});

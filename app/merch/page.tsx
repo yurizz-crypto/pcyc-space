@@ -1,10 +1,8 @@
 import React from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { ProductGrid } from '@/components/domain/merch/product-grid';
-import { getAvailableProducts } from '@/lib/db/queries/products';
+import { getCachedAvailableProducts } from '@/lib/db/queries/cached';
 import { QrCode, Sparkles } from 'lucide-react';
-
-export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'PCYC Merchandise & Apparel',
@@ -13,7 +11,7 @@ export const metadata = {
 };
 
 export default async function MerchPage() {
-  const products = await getAvailableProducts();
+  const products = await getCachedAvailableProducts();
 
   return (
     <div className="flex flex-col w-full">

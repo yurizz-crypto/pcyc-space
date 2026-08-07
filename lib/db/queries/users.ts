@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { db } from '@/lib/db';
 import { profiles, type Profile } from '@/lib/db/schema/users';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -6,8 +7,9 @@ import { logger } from '@/lib/logger';
 
 /**
  * Fetches the authenticated user's profile from Drizzle by verifying the Supabase SSR session.
+ * Memoized per server request lifecycle using React.cache().
  */
-export async function getCurrentUserProfile(): Promise<Profile | null> {
+export const getCurrentUserProfile = cache(async function getCurrentUserProfile(): Promise<Profile | null> {
   try {
     const supabase = await createServerSupabaseClient();
     const {
@@ -38,12 +40,13 @@ export async function getCurrentUserProfile(): Promise<Profile | null> {
     logger.error({ error: error?.message || error }, 'Failed to fetch current user profile');
     return null;
   }
-}
+});
 
 /**
  * Verifies that the current user is authenticated and possesses one of the allowed roles.
+ * Leverages cached getCurrentUserProfile() within the same request lifecycle.
  */
-export async function verifyCurrentUserRole(
+export const verifyCurrentUserRole = cache(async function verifyCurrentUserRole(
   allowedRoles: ('MEMBER' | 'ADMIN' | 'SUPERADMIN')[]
 ): Promise<{ profile: Profile | null; authorized: boolean }> {
   const profile = await getCurrentUserProfile();
@@ -51,12 +54,13 @@ export async function verifyCurrentUserRole(
     return { profile: null, authorized: false };
   }
   return { profile, authorized: true };
-}
+});
 
 /**
  * Fetches all registered youth members for the Admin directory.
+ * Memoized per server request lifecycle.
  */
-export async function getAllMembers(): Promise<Profile[]> {
+export const getAllMembers = cache(async function getAllMembers(): Promise<Profile[]> {
   try {
     return await db.select().from(profiles).orderBy(desc(profiles.createdAt));
   } catch (error: any) {
@@ -70,4 +74,4 @@ export async function getAllMembers(): Promise<Profile[]> {
     logger.error({ error: error?.message || error }, 'Failed to fetch all members for admin');
     return [];
   }
-}
+});

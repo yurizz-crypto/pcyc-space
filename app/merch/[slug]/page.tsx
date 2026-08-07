@@ -5,12 +5,10 @@ import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PriceTag } from '@/components/molecules/price-tag';
-import { getProductBySlug } from '@/lib/db/queries/products';
+import { getCachedProductBySlug } from '@/lib/db/queries/cached';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { ProductOrderForm } from '@/components/domain/merch/product-order-form';
 import { ArrowLeft, ShoppingBag, QrCode, Truck, ShieldCheck, Edit3, UserCheck, LogIn } from 'lucide-react';
-
-export const dynamic = 'force-dynamic';
 
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -18,7 +16,7 @@ interface ProductDetailPageProps {
 
 export async function generateMetadata({ params }: ProductDetailPageProps) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getCachedProductBySlug(slug);
 
   if (!product) {
     return { title: 'Product Not Found — PCYC Space' };
@@ -32,7 +30,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getCachedProductBySlug(slug);
 
   if (!product) {
     notFound();
