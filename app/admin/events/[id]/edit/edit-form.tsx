@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { updateEventAction, AdminEventActionState } from '@/app/actions/events';
 import { type Event } from '@/lib/db/schema/events';
+import { formatDateForDateInput, formatTimeForTimeInput } from '@/lib/utils';
 import { Calendar, AlertCircle, Save, Wand2 } from 'lucide-react';
 
 const initialState: AdminEventActionState = {
@@ -54,15 +55,6 @@ export function EditEventForm({ event }: EditEventFormProps) {
   const handleRegenerateSlug = () => {
     setSlug(generateSlug(title));
     setIsManuallyEdited(false);
-  };
-
-  const formatDateForInput = (d: Date | string) => {
-    try {
-      const dateObj = typeof d === 'string' ? new Date(d) : d;
-      return dateObj.toISOString().split('T')[0];
-    } catch {
-      return '';
-    }
   };
 
   return (
@@ -176,25 +168,43 @@ export function EditEventForm({ event }: EditEventFormProps) {
             error={state?.fieldErrors?.description?.[0]}
           />
 
-          {/* 5. Dates (Start & End) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Start Date"
-              name="startDate"
-              type="date"
-              defaultValue={formatDateForInput(event.startDate)}
-              required
-              error={state?.fieldErrors?.startDate?.[0]}
-            />
+          {/* 5. Schedule & Times (Start & End) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Start Date"
+                name="startDate"
+                type="date"
+                defaultValue={formatDateForDateInput(event.startDate)}
+                required
+                error={state?.fieldErrors?.startDate?.[0]}
+              />
+              <Input
+                label="Start Time"
+                name="startTime"
+                type="time"
+                defaultValue={formatTimeForTimeInput(event.startDate)}
+                required
+              />
+            </div>
 
-            <Input
-              label="End Date"
-              name="endDate"
-              type="date"
-              defaultValue={formatDateForInput(event.endDate)}
-              required
-              error={state?.fieldErrors?.endDate?.[0]}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="End Date"
+                name="endDate"
+                type="date"
+                defaultValue={formatDateForDateInput(event.endDate)}
+                required
+                error={state?.fieldErrors?.endDate?.[0]}
+              />
+              <Input
+                label="End Time"
+                name="endTime"
+                type="time"
+                defaultValue={formatTimeForTimeInput(event.endDate)}
+                required
+              />
+            </div>
           </div>
 
           {/* 6. Location, Max Attendees & Registration Fee */}

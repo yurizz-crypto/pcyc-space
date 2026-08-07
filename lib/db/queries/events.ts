@@ -126,3 +126,5 @@ export async function getEventAttendees(eventId: string) {
   }
 }
 
+export type AttendeeWithProfile = Awaited<ReturnType<typeof getEventAttendees>>[number];
+

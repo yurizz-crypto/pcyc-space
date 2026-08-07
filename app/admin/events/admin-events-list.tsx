@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { formatDate } from '@/lib/utils';
+import { Pagination } from '@/components/ui/pagination';
+import { formatDate, formatEventSchedule } from '@/lib/utils';
 import { deleteEventAction, archiveEventAction, unarchiveEventAction } from '@/app/actions/events';
 import type { Event } from '@/lib/db/schema/events';
 import {
@@ -27,9 +27,12 @@ interface AdminEventsListProps {
   events: Event[];
 }
 
+const PAGE_SIZE = 8;
+
 export function AdminEventsList({ events }: AdminEventsListProps) {
   const [filterTab, setFilterTab] = useState<'ALL' | 'ACTIVE' | 'ARCHIVED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteEventTarget, setDeleteEventTarget] = useState<Event | null>(null);
 
   // Compute counts
@@ -55,6 +58,22 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
 
     return true;
   });
+
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / PAGE_SIZE));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = (activePage - 1) * PAGE_SIZE;
+  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + PAGE_SIZE);
+
+  const handleTabChange = (tab: 'ALL' | 'ACTIVE' | 'ARCHIVED') => {
+    setFilterTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="space-y-4">
@@ -136,128 +155,140 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#e6dfcb]">
-              {filteredEvents.map((evt) => {
-                const isArchived = evt.status === 'ARCHIVED';
+            <div className="space-y-4">
+              <div className="divide-y divide-[#e6dfcb]">
+                {paginatedEvents.map((evt) => {
+                  const isArchived = evt.status === 'ARCHIVED';
 
-                return (
-                  <div
-                    key={evt.id}
-                    className={`py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors px-3 rounded-xl ${
-                      isArchived ? 'bg-slate-50/70 opacity-80' : 'hover:bg-[#f8f4e3]/50'
-                    }`}
-                  >
-                    <div className="space-y-1.5 min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-serif font-bold text-base text-[#2c3324]">
-                          {evt.title}
-                        </span>
-                        <Badge variant={evt.isPublished ? 'success' : 'cream'} size="sm">
-                          {evt.isPublished ? 'Published' : 'Draft'}
-                        </Badge>
-                        <Badge
-                          variant={
-                            isArchived
-                              ? 'slate'
-                              : evt.status === 'COMPLETED'
-                              ? 'success'
-                              : evt.status === 'CANCELLED'
-                              ? 'destructive'
-                              : 'gold'
-                          }
-                          size="sm"
+                  return (
+                    <div
+                      key={evt.id}
+                      className={`py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors px-3 rounded-xl ${
+                        isArchived ? 'bg-slate-50/70 opacity-80' : 'hover:bg-[#f8f4e3]/50'
+                      }`}
+                    >
+                      <div className="space-y-1.5 min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-serif font-bold text-base text-[#2c3324]">
+                            {evt.title}
+                          </span>
+                          <Badge variant={evt.isPublished ? 'success' : 'cream'} size="sm">
+                            {evt.isPublished ? 'Published' : 'Draft'}
+                          </Badge>
+                          <Badge
+                            variant={
+                              isArchived
+                                ? 'slate'
+                                : evt.status === 'COMPLETED'
+                                ? 'success'
+                                : evt.status === 'CANCELLED'
+                                ? 'destructive'
+                                : 'gold'
+                            }
+                            size="sm"
+                          >
+                            {evt.status}
+                          </Badge>
+                        </div>
+
+                        {evt.theme && (
+                          <p className="text-xs italic text-[#9a6423] font-serif">
+                            &ldquo;{evt.theme}&rdquo;
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
+                            <span>{formatEventSchedule(evt.startDate, evt.endDate)}</span>
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-[#e0a861]" />
+                            <span>{evt.location}</span>
+                          </span>
+                          <span>•</span>
+                          <span className="text-[#9a6423] font-mono">/events/{evt.slug}</span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap items-center gap-1.5 self-end lg:self-center">
+                        <Link
+                          href={`/admin/events/${evt.id}/attendees`}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] bg-[#f8f4e3] hover:bg-[#e0a861]/20 border border-[#e6dfcb] transition-all inline-flex items-center gap-1.5 shadow-2xs"
+                          title="View Registered Attendees"
                         >
-                          {evt.status}
-                        </Badge>
-                      </div>
+                          <Users className="h-3.5 w-3.5 text-[#9a6423]" />
+                          <span>Attendees</span>
+                        </Link>
 
-                      {evt.theme && (
-                        <p className="text-xs italic text-[#9a6423] font-serif">
-                          &ldquo;{evt.theme}&rdquo;
-                        </p>
-                      )}
+                        <Link
+                          href={`/admin/events/${evt.id}/edit`}
+                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          title="Edit Event"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
 
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
-                          <span>{formatDate(evt.startDate)}</span>
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-[#e0a861]" />
-                          <span>{evt.location}</span>
-                        </span>
-                        <span>•</span>
-                        <span className="text-[#9a6423] font-mono">/events/{evt.slug}</span>
+                        <Link
+                          href={`/events/${evt.slug}`}
+                          target="_blank"
+                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          title="Preview Public Page"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
+
+                        {/* Archive / Restore Action */}
+                        {isArchived ? (
+                          <form action={unarchiveEventAction}>
+                            <input type="hidden" name="eventId" value={evt.id} />
+                            <button
+                              type="submit"
+                              className="p-2 rounded-lg text-[#2e7d32] hover:bg-[#e8f5e9] border border-transparent hover:border-[#c8e6c9] transition-all cursor-pointer"
+                              title="Restore / Unarchive Event"
+                            >
+                              <ArchiveRestore className="h-4 w-4" />
+                            </button>
+                          </form>
+                        ) : (
+                          <form action={archiveEventAction}>
+                            <input type="hidden" name="eventId" value={evt.id} />
+                            <button
+                              type="submit"
+                              className="p-2 rounded-lg text-[#505748] hover:bg-[#f8f4e3] border border-transparent hover:border-[#e6dfcb] transition-all cursor-pointer"
+                              title="Archive Event"
+                            >
+                              <Archive className="h-4 w-4" />
+                            </button>
+                          </form>
+                        )}
+
+                        {/* Delete Modal Trigger */}
+                        <button
+                          type="button"
+                          onClick={() => setDeleteEventTarget(evt)}
+                          className="p-2 rounded-lg text-[#c0392b] hover:bg-[#fdf2f2] border border-transparent hover:border-[#f5c6cb] transition-all cursor-pointer"
+                          title="Delete Event & Attendees"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-1.5 self-end lg:self-center">
-                      <Link
-                        href={`/admin/events/${evt.id}/attendees`}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] bg-[#f8f4e3] hover:bg-[#e0a861]/20 border border-[#e6dfcb] transition-all inline-flex items-center gap-1.5 shadow-2xs"
-                        title="View Registered Attendees"
-                      >
-                        <Users className="h-3.5 w-3.5 text-[#9a6423]" />
-                        <span>Attendees</span>
-                      </Link>
-
-                      <Link
-                        href={`/admin/events/${evt.id}/edit`}
-                        className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
-                        title="Edit Event"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-
-                      <Link
-                        href={`/events/${evt.slug}`}
-                        target="_blank"
-                        className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
-                        title="Preview Public Page"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Link>
-
-                      {/* Archive / Restore Action */}
-                      {isArchived ? (
-                        <form action={unarchiveEventAction}>
-                          <input type="hidden" name="eventId" value={evt.id} />
-                          <button
-                            type="submit"
-                            className="p-2 rounded-lg text-[#2e7d32] hover:bg-[#e8f5e9] border border-transparent hover:border-[#c8e6c9] transition-all cursor-pointer"
-                            title="Restore / Unarchive Event"
-                          >
-                            <ArchiveRestore className="h-4 w-4" />
-                          </button>
-                        </form>
-                      ) : (
-                        <form action={archiveEventAction}>
-                          <input type="hidden" name="eventId" value={evt.id} />
-                          <button
-                            type="submit"
-                            className="p-2 rounded-lg text-[#505748] hover:bg-[#f8f4e3] border border-transparent hover:border-[#e6dfcb] transition-all cursor-pointer"
-                            title="Archive Event"
-                          >
-                            <Archive className="h-4 w-4" />
-                          </button>
-                        </form>
-                      )}
-
-                      {/* Delete Modal Trigger */}
-                      <button
-                        type="button"
-                        onClick={() => setDeleteEventTarget(evt)}
-                        className="p-2 rounded-lg text-[#c0392b] hover:bg-[#fdf2f2] border border-transparent hover:border-[#f5c6cb] transition-all cursor-pointer"
-                        title="Delete Event & Attendees"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {/* Universal Pagination */}
+              <Pagination
+                currentPage={activePage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+                totalItems={filteredEvents.length}
+                pageSize={PAGE_SIZE}
+                showCount={true}
+              />
             </div>
           )}
         </CardContent>

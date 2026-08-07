@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { getEventBySlug, getUserEventRegistration } from '@/lib/db/queries/events';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
-import { formatPHP, formatDate } from '@/lib/utils';
+import { formatPHP, formatDate, formatEventSchedule } from '@/lib/utils';
 import { Calendar, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { EventRegistrationBox } from '@/components/domain/events/event-registration-box';
 
@@ -106,8 +106,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   <div className="flex items-start gap-2.5">
                     <Calendar className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
                     <div>
-                      <strong className="block text-[#2c3324]">Dates:</strong>
-                      <span>{formatDate(event.startDate)} &ndash; {formatDate(event.endDate)}</span>
+                      <strong className="block text-[#2c3324]">Schedule & Times:</strong>
+                      <span>{formatEventSchedule(event.startDate, event.endDate)}</span>
                     </div>
                   </div>
 

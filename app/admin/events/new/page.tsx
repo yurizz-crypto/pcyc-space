@@ -146,23 +146,41 @@ export default function NewEventPage() {
               error={state?.fieldErrors?.description?.[0]}
             />
 
-            {/* 5. Dates (Start & End) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Start Date"
-                name="startDate"
-                type="date"
-                required
-                error={state?.fieldErrors?.startDate?.[0]}
-              />
+            {/* 5. Schedule & Times (Start & End) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="Start Date"
+                  name="startDate"
+                  type="date"
+                  required
+                  error={state?.fieldErrors?.startDate?.[0]}
+                />
+                <Input
+                  label="Start Time"
+                  name="startTime"
+                  type="time"
+                  defaultValue="08:00"
+                  required
+                />
+              </div>
 
-              <Input
-                label="End Date"
-                name="endDate"
-                type="date"
-                required
-                error={state?.fieldErrors?.endDate?.[0]}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Input
+                  label="End Date"
+                  name="endDate"
+                  type="date"
+                  required
+                  error={state?.fieldErrors?.endDate?.[0]}
+                />
+                <Input
+                  label="End Time"
+                  name="endTime"
+                  type="time"
+                  defaultValue="17:00"
+                  required
+                />
+              </div>
             </div>
 
             {/* 6. Location, Max Attendees & Registration Fee */}

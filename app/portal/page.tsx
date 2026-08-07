@@ -10,7 +10,7 @@ import { ReceiptCard } from '@/components/domain/orders/receipt-card';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { getUserEventRegistrations } from '@/lib/db/queries/events';
 import { getUserOrders } from '@/lib/db/queries/orders';
-import { formatDate, formatPHP } from '@/lib/utils';
+import { formatDate, formatPHP, formatEventSchedule } from '@/lib/utils';
 import { Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, QrCode, Building2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -134,7 +134,7 @@ export default async function PortalPage() {
                               <div className="flex items-center gap-2 text-xs text-[#707666]">
                                 <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
                                 <span>
-                                  {formatDate(event.startDate)} &ndash; {formatDate(event.endDate)}
+                                  {formatEventSchedule(event.startDate, event.endDate)}
                                 </span>
                               </div>
                             </div>

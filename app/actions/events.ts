@@ -50,6 +50,21 @@ export async function createEventAction(
     bannerUrl = uploadResult.url!;
   }
 
+  const startDateStr = (formData.get('startDate') as string) || '';
+  const startTimeStr = (formData.get('startTime') as string) || '08:00';
+  const endDateStr = (formData.get('endDate') as string) || '';
+  const endTimeStr = (formData.get('endTime') as string) || '17:00';
+
+  let combinedStart = startDateStr;
+  if (startDateStr && !startDateStr.includes('T')) {
+    combinedStart = `${startDateStr}T${startTimeStr}`;
+  }
+
+  let combinedEnd = endDateStr;
+  if (endDateStr && !endDateStr.includes('T')) {
+    combinedEnd = `${endDateStr}T${endTimeStr}`;
+  }
+
   const rawData = {
     title: formData.get('title'),
     slug: formData.get('slug'),
@@ -57,8 +72,8 @@ export async function createEventAction(
     description: formData.get('description'),
     bannerUrl: bannerUrl,
     registrationFee: formData.get('registrationFee') ? Number(formData.get('registrationFee')) : 0,
-    startDate: formData.get('startDate'),
-    endDate: formData.get('endDate'),
+    startDate: combinedStart,
+    endDate: combinedEnd,
     location: formData.get('location'),
     maxAttendees: formData.get('maxAttendees') ? Number(formData.get('maxAttendees')) : undefined,
     registrationDeadline: formData.get('registrationDeadline') || undefined,
@@ -155,14 +170,29 @@ export async function updateEventAction(
   }
 
   // 3. Extract and Sanitize Form Inputs
+  const startDateStr = (formData.get('startDate') as string) || '';
+  const startTimeStr = (formData.get('startTime') as string) || '08:00';
+  const endDateStr = (formData.get('endDate') as string) || '';
+  const endTimeStr = (formData.get('endTime') as string) || '17:00';
+
+  let combinedStart = startDateStr;
+  if (startDateStr && !startDateStr.includes('T')) {
+    combinedStart = `${startDateStr}T${startTimeStr}`;
+  }
+
+  let combinedEnd = endDateStr;
+  if (endDateStr && !endDateStr.includes('T')) {
+    combinedEnd = `${endDateStr}T${endTimeStr}`;
+  }
+
   const rawData = {
     title: formData.get('title'),
     slug: formData.get('slug'),
     theme: formData.get('theme') || undefined,
     description: formData.get('description'),
     bannerUrl: bannerUrl,
-    startDate: formData.get('startDate'),
-    endDate: formData.get('endDate'),
+    startDate: combinedStart,
+    endDate: combinedEnd,
     location: formData.get('location'),
     registrationFee: formData.get('registrationFee') ? Number(formData.get('registrationFee')) : 0,
     maxAttendees: formData.get('maxAttendees') ? Number(formData.get('maxAttendees')) : undefined,
