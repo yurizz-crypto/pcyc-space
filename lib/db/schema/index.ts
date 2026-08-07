@@ -8,6 +8,8 @@ export * from './users';
 export * from './events';
 export * from './products';
 export * from './orders';
+export * from './ecclesias';
+export * from './settings';
 
 // ==========================================
 // DRIZZLE RELATIONS DEFINITIONS

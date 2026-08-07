@@ -9,11 +9,15 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
+export const resetPasswordSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
 export const registerSchema = z
   .object({
     email: z.string().email('Please enter a valid email address'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Please confirm your password'),
+    confirmPassword: z.string().min(6).optional(),
     firstName: z.string().min(1, 'First name is required'),
     middleName: z.string().optional(),
     lastName: z.string().min(1, 'Last name is required'),
@@ -24,10 +28,18 @@ export const registerSchema = z
     baptismDate: z.string().optional(),
     phoneNumber: z.string().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+  .refine(
+    (data) => {
+      if (data.confirmPassword && data.password !== data.confirmPassword) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    }
+  )
   .refine(
     (data) => {
       if ((data.designation === 'BROTHER' || data.designation === 'SISTER') && !data.baptismDate) {
@@ -73,13 +85,14 @@ export const eventSchema = z.object({
   slug: z.string().min(3, 'Slug is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   theme: z.string().optional(),
-  bannerUrl: z.string().url('Invalid banner URL').optional().or(z.literal('')),
-  startDate: z.string().datetime({ message: 'Invalid start date format' }),
-  endDate: z.string().datetime({ message: 'Invalid end date format' }),
+  bannerUrl: z.string().optional(),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
   location: z.string().min(3, 'Location is required'),
   isPublished: z.boolean().default(false),
   maxAttendees: z.number().int().positive().optional(),
-  registrationDeadline: z.string().datetime().optional(),
+  registrationDeadline: z.string().optional(),
+  status: z.enum(['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']).default('UPCOMING'),
 });
 
 // ==========================================
@@ -93,7 +106,7 @@ export const productSchema = z.object({
   price: z.number().positive('Price must be greater than 0'),
   category: z.string().default('Apparel'),
   stockQuantity: z.number().int().nonnegative('Stock cannot be negative'),
-  imageUrls: z.array(z.string().url()).min(1, 'At least one product image is required'),
+  imageUrls: z.array(z.string()).default(['/images/logo/pcyc-transparent-logo.png']),
   availableSizes: z.array(z.string()).default(['XS', 'S', 'M', 'L', 'XL', '2XL']),
   isAvailable: z.boolean().default(true),
   isPreorder: z.boolean().default(false),
@@ -135,3 +148,28 @@ export const receiptVerificationSchema = z.object({
   status: z.enum(['APPROVED', 'REJECTED']),
   verificationNotes: z.string().optional(),
 });
+
+// ==========================================
+// ECCLESIA & SITE SETTINGS VALIDATORS
+// ==========================================
+
+export const ecclesiaSchema = z.object({
+  name: z.string().min(3, 'Ecclesia name must be at least 3 characters'),
+  region: z.enum(['Luzon', 'Visayas', 'Mindanao'], {
+    message: 'Please select a valid region (Luzon, Visayas, or Mindanao)',
+  }),
+  city: z.string().min(2, 'City/Municipality is required'),
+  address: z.string().min(5, 'Address details are required'),
+  contactPerson: z.string().optional(),
+  meetingSchedule: z.string().min(5, 'Meeting schedule is required'),
+  isDisplayed: z.boolean().default(true),
+  orderIndex: z.number().int().default(0),
+});
+
+export const youthCountSettingSchema = z.object({
+  count: z
+    .number({ message: 'Must be a valid number' })
+    .int('Must be an integer')
+    .min(1, 'Youth & Friends count cannot be less than 1'),
+});
+
