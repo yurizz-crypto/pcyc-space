@@ -3,6 +3,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
 import { profiles } from '@/lib/db/schema/users';
+import { eq } from 'drizzle-orm';
 import { registerSchema, loginSchema, resetPasswordSchema } from '@/lib/validators';
 import { logger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
@@ -49,7 +50,21 @@ export async function loginAction(
 
   logger.info({ userId: data.user.id }, 'User logged in successfully');
   revalidatePath('/', 'layout');
-  redirect('/portal');
+
+  // Check if user is an ADMIN or SUPERADMIN to redirect directly to Admin Dashboard
+  let targetPath = (formData.get('redirectTo') as string) || '';
+  if (!targetPath) {
+    const userProfiles = await db
+      .select({ role: profiles.role })
+      .from(profiles)
+      .where(eq(profiles.id, data.user.id))
+      .limit(1);
+
+    const role = userProfiles[0]?.role;
+    targetPath = role === 'ADMIN' || role === 'SUPERADMIN' ? '/admin' : '/portal';
+  }
+
+  redirect(targetPath);
 }
 
 export async function registerAction(
