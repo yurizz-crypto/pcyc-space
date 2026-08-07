@@ -47,8 +47,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Philippine Christadelphian Youth Circle' }],
   icons: {
-    icon: '/images/logo/pcyc-logo.jpg',
-    apple: '/images/logo/pcyc-logo.jpg',
+    icon: [
+      { url: '/images/logo/pcyc-logo.jpg' },
+      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
+    ],
+    shortcut: '/images/logo/pcyc-logo.jpg',
+    apple: [
+      { url: '/images/logo/pcyc-logo.jpg' },
+      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
+    ],
   },
   openGraph: {
     title: 'PCYC Space — Philippine Christadelphian Youth Circle',

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { loginAction, ActionState } from '@/app/actions/auth';
 import { LogIn, AlertCircle } from 'lucide-react';
@@ -48,10 +49,9 @@ function LoginForm() {
           />
 
           <div className="space-y-1">
-            <Input
+            <PasswordInput
               label="Password"
               name="password"
-              type="password"
               placeholder="••••••••"
               required
               autoComplete="current-password"

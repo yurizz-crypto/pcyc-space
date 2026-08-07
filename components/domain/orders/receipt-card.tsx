@@ -2,69 +2,130 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { formatPHP, formatDate } from '@/lib/utils';
-import { QrCode, Eye } from 'lucide-react';
+import { ReceiptUploadModal } from '@/components/domain/orders/receipt-upload-modal';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { QrCode, Eye, UploadCloud, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 
 export interface ReceiptCardProps {
+  orderId: string;
   orderNumber: string;
   amount: string | number;
   status: string;
   paymentMethod?: string;
   referenceNumber?: string;
   receiptUrl?: string;
+  verificationNotes?: string;
   createdAt: string | Date;
+  itemsSummary?: string;
 }
 
 export function ReceiptCard({
+  orderId,
   orderNumber,
   amount,
   status,
   paymentMethod = 'GCASH',
   referenceNumber,
   receiptUrl,
+  verificationNotes,
   createdAt,
+  itemsSummary,
 }: ReceiptCardProps) {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  const getStatusBadge = () => {
+    switch (status) {
+      case 'PAID':
+      case 'COMPLETED':
+        return <Badge variant="success" size="sm">PAID & VERIFIED</Badge>;
+      case 'VERIFICATION_QUEUED':
+        return <Badge variant="warning" size="sm">VERIFYING PAYMENT</Badge>;
+      case 'CANCELLED':
+        return <Badge variant="error" size="sm">CANCELLED</Badge>;
+      case 'PENDING_PAYMENT':
+      default:
+        return <Badge variant="gold" size="sm">AWAITING PAYMENT</Badge>;
+    }
+  };
 
   return (
-    <div className="p-4 rounded-2xl bg-white border border-[#e6dfcb] space-y-3">
+    <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e6dfcb] space-y-3.5 shadow-2xs hover:shadow-sm transition-shadow">
       <div className="flex items-center justify-between">
         <span className="font-mono font-bold text-sm text-[#2c3324]">
           {orderNumber}
         </span>
-        <Badge variant={status === 'PROCESSING' || status === 'COMPLETED' ? 'success' : 'warning'} size="sm">
-          {status}
-        </Badge>
+        {getStatusBadge()}
       </div>
 
+      {itemsSummary && (
+        <p className="text-xs text-[#2c3324] font-medium line-clamp-1">
+          {itemsSummary}
+        </p>
+      )}
+
       <div className="flex items-center justify-between text-xs text-[#707666]">
-        <span>Amount: {formatPHP(Number(amount))}</span>
+        <span>Total: <strong className="text-[#2c3324]">{formatCurrency(Number(amount))}</strong></span>
         <span>Placed: {formatDate(createdAt)}</span>
       </div>
 
+      {/* Verification Notes / Feedback from Admin */}
+      {verificationNotes && (
+        <div className="p-2.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[11px] text-[#c0392b] flex items-start gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span>Note: {verificationNotes}</span>
+        </div>
+      )}
+
+      {/* Proof of Payment Details */}
       {receiptUrl ? (
         <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb]">
           <div className="flex items-center gap-2 text-xs">
             <QrCode className="h-4 w-4 text-[#e0a861]" />
-            <span>{paymentMethod}</span>
-            {referenceNumber && <span className="font-mono text-[#707666]">({referenceNumber})</span>}
+            <span className="font-semibold text-[#2c3324]">{paymentMethod}</span>
+            {referenceNumber && <span className="font-mono text-xs text-[#707666]">({referenceNumber})</span>}
           </div>
-          <button
-            type="button"
-            onClick={() => setIsZoomOpen(true)}
-            className="text-xs text-[#9a6423] font-semibold hover:underline flex items-center gap-1"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            <span>View Receipt</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(true)}
+              className="text-xs text-[#9a6423] font-semibold hover:underline flex items-center gap-1"
+            >
+              <Eye className="h-3.5 w-3.5" />
+              <span>View</span>
+            </button>
+            {status !== 'PAID' && (
+              <button
+                type="button"
+                onClick={() => setIsUploadOpen(true)}
+                className="text-xs text-[#2c3324] font-semibold hover:underline flex items-center gap-1 ml-2"
+              >
+                <UploadCloud className="h-3.5 w-3.5" />
+                <span>Re-Upload</span>
+              </button>
+            )}
+          </div>
         </div>
       ) : (
-        <p className="text-[11px] text-[#8a9180]">
-          Receipt pending submission.
-        </p>
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3]/60 border border-[#e6dfcb] border-dashed">
+          <div className="flex items-center gap-2 text-xs text-[#8a9180]">
+            <Clock className="h-3.5 w-3.5 text-[#e0a861]" />
+            <span>No proof of payment attached yet</span>
+          </div>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={() => setIsUploadOpen(true)}
+            className="gap-1 text-xs h-8"
+          >
+            <UploadCloud className="h-3.5 w-3.5" />
+            <span>Upload Receipt</span>
+          </Button>
+        </div>
       )}
 
       {/* Modal Zoom Preview */}
@@ -90,6 +151,15 @@ export function ReceiptCard({
           </div>
         </Modal>
       )}
+
+      {/* Receipt Upload Modal */}
+      <ReceiptUploadModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        orderId={orderId}
+        orderNumber={orderNumber}
+        amount={amount}
+      />
     </div>
   );
 }

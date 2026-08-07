@@ -4,6 +4,7 @@ import React, { useState, useActionState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Select } from '@/components/ui/select';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { registerAction, ActionState } from '@/app/actions/auth';
@@ -162,18 +163,16 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
+            <PasswordInput
               label="Password"
               name="password"
-              type="password"
               placeholder="••••••••"
               required
               error={state?.fieldErrors?.password?.[0]}
             />
-            <Input
+            <PasswordInput
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
               placeholder="••••••••"
               required
               error={state?.fieldErrors?.confirmPassword?.[0]}

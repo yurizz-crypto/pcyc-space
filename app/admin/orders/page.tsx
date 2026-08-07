@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { PriceTag } from '@/components/molecules/price-tag';
 import { getAllOrdersWithReceipts } from '@/lib/db/queries/orders';
 import { verifyReceiptAction } from '@/app/actions/orders';
 import { formatDate } from '@/lib/utils';
-import { Receipt, CheckCircle, XCircle, QrCode } from 'lucide-react';
+import { Receipt, CheckCircle, XCircle, QrCode, Printer } from 'lucide-react';
 
 export default async function AdminOrdersPage() {
   const ordersList = await getAllOrdersWithReceipts();
@@ -14,13 +15,22 @@ export default async function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
-          Orders & Payment Receipts Queue
-        </h1>
-        <p className="text-xs sm:text-sm text-[#707666]">
-          Verify GCash / Maya screenshot references submitted by brethren for event registrations and merch orders.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+            Orders & Payment Receipts Queue
+          </h1>
+          <p className="text-xs sm:text-sm text-[#707666]">
+            Verify GCash / Maya screenshot references submitted by brethren for event registrations and merch orders.
+          </p>
+        </div>
+
+        <Link href="/admin/orders/print">
+          <Button variant="outline" size="md" className="gap-2 shrink-0">
+            <Printer className="h-4 w-4 text-[#e0a861]" />
+            <span>Print Event Pre-Orders Manifest</span>
+          </Button>
+        </Link>
       </div>
 
       {/* Orders List */}

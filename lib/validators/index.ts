@@ -116,6 +116,56 @@ export const productSchema = z.object({
 // ORDER & PAYMENT VALIDATORS
 // ==========================================
 
+export const orderSchema = z
+  .object({
+    productId: z.string().uuid('Invalid product ID'),
+    quantity: z.number().int().min(1, 'Quantity must be at least 1').max(50, 'Maximum 50 units per order'),
+    selectedSize: z.string().optional(),
+    fulfillmentType: z.enum(['EVENT_PICKUP', 'DELIVERY']).default('EVENT_PICKUP'),
+    recipientName: z.string().min(2, 'Recipient name is required'),
+    contactNumber: z
+      .string()
+      .min(7, 'Valid contact number is required')
+      .regex(/^[0-9+\s()-]+$/, 'Invalid phone number format'),
+    targetEventTitle: z.string().optional(),
+    deliveryAddress: z.string().optional(),
+    city: z.string().optional(),
+    province: z.string().optional(),
+    zipCode: z.string().optional(),
+    notes: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.fulfillmentType === 'DELIVERY') {
+        return !!(
+          data.deliveryAddress &&
+          data.deliveryAddress.trim().length >= 5 &&
+          data.city &&
+          data.city.trim().length >= 2
+        );
+      }
+      return true;
+    },
+    {
+      message: 'Complete delivery address and city are required for courier delivery',
+      path: ['deliveryAddress'],
+    }
+  );
+
+export const receiptUploadSchema = z.object({
+  orderId: z.string().uuid('Invalid order ID'),
+  paymentMethod: z.enum(['GCASH', 'PALAWAN_PAY', 'BANK_TRANSFER', 'MAYA', 'OTHER']).default('GCASH'),
+  referenceNumber: z.string().min(3, 'GCash reference number is required'),
+  amountPaid: z.number().positive('Amount paid must be greater than 0'),
+  notes: z.string().optional(),
+});
+
+export function isSizeAvailable(selectedSize?: string, availableSizes?: string[]): boolean {
+  if (!selectedSize || !availableSizes || availableSizes.length === 0) return true;
+  if (availableSizes.includes('One Size') || availableSizes.includes('N/A')) return true;
+  return availableSizes.includes(selectedSize);
+}
+
 export const checkoutSchema = z.object({
   recipientName: z.string().min(2, 'Recipient name is required'),
   contactNumber: z.string().min(7, 'Valid contact number is required'),

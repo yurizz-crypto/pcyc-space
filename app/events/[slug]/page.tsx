@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/layout/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +64,20 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Main Content */}
             <div className="lg:col-span-8 space-y-10">
+              {/* Event Hero Banner Image */}
+              {event.bannerUrl && (
+                <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden bg-[#2c3324]/5 border border-[#e6dfcb] shadow-md">
+                  <Image
+                    src={event.bannerUrl}
+                    alt={event.title}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                  />
+                </div>
+              )}
+
               {/* Event Overview */}
               <div className="space-y-4">
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">

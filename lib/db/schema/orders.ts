@@ -86,3 +86,6 @@ export type OrderItem = typeof orderItems.$inferSelect;
 export type NewOrderItem = typeof orderItems.$inferInsert;
 export type PaymentReceipt = typeof paymentReceipts.$inferSelect;
 export type NewPaymentReceipt = typeof paymentReceipts.$inferInsert;
+export type PaymentMethod = (typeof paymentMethodEnum.enumValues)[number];
+export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
+export type PaymentVerificationStatus = (typeof paymentVerificationStatusEnum.enumValues)[number];

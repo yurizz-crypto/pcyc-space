@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { SizeSelector } from '@/components/domain/merch/size-selector';
 import { createProductAction, AdminProductActionState } from '@/app/actions/products';
 import { ShoppingBag, ArrowLeft, AlertCircle, Sparkles, Wand2 } from 'lucide-react';
 
@@ -163,7 +164,10 @@ export default function NewMerchProductPage() {
               error={state?.fieldErrors?.description?.[0]}
             />
 
-            {/* 5. Stock Quantity */}
+            {/* 5. Available Sizes */}
+            <SizeSelector initialSizes={['XS', 'S', 'M', 'L', 'XL', '2XL']} />
+
+            {/* 6. Stock Quantity */}
             <Input
               label="Initial Stock Quantity"
               name="stockQuantity"

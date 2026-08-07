@@ -21,6 +21,8 @@ export function formatPHP(amount: number | string): string {
   }).format(num || 0);
 }
 
+export const formatCurrency = formatPHP;
+
 /**
  * Formats a Date object or ISO string into a human-readable Philippine date format.
  */

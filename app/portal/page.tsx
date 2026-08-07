@@ -136,18 +136,30 @@ export default async function PortalPage() {
                   />
                 ) : (
                   <div className="space-y-3">
-                    {orders.map((ord) => (
-                      <ReceiptCard
-                        key={ord.id}
-                        orderNumber={ord.orderNumber}
-                        amount={ord.totalAmount}
-                        status={ord.status}
-                        paymentMethod={ord.receipt?.paymentMethod || 'GCASH'}
-                        referenceNumber={ord.receipt?.referenceNumber || undefined}
-                        receiptUrl={ord.receipt?.receiptImageUrl || undefined}
-                        createdAt={ord.createdAt}
-                      />
-                    ))}
+                    {orders.map((ord) => {
+                      const summary = ord.items
+                        .map(
+                          (item) =>
+                            `${item.product?.name || 'Item'} (${item.quantity}x${item.selectedSize ? ` - ${item.selectedSize}` : ''})`
+                        )
+                        .join(', ');
+
+                      return (
+                        <ReceiptCard
+                          key={ord.id}
+                          orderId={ord.id}
+                          orderNumber={ord.orderNumber}
+                          amount={ord.totalAmount}
+                          status={ord.status}
+                          paymentMethod={ord.receipt?.paymentMethod || 'GCASH'}
+                          referenceNumber={ord.receipt?.referenceNumber || undefined}
+                          receiptUrl={ord.receipt?.receiptImageUrl || undefined}
+                          verificationNotes={ord.receipt?.verificationNotes || undefined}
+                          createdAt={ord.createdAt}
+                          itemsSummary={summary}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
