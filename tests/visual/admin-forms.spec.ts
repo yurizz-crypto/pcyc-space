@@ -2,10 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Admin Forms Auto-Fill and Device Image Upload Specs', () => {
   test.beforeEach(async ({ page }) => {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@pcyc.ph';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'TestPassword123!';
+
     // Authenticate as Admin
     await page.goto('/login');
-    await page.locator('input[name="email"]').fill('admin@pcyc.ph');
-    await page.locator('input[name="password"]').fill('PcycAdmin2026!');
+    await page.locator('input[name="email"]').fill(adminEmail);
+    await page.locator('input[name="password"]').fill(adminPassword);
     await page.locator('button[type="submit"]').click();
     await page.waitForURL(/\/portal|\/admin/);
   });

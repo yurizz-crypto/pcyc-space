@@ -123,9 +123,14 @@ async function seed() {
     console.log('✅ PostgreSQL tables verified.');
 
     // 1. Provision Admin Account
-    const adminEmail = 'admin@pcyc.ph';
-    const adminPassword = 'PcycAdmin2026!';
-    console.log(`🔐 Provisioning Admin Account: ${adminEmail}...`);
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.INITIAL_ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      console.log('ℹ️ Skipping auto admin user creation (ADMIN_EMAIL or ADMIN_PASSWORD not provided in environment).');
+      console.log('Use `npm run create:admin` to provision an admin account securely.');
+    } else {
+      console.log(`🔐 Provisioning Admin Account: ${adminEmail}...`);
 
     let adminUserId: string | null = null;
 
@@ -186,7 +191,8 @@ async function seed() {
         "role" = 'SUPERADMIN',
         "updated_at" = now();
     `;
-    console.log('✅ Admin profile secured with SUPERADMIN privileges.');
+      console.log('✅ Admin profile secured with SUPERADMIN privileges.');
+    }
 
     // 2. Initialize Site Settings (Default Youth & Friends count)
     console.log('⚙️ Ensuring Site Settings...');
@@ -197,13 +203,7 @@ async function seed() {
     `;
     console.log('✅ Site Settings ensured.');
 
-    console.log('\n✨ ZERO AUTO-POPULATION: Database ready for live Admin data entry!');
-    console.log(`\n========================================`);
-    console.log(`🔑 ADMIN LOGIN CREDENTIALS:`);
-    console.log(`Email:    ${adminEmail}`);
-    console.log(`Password: ${adminPassword}`);
-    console.log(`Role:     SUPERADMIN`);
-    console.log(`========================================\n`);
+    console.log('\n✨ Database initialization ready!');
 
     await client.end();
     process.exit(0);

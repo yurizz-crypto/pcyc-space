@@ -33,19 +33,24 @@ async function check() {
     console.log(` - ID: ${p.id}, Email: ${p.email}, Role: ${p.role}, Name: ${p.firstName} ${p.lastName}`);
   });
 
-  // Test sign in with password using anon client
-  const supabaseClient = createClient(supabaseUrl, anonKey);
-  const { data: signInData, error: signInErr } = await supabaseClient.auth.signInWithPassword({
-    email: 'admin@pcyc.ph',
-    password: 'PcycAdmin2026!',
-  });
+  // Test sign in with password using anon client if environment credentials provided
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (signInErr) {
-    console.error('\n❌ Sign in test failed:', signInErr.message);
-  } else {
-    console.log('\n✅ Sign in test succeeded for admin@pcyc.ph! User ID:', signInData.user.id);
-    console.log('User metadata:', signInData.user.user_metadata);
-    console.log('App metadata:', signInData.user.app_metadata);
+  if (adminEmail && adminPassword) {
+    const supabaseClient = createClient(supabaseUrl, anonKey);
+    const { data: signInData, error: signInErr } = await supabaseClient.auth.signInWithPassword({
+      email: adminEmail,
+      password: adminPassword,
+    });
+
+    if (signInErr) {
+      console.error('\n❌ Sign in test failed:', signInErr.message);
+    } else {
+      console.log(`\n✅ Sign in test succeeded for ${adminEmail}! User ID:`, signInData.user.id);
+      console.log('User metadata:', signInData.user.user_metadata);
+      console.log('App metadata:', signInData.user.app_metadata);
+    }
   }
 }
 
