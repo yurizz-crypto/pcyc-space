@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { RegisterForm } from '@/components/domain/auth/register-form';
 import { getDisplayedEcclesias } from '@/lib/db/queries/ecclesias';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Register Member Account',
   description: 'Join the Philippine Christadelphian Youth Circle community platform.',

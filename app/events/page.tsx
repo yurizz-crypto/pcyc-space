@@ -3,6 +3,8 @@ import { PageHeader } from '@/components/layout/page-header';
 import { EventGrid } from '@/components/domain/events/event-grid';
 import { getPublishedEvents } from '@/lib/db/queries/events';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'PCYC Events & Youth Gatherings',
   description:

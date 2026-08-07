@@ -11,6 +11,8 @@ import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { getUserOrders } from '@/lib/db/queries/orders';
 import { Calendar, ShoppingBag, MapPin, Shield } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Member Space — PCYC Space',
   description: 'Your PCYC member space for event registrations, orders, and ecclesia fellowship.',

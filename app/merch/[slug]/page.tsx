@@ -8,6 +8,8 @@ import { PriceTag } from '@/components/molecules/price-tag';
 import { getProductBySlug } from '@/lib/db/queries/products';
 import { ArrowLeft, ShoppingBag, QrCode, Truck } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface ProductDetailPageProps {
   params: Promise<{ slug: string }>;
 }

@@ -9,6 +9,8 @@ import { getEventBySlug } from '@/lib/db/queries/events';
 import { formatPHP, formatDate } from '@/lib/utils';
 import { Calendar, MapPin, Users, CheckCircle2, ArrowLeft } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface EventDetailPageProps {
   params: Promise<{ slug: string }>;
 }

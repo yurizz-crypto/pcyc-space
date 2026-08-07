@@ -11,6 +11,8 @@ import { getAvailableProducts } from '@/lib/db/queries/products';
 import { getEcclesiaCount } from '@/lib/db/queries/ecclesias';
 import { getYouthAndFriendsCount } from '@/lib/db/queries/settings';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'PCYC Space — Philippine Christadelphian Youth Circle',
   description:

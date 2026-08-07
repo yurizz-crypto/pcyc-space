@@ -4,6 +4,8 @@ import { ProductGrid } from '@/components/domain/merch/product-grid';
 import { getAvailableProducts } from '@/lib/db/queries/products';
 import { QrCode, Sparkles } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'PCYC Merchandise & Apparel',
   description:

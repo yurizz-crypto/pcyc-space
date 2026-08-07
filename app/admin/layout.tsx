@@ -14,6 +14,8 @@ import {
   Church,
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'PCYC Admin CMS & Operations',
   description: 'Administrative command center for Philippine Christadelphian Youth Circle.',
