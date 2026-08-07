@@ -37,7 +37,7 @@ export default async function MerchPage() {
                 </h4>
                 <p className="text-xs sm:text-sm text-[#707666] max-w-2xl">
                   To keep our merchandise prices low and completely fee-free, orders are paid directly via{' '}
-                  <strong className="text-[#2c3324]">GCash, Maya, or PalawanPay</strong>. Simply upload
+                  <strong className="text-[#2c3324]">GCash (0912-734-1648, Yuri S.)</strong>. Simply upload
                   your receipt screenshot upon ordering.
                 </p>
               </div>

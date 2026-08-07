@@ -197,8 +197,8 @@ export function EditEventForm({ event }: EditEventFormProps) {
             />
           </div>
 
-          {/* 6. Location & Max Attendees */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 6. Location, Max Attendees & Registration Fee */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Location / Ecclesia Hall"
               name="location"
@@ -206,6 +206,18 @@ export function EditEventForm({ event }: EditEventFormProps) {
               placeholder="e.g. Cubao Ecclesial Hall, Quezon City"
               required
               error={state?.fieldErrors?.location?.[0]}
+            />
+
+            <Input
+              label="Registration Fee (₱ PHP)"
+              name="registrationFee"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={event.registrationFee ? String(Number(event.registrationFee)) : '0'}
+              placeholder="0.00 (0 for Free)"
+              helperText="Set to 0 for Free Fellowship"
+              error={state?.fieldErrors?.registrationFee?.[0]}
             />
 
             <Input

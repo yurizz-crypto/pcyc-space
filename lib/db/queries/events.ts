@@ -66,3 +66,63 @@ export async function getEventById(id: string): Promise<Event | null> {
     return null;
   }
 }
+
+/**
+ * Fetches a user's registration for a specific event (if any).
+ */
+export async function getUserEventRegistration(userId: string, eventId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(eventRegistrations)
+      .where(and(eq(eventRegistrations.userId, userId), eq(eventRegistrations.eventId, eventId)))
+      .limit(1);
+
+    return results[0] || null;
+  } catch (error) {
+    logger.error({ error, userId, eventId }, 'Failed to fetch user event registration');
+    return null;
+  }
+}
+
+/**
+ * Fetches all event registrations for a user with joined event details (for Member Portal).
+ */
+export async function getUserEventRegistrations(userId: string) {
+  try {
+    return await db
+      .select({
+        registration: eventRegistrations,
+        event: events,
+      })
+      .from(eventRegistrations)
+      .innerJoin(events, eq(eventRegistrations.eventId, events.id))
+      .where(eq(eventRegistrations.userId, userId))
+      .orderBy(desc(eventRegistrations.registeredAt));
+  } catch (error) {
+    logger.error({ error, userId }, 'Failed to fetch user event registrations');
+    return [];
+  }
+}
+
+/**
+ * Fetches all attendees for an event with user profile details (for Admin).
+ */
+export async function getEventAttendees(eventId: string) {
+  try {
+    const { profiles } = await import('@/lib/db/schema/users');
+    return await db
+      .select({
+        registration: eventRegistrations,
+        profile: profiles,
+      })
+      .from(eventRegistrations)
+      .innerJoin(profiles, eq(eventRegistrations.userId, profiles.id))
+      .where(eq(eventRegistrations.eventId, eventId))
+      .orderBy(desc(eventRegistrations.registeredAt));
+  } catch (error) {
+    logger.error({ error, eventId }, 'Failed to fetch event attendees');
+    return [];
+  }
+}
+

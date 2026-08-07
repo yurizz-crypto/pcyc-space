@@ -89,11 +89,32 @@ export const eventSchema = z.object({
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
   location: z.string().min(3, 'Location is required'),
+  registrationFee: z.number().min(0, 'Registration fee cannot be negative').default(0),
   isPublished: z.boolean().default(false),
   maxAttendees: z.number().int().positive().optional(),
   registrationDeadline: z.string().optional(),
   status: z.enum(['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']).default('UPCOMING'),
 });
+
+export const eventRegistrationSchema = z
+  .object({
+    eventId: z.string().uuid('Invalid event ID'),
+    paymentOption: z.enum(['GCASH', 'VENUE_DESK', 'FREE']).default('VENUE_DESK'),
+    referenceNumber: z.string().optional(),
+    specialRequirements: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.paymentOption === 'GCASH') {
+        return !!(data.referenceNumber && data.referenceNumber.trim().length >= 3);
+      }
+      return true;
+    },
+    {
+      message: 'GCash reference number is required when paying via GCash',
+      path: ['referenceNumber'],
+    }
+  );
 
 // ==========================================
 // MERCHANDISE VALIDATORS
@@ -113,7 +134,7 @@ export const productSchema = z.object({
 });
 
 // ==========================================
-// ORDER & PAYMENT VALIDATORS
+// ORDER VALIDATORS
 // ==========================================
 
 export const orderSchema = z
@@ -162,7 +183,7 @@ export const orderSchema = z
 
 export const receiptUploadSchema = z.object({
   orderId: z.string().uuid('Invalid order ID'),
-  paymentMethod: z.enum(['GCASH', 'PALAWAN_PAY', 'BANK_TRANSFER', 'MAYA', 'OTHER']).default('GCASH'),
+  paymentMethod: z.literal('GCASH').default('GCASH'),
   referenceNumber: z.string().min(3, 'GCash reference number is required'),
   amountPaid: z.number().positive('Amount paid must be greater than 0'),
   notes: z.string().optional(),
@@ -196,7 +217,7 @@ export const checkoutSchema = z.object({
 export const paymentReceiptUploadSchema = z.object({
   orderId: z.string().uuid('Invalid order ID'),
   receiptImageUrl: z.string().url('Proof of payment image URL is required'),
-  paymentMethod: z.enum(['GCASH', 'PALAWAN_PAY', 'BANK_TRANSFER', 'MAYA', 'OTHER']),
+  paymentMethod: z.literal('GCASH').default('GCASH'),
   referenceNumber: z.string().min(3, 'Reference number is required'),
   amountPaid: z.number().positive('Amount paid must be greater than 0'),
 });

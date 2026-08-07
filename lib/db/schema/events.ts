@@ -1,8 +1,8 @@
-import { pgTable, uuid, text, timestamp, boolean, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, integer, numeric, pgEnum } from 'drizzle-orm/pg-core';
 import { profiles } from './users';
 
 export const eventStatusEnum = pgEnum('event_status', ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED']);
-export const registrationStatusEnum = pgEnum('registration_status', ['CONFIRMED', 'WAITLISTED', 'CANCELLED']);
+export const registrationStatusEnum = pgEnum('registration_status', ['CONFIRMED', 'PENDING_PAYMENT', 'VERIFICATION_QUEUED', 'CANCELLED']);
 
 /**
  * Events Table
@@ -18,6 +18,7 @@ export const events = pgTable('events', {
   startDate: timestamp('start_date', { withTimezone: true }).notNull(),
   endDate: timestamp('end_date', { withTimezone: true }).notNull(),
   location: text('location').notNull(),
+  registrationFee: numeric('registration_fee', { precision: 10, scale: 2 }).default('0.00').notNull(),
   isPublished: boolean('is_published').default(false).notNull(),
   status: eventStatusEnum('status').default('UPCOMING').notNull(),
   maxAttendees: integer('max_attendees'),
@@ -34,7 +35,12 @@ export const eventRegistrations = pgTable('event_registrations', {
   id: uuid('id').defaultRandom().primaryKey(),
   eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
   userId: uuid('user_id').notNull().references(() => profiles.id, { onDelete: 'cascade' }),
-  status: registrationStatusEnum('status').default('CONFIRMED').notNull(),
+  status: text('status').default('CONFIRMED').notNull(),
+  paymentOption: text('payment_option').default('VENUE_DESK').notNull(), // 'GCASH' | 'VENUE_DESK' | 'FREE'
+  paymentStatus: text('payment_status').default('UNPAID').notNull(), // 'PAID' | 'VERIFICATION_QUEUED' | 'UNPAID' | 'FREE'
+  referenceNumber: text('reference_number'),
+  receiptImageUrl: text('receipt_image_url'),
+  amountPaid: numeric('amount_paid', { precision: 10, scale: 2 }),
   specialRequirements: text('special_requirements'),
   registeredAt: timestamp('registered_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -43,3 +49,4 @@ export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type EventRegistration = typeof eventRegistrations.$inferSelect;
 export type NewEventRegistration = typeof eventRegistrations.$inferInsert;
+

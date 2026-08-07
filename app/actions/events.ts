@@ -56,6 +56,7 @@ export async function createEventAction(
     theme: formData.get('theme') || undefined,
     description: formData.get('description'),
     bannerUrl: bannerUrl,
+    registrationFee: formData.get('registrationFee') ? Number(formData.get('registrationFee')) : 0,
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
     location: formData.get('location'),
@@ -84,6 +85,7 @@ export async function createEventAction(
       startDate: new Date(parsed.data.startDate),
       endDate: new Date(parsed.data.endDate),
       location: parsed.data.location,
+      registrationFee: parsed.data.registrationFee.toFixed(2),
       maxAttendees: parsed.data.maxAttendees || null,
       registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
       isPublished: parsed.data.isPublished ?? true,
@@ -109,13 +111,6 @@ export async function createEventAction(
 
 /**
  * Server Action for Admins to update an existing Event in PostgreSQL.
- * 
- * DevSecOps & Security Considerations:
- * 1. RBAC Guard: Confirms the session user has ADMIN or SUPERADMIN privileges.
- * 2. Input Sanitization: Strict schema validation via Zod (eventSchema) prevents malformed or malicious inputs.
- * 3. Safe File Handling: Validates MIME types, byte sizes (<=5MB), and sanitizes filenames before persisting.
- * 4. Observability & Telemetry: Dispatches structured logs on success, validation failures, and database errors.
- * 5. Parameterized Queries: Drizzle ORM protects against SQL injection.
  */
 export async function updateEventAction(
   prevState: AdminEventActionState,
@@ -140,7 +135,7 @@ export async function updateEventAction(
     };
   }
 
-  // 2. Banner Image Resolution (Retain existing unless new valid file is uploaded)
+  // 2. Banner Image Resolution
   let bannerUrl = (formData.get('existingBannerUrl') as string) || '/images/logo/pcyc-transparent-logo.png';
   const imageFile = formData.get('imageFile') as File | null;
 
@@ -169,6 +164,7 @@ export async function updateEventAction(
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
     location: formData.get('location'),
+    registrationFee: formData.get('registrationFee') ? Number(formData.get('registrationFee')) : 0,
     maxAttendees: formData.get('maxAttendees') ? Number(formData.get('maxAttendees')) : undefined,
     registrationDeadline: formData.get('registrationDeadline') || undefined,
     isPublished: formData.get('isPublished') === 'on' || formData.get('isPublished') === 'true',
@@ -198,6 +194,7 @@ export async function updateEventAction(
         startDate: new Date(parsed.data.startDate),
         endDate: new Date(parsed.data.endDate),
         location: parsed.data.location,
+        registrationFee: parsed.data.registrationFee.toFixed(2),
         maxAttendees: parsed.data.maxAttendees || null,
         registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
         isPublished: parsed.data.isPublished ?? true,
@@ -206,14 +203,12 @@ export async function updateEventAction(
       })
       .where(eq(events.id, eventId));
 
-    // Structured Telemetry Log
     logger.info(
       {
         eventId,
         slug: parsed.data.slug,
         adminId: profile.id,
         adminEmail: profile.email,
-        updatedFields: Object.keys(rawData),
       },
       'Event successfully updated by administrator'
     );
@@ -227,7 +222,6 @@ export async function updateEventAction(
     };
   }
 
-  // 5. Invalidate Stale Edge/SSR Caches & Redirect
   revalidatePath('/events');
   revalidatePath(`/events/${parsed.data.slug}`);
   revalidatePath('/admin/events');
@@ -258,4 +252,143 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
     logger.error({ error: error?.message, eventId }, 'Failed to delete event');
   }
 }
+
+export interface EventRegistrationState {
+  success: boolean;
+  message?: string;
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+}
+
+/**
+ * Server Action for Members to register for an Event with GCash or Venue payment.
+ */
+export async function registerForEventAction(
+  prevState: EventRegistrationState,
+  formData: FormData
+): Promise<EventRegistrationState> {
+  const profile = await getCurrentUserProfile();
+  if (!profile) {
+    return {
+      success: false,
+      error: 'Please log in to your PCYC Member account to register for this event.',
+    };
+  }
+
+  const eventId = (formData.get('eventId') as string) || '';
+  const paymentOption = (formData.get('paymentOption') as 'GCASH' | 'VENUE_DESK' | 'FREE') || 'VENUE_DESK';
+  const referenceNumber = ((formData.get('referenceNumber') as string) || '').trim();
+  const specialRequirements = ((formData.get('specialRequirements') as string) || '').trim();
+  const receiptFile = formData.get('receiptImage') as File | null;
+
+  // 1. Fetch Event
+  const [event] = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
+  if (!event) {
+    return {
+      success: false,
+      error: 'The requested gathering could not be found.',
+    };
+  }
+
+  if (event.status === 'COMPLETED' || event.status === 'CANCELLED') {
+    return {
+      success: false,
+      error: 'Registration is closed for this event.',
+    };
+  }
+
+  // 2. Check if already registered
+  const { getUserEventRegistration } = await import('@/lib/db/queries/events');
+  const existing = await getUserEventRegistration(profile.id, eventId);
+  if (existing) {
+    return {
+      success: false,
+      error: 'You are already registered for this event! Check your Member Portal for details.',
+    };
+  }
+
+  const feeNum = Number(event.registrationFee || 0);
+
+  // 3. Payment Processing
+  let finalPaymentOption = feeNum === 0 ? 'FREE' : paymentOption;
+  let finalPaymentStatus = feeNum === 0 ? 'FREE' : (paymentOption === 'GCASH' ? 'VERIFICATION_QUEUED' : 'UNPAID');
+  let finalRegStatus = feeNum === 0 ? 'CONFIRMED' : (paymentOption === 'GCASH' ? 'VERIFICATION_QUEUED' : 'CONFIRMED');
+  let receiptImageUrl: string | null = null;
+
+  if (feeNum > 0 && paymentOption === 'GCASH') {
+    if (!referenceNumber || referenceNumber.length < 3) {
+      return {
+        success: false,
+        error: 'Please provide your GCash Reference Number.',
+      };
+    }
+
+    if (!receiptFile || receiptFile.size === 0) {
+      return {
+        success: false,
+        error: 'Please upload a screenshot of your GCash payment confirmation receipt.',
+      };
+    }
+
+    const uploadResult = await saveUploadedImage(
+      receiptFile,
+      'receipts',
+      `event-reg-${event.slug}-${profile.id}`
+    );
+
+    if (!uploadResult.success || !uploadResult.url) {
+      return {
+        success: false,
+        error: uploadResult.error || 'Failed to upload GCash receipt proof.',
+      };
+    }
+
+    receiptImageUrl = uploadResult.url;
+  }
+
+  // 4. Insert into eventRegistrations
+  try {
+    const { eventRegistrations } = await import('@/lib/db/schema/events');
+    await db.insert(eventRegistrations).values({
+      eventId: event.id,
+      userId: profile.id,
+      status: finalRegStatus,
+      paymentOption: finalPaymentOption,
+      paymentStatus: finalPaymentStatus,
+      referenceNumber: referenceNumber || null,
+      receiptImageUrl: receiptImageUrl,
+      amountPaid: feeNum > 0 ? feeNum.toFixed(2) : '0.00',
+      specialRequirements: specialRequirements || null,
+    });
+
+    logger.info(
+      { eventId: event.id, userId: profile.id, paymentOption: finalPaymentOption },
+      'User registered for event successfully'
+    );
+
+    revalidatePath('/events');
+    revalidatePath(`/events/${event.slug}`);
+    revalidatePath('/portal');
+    revalidatePath('/admin/events');
+
+    return {
+      success: true,
+      message:
+        finalPaymentOption === 'GCASH'
+          ? 'Registration submitted with GCash payment! Our committee will verify your payment shortly.'
+          : finalPaymentOption === 'VENUE_DESK'
+          ? 'Registration confirmed! You can settle your registration fee at the venue desk upon arrival.'
+          : 'Registration confirmed! We look forward to seeing you at the gathering.',
+    };
+  } catch (error: any) {
+    logger.error({ error: error?.message, eventId: event.id, userId: profile.id }, 'Failed to save event registration');
+    return {
+      success: false,
+      error: error?.message?.includes('unique')
+        ? 'You are already registered for this event.'
+        : 'Failed to complete registration. Please try again.',
+    };
+  }
+}
+
 

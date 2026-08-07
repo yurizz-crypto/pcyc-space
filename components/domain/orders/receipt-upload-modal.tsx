@@ -86,17 +86,11 @@ export function ReceiptUploadModal({
             </div>
           </div>
 
-          <Select
-            label="Payment Method"
-            name="paymentMethod"
-            defaultValue="GCASH"
-            options={[
-              { value: 'GCASH', label: 'GCash' },
-              { value: 'PALAWAN_PAY', label: 'PalawanPay' },
-              { value: 'BANK_TRANSFER', label: 'Bank Transfer (BDO / BPI)' },
-              { value: 'MAYA', label: 'Maya' },
-            ]}
-          />
+          <input type="hidden" name="paymentMethod" value="GCASH" />
+          <div className="p-3 rounded-xl bg-white border border-[#d3dec2] flex items-center justify-between text-xs">
+            <span className="text-[#707666]">Payment Method:</span>
+            <span className="font-bold text-[#2c3324]">GCash (0912-734-1648)</span>
+          </div>
 
           <Input
             label="Reference / Transaction Number"

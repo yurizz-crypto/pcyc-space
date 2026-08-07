@@ -84,6 +84,14 @@ export default async function AdminEventsPage() {
 
                   <div className="flex items-center gap-2 self-end sm:self-center">
                     <Link
+                      href={`/admin/events/${evt.id}/attendees`}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] bg-[#f8f4e3] hover:bg-[#e0a861]/20 border border-[#e6dfcb] transition-all inline-flex items-center gap-1.5"
+                      title="View Registered Attendees"
+                    >
+                      <span>Attendees</span>
+                    </Link>
+
+                    <Link
                       href={`/admin/events/${evt.id}/edit`}
                       className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
                       title="Edit Event"

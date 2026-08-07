@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { EmptyState } from '@/components/molecules/empty-state';
 import { ReceiptCard } from '@/components/domain/orders/receipt-card';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
+import { getUserEventRegistrations } from '@/lib/db/queries/events';
 import { getUserOrders } from '@/lib/db/queries/orders';
-import { Calendar, ShoppingBag, MapPin, Shield } from 'lucide-react';
+import { formatDate, formatPHP } from '@/lib/utils';
+import { Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, QrCode, Building2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,8 +27,16 @@ export default async function PortalPage() {
     redirect('/login');
   }
 
-  const orders = await getUserOrders(profile.id);
-  const isAdmin = profile.role === 'ADMIN' || profile.role === 'SUPERADMIN';
+  // Administrators should manage the platform from Admin Space
+  if (profile.role === 'ADMIN' || profile.role === 'SUPERADMIN') {
+    redirect('/admin');
+  }
+
+  const [orders, registrations] = await Promise.all([
+    getUserOrders(profile.id),
+    getUserEventRegistrations(profile.id),
+  ]);
+
   const prefix =
     profile.designation === 'BROTHER'
       ? 'Bro.'
@@ -59,11 +69,6 @@ export default async function PortalPage() {
                   <Badge variant={profile.designation === 'FRIEND' ? 'cream' : 'gold'} size="sm">
                     {profile.designation}
                   </Badge>
-                  {isAdmin && (
-                    <Badge variant="forest" size="sm">
-                      ADMIN
-                    </Badge>
-                  )}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-[#707666]">
                   <span className="flex items-center gap-1">
@@ -77,14 +82,6 @@ export default async function PortalPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {isAdmin && (
-                <Link href="/admin">
-                  <Button variant="outline" size="md" className="gap-2">
-                    <Shield className="h-4 w-4 text-[#e0a861]" />
-                    <span>Admin CMS</span>
-                  </Button>
-                </Link>
-              )}
               <Link href="/events">
                 <Button variant="primary" size="md" className="gap-2">
                   <Calendar className="h-4 w-4" />
@@ -100,19 +97,97 @@ export default async function PortalPage() {
             <Card className="border-[#e6dfcb]">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <div>
-                  <CardTitle className="text-xl">My Camp Registrations</CardTitle>
-                  <CardDescription>Events you are currently signed up for.</CardDescription>
+                  <CardTitle className="text-xl">My Gathering Registrations</CardTitle>
+                  <CardDescription>Camps and fellowship gatherings you are registered for.</CardDescription>
                 </div>
                 <Calendar className="h-5 w-5 text-[#e0a861]" />
               </CardHeader>
               <CardContent className="space-y-4">
-                <EmptyState
-                  icon={Calendar}
-                  title="No active registrations"
-                  description="You are not registered for any upcoming camp yet. Check out our scheduled events!"
-                  actionLabel="Browse Camp Schedules"
-                  actionHref="/events"
-                />
+                {registrations.length === 0 ? (
+                  <EmptyState
+                    icon={Calendar}
+                    title="No active registrations"
+                    description="You are not registered for any upcoming camp yet. Check out our scheduled gatherings!"
+                    actionLabel="Browse Gathering Schedules"
+                    actionHref="/events"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {registrations.map(({ registration: reg, event }) => {
+                      const isGcash = reg.paymentOption === 'GCASH';
+                      const isVenue = reg.paymentOption === 'VENUE_DESK';
+                      const isFree = reg.paymentOption === 'FREE';
+
+                      return (
+                        <div
+                          key={reg.id}
+                          className="p-4 rounded-2xl bg-white border border-[#e6dfcb] shadow-xs space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <Link
+                                href={`/events/${event.slug}`}
+                                className="font-serif font-bold text-base text-[#2c3324] hover:text-[#e0a861] transition-colors line-clamp-1"
+                              >
+                                {event.title}
+                              </Link>
+                              <div className="flex items-center gap-2 text-xs text-[#707666]">
+                                <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
+                                <span>
+                                  {formatDate(event.startDate)} &ndash; {formatDate(event.endDate)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <Badge
+                              variant={
+                                reg.status === 'CONFIRMED'
+                                  ? 'success'
+                                  : reg.status === 'VERIFICATION_QUEUED'
+                                  ? 'gold'
+                                  : 'cream'
+                              }
+                              size="sm"
+                            >
+                              {reg.status === 'VERIFICATION_QUEUED' ? 'Pending Review' : reg.status}
+                            </Badge>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] text-xs space-y-1.5 text-[#505748]">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[#707666]">Payment Status:</span>
+                              <span className="font-semibold text-[#2c3324] flex items-center gap-1">
+                                {isGcash && <QrCode className="h-3.5 w-3.5 text-[#9a6423]" />}
+                                {isVenue && <Building2 className="h-3.5 w-3.5 text-[#9a6423]" />}
+                                {isFree
+                                  ? 'Free Admission'
+                                  : isGcash
+                                  ? 'GCash (Under Verification)'
+                                  : 'Pay at Venue Desk'}
+                              </span>
+                            </div>
+
+                            {reg.referenceNumber && (
+                              <div className="flex justify-between items-center border-t border-[#e6dfcb]/60 pt-1.5">
+                                <span className="text-[#707666]">GCash Ref #:</span>
+                                <span className="font-mono font-medium text-[#2c3324]">
+                                  {reg.referenceNumber}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between items-center border-t border-[#e6dfcb]/60 pt-1.5">
+                              <span className="text-[#707666]">Registration Fee:</span>
+                              <span className="font-bold text-[#2c3324]">
+                                {Number(reg.amountPaid || 0) === 0 ? 'Free' : formatPHP(Number(reg.amountPaid))}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

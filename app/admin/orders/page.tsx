@@ -21,7 +21,7 @@ export default async function AdminOrdersPage() {
             Orders & Payment Receipts Queue
           </h1>
           <p className="text-xs sm:text-sm text-[#707666]">
-            Verify GCash / Maya screenshot references submitted by brethren for event registrations and merch orders.
+            Verify GCash screenshot references submitted by brethren for merchandise orders.
           </p>
         </div>
 
