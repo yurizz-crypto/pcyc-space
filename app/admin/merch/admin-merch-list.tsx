@@ -67,15 +67,15 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
   return (
     <div className="space-y-4">
       {/* Tabs & Search Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-[#e6dfcb] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-2.5 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
             onClick={() => handleTabChange('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ALL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             All ({totalCount})
@@ -85,8 +85,8 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
             onClick={() => handleTabChange('ACTIVE')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ACTIVE'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Active ({activeCount})
@@ -96,8 +96,8 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
             onClick={() => handleTabChange('PREORDER')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'PREORDER'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Pre-Order ({preorderCount})
@@ -107,8 +107,8 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
             onClick={() => handleTabChange('APPAREL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'APPAREL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Apparel ({apparelCount})
@@ -118,8 +118,8 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
             onClick={() => handleTabChange('ACCESSORIES')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ACCESSORIES'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Accessories ({accessoriesCount})
@@ -127,19 +127,19 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             placeholder="Search merchandise..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] bg-[#f8f4e3]/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2c3324]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
           />
         </div>
       </div>
 
       {/* Inventory List Card */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">
             Catalog Inventory ({filteredProducts.length})
@@ -152,16 +152,16 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12 space-y-3">
               <ShoppingBag className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
-              <p className="text-sm font-semibold text-[#2c3324]">
+              <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No merchandise matches your search' : 'No items in this category'}
               </p>
-              <p className="text-xs text-[#707666]">
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                 {searchQuery ? 'Try searching another keyword.' : 'Click "Add Merchandise Item" to add new catalog products.'}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="divide-y divide-[#e6dfcb]">
+              <div className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b]">
                 {paginatedProducts.map((prod) => {
                   const img =
                     prod.imageUrls && prod.imageUrls.length > 0
@@ -171,10 +171,10 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                   return (
                     <div
                       key={prod.id}
-                      className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#f8f4e3]/50 transition-colors px-2 rounded-xl"
+                      className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#f8f4e3]/50 dark:hover:bg-[#252e1f]/50 transition-colors px-2 rounded-xl"
                     >
                       <div className="flex items-center gap-4 min-w-0 flex-1">
-                        <div className="relative h-14 w-14 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                        <div className="relative h-14 w-14 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] p-1 shrink-0 flex items-center justify-center overflow-hidden">
                           <Image
                             src={img}
                             alt={prod.name}
@@ -185,7 +185,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
 
                         <div className="space-y-1 min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-serif font-bold text-base text-[#2c3324] truncate">
+                            <span className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1] truncate">
                               {prod.name}
                             </span>
                             <Badge variant="gold" size="sm">
@@ -201,12 +201,12 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                             </Badge>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
                             <PriceTag price={prod.price} />
                             <span>•</span>
                             <span>Stock: {prod.stockQuantity} units</span>
                             <span>•</span>
-                            <span className="text-[#9a6423] font-mono">/merch/{prod.slug}</span>
+                            <span className="text-[#9a6423] dark:text-[#f0be7c] font-mono">/merch/{prod.slug}</span>
                           </div>
                         </div>
                       </div>
@@ -214,7 +214,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                       <div className="flex items-center gap-2 self-end sm:self-center">
                         <Link
                           href={`/admin/merch/${prod.id}/edit`}
-                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
                           title="Edit Merchandise Item"
                         >
                           <Pencil className="h-4 w-4" />
@@ -223,7 +223,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                         <Link
                           href={`/merch/${prod.slug}`}
                           target="_blank"
-                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
                           title="Preview product page"
                         >
                           <ExternalLink className="h-4 w-4" />
@@ -233,7 +233,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                           <input type="hidden" name="productId" value={prod.id} />
                           <button
                             type="submit"
-                            className="p-2 rounded-lg text-[#c0392b] hover:bg-[#fdf2f2] border border-transparent hover:border-[#f5c6cb] transition-all cursor-pointer"
+                            className="p-2 rounded-lg text-[#c0392b] dark:text-[#ef5350] hover:bg-[#fdf2f2] dark:hover:bg-[#2d1815] border border-transparent hover:border-[#f5c6cb] dark:hover:border-[#4d201b] transition-all cursor-pointer"
                             title="Delete Product"
                           >
                             <Trash2 className="h-4 w-4" />

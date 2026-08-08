@@ -20,10 +20,10 @@ export default async function AdminMerchPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
             Merchandise & Fundraising Inventory
           </h1>
-          <p className="text-xs sm:text-sm text-[#707666]">
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
             Manage PCYC apparel, camp shirts, accessories, and stock quantities.
           </p>
         </div>

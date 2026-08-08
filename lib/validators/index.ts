@@ -154,7 +154,7 @@ export const orderSchema = z
     quantity: z.number().int().min(1, 'Quantity must be at least 1').max(50, 'Maximum 50 units per order'),
     selectedSize: z.string().optional(),
     fulfillmentType: z.enum(['EVENT_PICKUP', 'DELIVERY']).default('EVENT_PICKUP'),
-    recipientName: z.string().min(2, 'Recipient name is required'),
+    recipientName: z.string().min(2, 'Recipient name is required (minimum 2 characters)'),
     contactNumber: z.string().optional(),
     targetEventTitle: z.string().optional(),
     deliveryAddress: z.string().optional(),
@@ -164,33 +164,49 @@ export const orderSchema = z
     notes: z.string().optional(),
     referenceNumber: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.fulfillmentType === 'DELIVERY') {
-        const hasAddress = !!(
-          data.deliveryAddress &&
-          data.deliveryAddress.trim().length >= 5 &&
-          data.city &&
-          data.city.trim().length >= 2
-        );
-        const hasContact = !!(
-          data.contactNumber &&
-          data.contactNumber.trim().length >= 7 &&
-          /^[0-9+\s()-]+$/.test(data.contactNumber.trim())
-        );
-        const hasPaymentRef = !!(
-          data.referenceNumber &&
-          data.referenceNumber.trim().length >= 3
-        );
-        return hasAddress && hasContact && hasPaymentRef;
+  .superRefine((data, ctx) => {
+    if (data.fulfillmentType === 'DELIVERY') {
+      if (!data.deliveryAddress || data.deliveryAddress.trim().length < 5) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Street address / building is required (minimum 5 characters)',
+          path: ['deliveryAddress'],
+        });
       }
-      return true;
-    },
-    {
-      message: 'Complete delivery address, contact number, and GCash reference are required for courier delivery',
-      path: ['deliveryAddress'],
+      if (!data.city || data.city.trim().length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'City / Municipality is required',
+          path: ['city'],
+        });
+      }
+      if (!data.province || data.province.trim().length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Province / Region is required',
+          path: ['province'],
+        });
+      }
+      if (
+        !data.contactNumber ||
+        data.contactNumber.trim().length < 7 ||
+        !/^[0-9+\s()-]+$/.test(data.contactNumber.trim())
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Valid contact phone number is required for courier delivery',
+          path: ['contactNumber'],
+        });
+      }
+      if (!data.referenceNumber || data.referenceNumber.trim().length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'GCash reference number is required for delivery order verification',
+          path: ['referenceNumber'],
+        });
+      }
     }
-  );
+  });
 
 export const receiptUploadSchema = z.object({
   orderId: z.string().uuid('Invalid order ID'),

@@ -62,15 +62,15 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
   return (
     <div className="space-y-4">
       {/* Tabs & Search Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-[#e6dfcb] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-2.5 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
             onClick={() => handleRegionChange('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterRegion === 'ALL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             All Regions ({totalCount})
@@ -80,8 +80,8 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
             onClick={() => handleRegionChange('Luzon')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterRegion === 'Luzon'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Luzon ({luzonCount})
@@ -91,8 +91,8 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
             onClick={() => handleRegionChange('Visayas')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterRegion === 'Visayas'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Visayas ({visayasCount})
@@ -102,8 +102,8 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
             onClick={() => handleRegionChange('Mindanao')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterRegion === 'Mindanao'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Mindanao ({mindanaoCount})
@@ -111,19 +111,19 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             placeholder="Search ecclesia or city..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] bg-[#f8f4e3]/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2c3324]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
           />
         </div>
       </div>
 
       {/* Directory Table / Cards */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
@@ -143,10 +143,10 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
           {filteredEcclesias.length === 0 ? (
             <div className="text-center py-12 space-y-3">
               <Church className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
-              <p className="text-sm font-semibold text-[#2c3324]">
+              <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No ecclesias match your search criteria' : 'No ecclesias in this region'}
               </p>
-              <p className="text-xs text-[#707666]">
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                 {searchQuery ? 'Try adjusting your search terms.' : 'Click "Add New Ecclesia" above to register a fellowship.'}
               </p>
             </div>
@@ -156,11 +156,11 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
                 {paginatedEcclesias.map((ecc) => (
                   <div
                     key={ecc.id}
-                    className="p-5 rounded-2xl bg-white border border-[#e6dfcb] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-[#e0a861]/60 transition-colors"
+                    className="p-5 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-[#e0a861]/60 transition-colors"
                   >
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-serif font-bold text-lg text-[#2c3324]">{ecc.name}</h3>
+                        <h3 className="font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">{ecc.name}</h3>
                         <Badge
                           variant={
                             ecc.region === 'Luzon'
@@ -175,7 +175,7 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#505748]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#505748] dark:text-[#a3ab98]">
                         <div className="flex items-start gap-1.5">
                           <MapPin className="h-3.5 w-3.5 text-[#e0a861] shrink-0 mt-0.5" />
                           <span>{ecc.address}</span>
@@ -198,7 +198,7 @@ export function AdminEcclesiasList({ ecclesias }: AdminEcclesiasListProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1.5 border-[#e6dfcb] text-[#505748] hover:text-[#2c3324]"
+                          className="gap-1.5 border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] dark:hover:bg-[#252e1f]"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           <span>Edit</span>

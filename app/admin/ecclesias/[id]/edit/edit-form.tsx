@@ -23,11 +23,11 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
   const [state, formAction, isPending] = useActionState(updateEcclesiaAction, initialState);
 
   return (
-    <Card className="border-[#e6dfcb] shadow-md">
+    <Card className="shadow-md">
       <form action={formAction}>
         <input type="hidden" name="id" value={ecclesia.id} />
 
-        <CardHeader className="border-b border-[#e6dfcb] pb-4">
+        <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
           <div className="flex items-center gap-2">
             <Church className="h-5 w-5 text-[#e0a861]" />
             <CardTitle className="text-xl">Edit Ecclesia: {ecclesia.name}</CardTitle>
@@ -39,7 +39,7 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
 
         <CardContent className="space-y-4 pt-6">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
@@ -120,10 +120,10 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
           />
 
           {/* 6. Display Toggle */}
-          <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
             <div>
-              <strong className="block text-xs text-[#2c3324]">Display in Directory</strong>
-              <span className="text-[11px] text-[#707666]">
+              <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Display in Directory</strong>
+              <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
                 Visible in Home page count, About directory, and Member registration.
               </span>
             </div>
@@ -131,12 +131,12 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
               type="checkbox"
               name="isDisplayed"
               defaultChecked={ecclesia.isDisplayed}
-              className="h-5 w-5 rounded border-[#e6dfcb] text-[#2c3324] focus:ring-[#e0a861]"
+              className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
             />
           </div>
         </CardContent>
 
-        <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] pt-4">
+        <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
           <Link href="/admin/ecclesias">
             <Button type="button" variant="outline" size="md">
               <span>Cancel</span>

@@ -21,7 +21,7 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
     <div className="max-w-3xl mx-auto space-y-6">
       <Link
         href="/admin/events"
-        className="inline-flex items-center gap-1.5 text-xs text-[#505748] hover:text-[#2c3324] font-medium"
+        className="inline-flex items-center gap-1.5 text-xs text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Events Management</span>

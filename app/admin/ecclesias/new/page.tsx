@@ -19,7 +19,7 @@ export default function NewEcclesiaPage() {
       <div>
         <Link
           href="/admin/ecclesias"
-          className="inline-flex items-center gap-1.5 text-xs text-[#707666] hover:text-[#2c3324] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Ecclesia Directory</span>
@@ -27,10 +27,10 @@ export default function NewEcclesiaPage() {
       </div>
 
       {/* Form Card */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#e0a861]/15 text-[#9a6423] flex items-center justify-center">
+            <div className="h-10 w-10 rounded-xl bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] flex items-center justify-center">
               <Church className="h-5 w-5" />
             </div>
             <div>
@@ -53,7 +53,7 @@ export default function NewEcclesiaPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Ecclesia Name */}
               <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-[#2c3324]">
+                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   Ecclesia Name <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -65,7 +65,7 @@ export default function NewEcclesiaPage() {
 
               {/* Region */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324]">
+                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   Region <span className="text-red-500">*</span>
                 </label>
                 <Select
@@ -82,7 +82,7 @@ export default function NewEcclesiaPage() {
 
               {/* City / Province */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324]">
+                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   City / Municipality <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -95,7 +95,7 @@ export default function NewEcclesiaPage() {
 
             {/* Address Details */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#2c3324]">
+              <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 Complete Address Details <span className="text-red-500">*</span>
               </label>
               <Textarea
@@ -108,7 +108,7 @@ export default function NewEcclesiaPage() {
 
             {/* Meeting Schedule */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#2c3324]">
+              <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 Meeting Schedule <span className="text-red-500">*</span>
               </label>
               <Input
@@ -121,7 +121,7 @@ export default function NewEcclesiaPage() {
             {/* Contact Person */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324]">
+                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   Contact Person / Brother (Optional)
                 </label>
                 <Input
@@ -131,7 +131,7 @@ export default function NewEcclesiaPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324]">
+                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   Display Order Index
                 </label>
                 <Input
@@ -143,7 +143,7 @@ export default function NewEcclesiaPage() {
             </div>
 
             {/* Submit Buttons */}
-            <div className="pt-4 border-t border-[#f0ebd3] flex items-center justify-end gap-3">
+            <div className="pt-4 border-t border-[#f0ebd3] dark:border-[#323d2b] flex items-center justify-end gap-3">
               <Link href="/admin/ecclesias">
                 <Button type="button" variant="outline" size="md">
                   Cancel

@@ -65,21 +65,28 @@ export async function createOrderAction(
       productId: formData.get('productId'),
       quantity: Number(formData.get('quantity')),
       selectedSize: formData.get('selectedSize') || undefined,
-      fulfillmentType: formData.get('fulfillmentType'),
-      recipientName: formData.get('recipientName'),
-      contactNumber: formData.get('contactNumber'),
-      deliveryAddress: formData.get('deliveryAddress') || undefined,
-      city: formData.get('city') || undefined,
-      province: formData.get('province') || undefined,
-      zipCode: formData.get('zipCode') || undefined,
-      notes: formData.get('notes') || undefined,
+      fulfillmentType: formData.get('fulfillmentType') || 'EVENT_PICKUP',
+      recipientName:
+        (formData.get('recipientName') as string | null)?.trim() ||
+        `${profile.firstName} ${profile.lastName}`.trim(),
+      contactNumber:
+        (formData.get('contactNumber') as string | null)?.trim() ||
+        profile.phoneNumber ||
+        undefined,
+      deliveryAddress: (formData.get('deliveryAddress') as string | null)?.trim() || undefined,
+      city: (formData.get('city') as string | null)?.trim() || undefined,
+      province: (formData.get('province') as string | null)?.trim() || undefined,
+      zipCode: (formData.get('zipCode') as string | null)?.trim() || undefined,
+      notes: (formData.get('notes') as string | null)?.trim() || undefined,
+      referenceNumber: (formData.get('referenceNumber') as string | null)?.trim() || undefined,
     };
 
     const parsed = orderSchema.safeParse(rawData);
     if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message;
       return {
         success: false,
-        error: 'Please correct the errors in the order form.',
+        error: firstError || 'Please correct the errors in the order form.',
         fieldErrors: parsed.error.flatten().fieldErrors,
       };
     }

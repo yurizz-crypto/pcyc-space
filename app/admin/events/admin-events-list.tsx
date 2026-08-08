@@ -78,15 +78,15 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
   return (
     <div className="space-y-4">
       {/* Tabs & Search Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-[#e6dfcb] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-2.5 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
             onClick={() => setFilterTab('ALL')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ALL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             All Events ({allCount})
@@ -96,8 +96,8 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
             onClick={() => setFilterTab('ACTIVE')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ACTIVE'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Active & Upcoming ({activeCount})
@@ -107,8 +107,8 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
             onClick={() => setFilterTab('ARCHIVED')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ARCHIVED'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Archived ({archivedCount})
@@ -116,19 +116,19 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             placeholder="Search events..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] bg-[#f8f4e3]/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2c3324]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
           />
         </div>
       </div>
 
       {/* Events Table / Card List */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
@@ -147,16 +147,16 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
           {filteredEvents.length === 0 ? (
             <div className="text-center py-12 space-y-3">
               <Calendar className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
-              <p className="text-sm font-semibold text-[#2c3324]">
+              <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No matching events found' : 'No events in this category'}
               </p>
-              <p className="text-xs text-[#707666]">
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                 {searchQuery ? 'Try adjusting your search terms.' : 'Create a new event or switch tabs.'}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="divide-y divide-[#e6dfcb]">
+              <div className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b]">
                 {paginatedEvents.map((evt) => {
                   const isArchived = evt.status === 'ARCHIVED';
 
@@ -164,12 +164,12 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                     <div
                       key={evt.id}
                       className={`py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors px-3 rounded-xl ${
-                        isArchived ? 'bg-slate-50/70 opacity-80' : 'hover:bg-[#f8f4e3]/50'
+                        isArchived ? 'bg-slate-50/70 dark:bg-slate-900/40 opacity-80' : 'hover:bg-[#f8f4e3]/50 dark:hover:bg-[#252e1f]/50'
                       }`}
                     >
                       <div className="space-y-1.5 min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-serif font-bold text-base text-[#2c3324]">
+                          <span className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1]">
                             {evt.title}
                           </span>
                           <Badge variant={evt.isPublished ? 'success' : 'cream'} size="sm">
@@ -192,12 +192,12 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                         </div>
 
                         {evt.theme && (
-                          <p className="text-xs italic text-[#9a6423] font-serif">
+                          <p className="text-xs italic text-[#9a6423] dark:text-[#f0be7c] font-serif">
                             &ldquo;{evt.theme}&rdquo;
                           </p>
                         )}
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
                             <span>{formatEventSchedule(evt.startDate, evt.endDate)}</span>
@@ -208,7 +208,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                             <span>{evt.location}</span>
                           </span>
                           <span>•</span>
-                          <span className="text-[#9a6423] font-mono">/events/{evt.slug}</span>
+                          <span className="text-[#9a6423] dark:text-[#f0be7c] font-mono">/events/{evt.slug}</span>
                         </div>
                       </div>
 
@@ -216,16 +216,16 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                       <div className="flex flex-wrap items-center gap-1.5 self-end lg:self-center">
                         <Link
                           href={`/admin/events/${evt.id}/attendees`}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] bg-[#f8f4e3] hover:bg-[#e0a861]/20 border border-[#e6dfcb] transition-all inline-flex items-center gap-1.5 shadow-2xs"
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] bg-[#f8f4e3] dark:bg-[#252e1f] hover:bg-[#e0a861]/20 border border-[#e6dfcb] dark:border-[#323d2b] transition-all inline-flex items-center gap-1.5 shadow-2xs"
                           title="View Registered Attendees"
                         >
-                          <Users className="h-3.5 w-3.5 text-[#9a6423]" />
+                          <Users className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />
                           <span>Attendees</span>
                         </Link>
 
                         <Link
                           href={`/admin/events/${evt.id}/edit`}
-                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
                           title="Edit Event"
                         >
                           <Pencil className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                         <Link
                           href={`/events/${evt.slug}`}
                           target="_blank"
-                          className="p-2 rounded-lg text-[#505748] hover:bg-white hover:text-[#2c3324] border border-transparent hover:border-[#e6dfcb] transition-all"
+                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
                           title="Preview Public Page"
                         >
                           <ExternalLink className="h-4 w-4" />
@@ -246,7 +246,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                             <input type="hidden" name="eventId" value={evt.id} />
                             <button
                               type="submit"
-                              className="p-2 rounded-lg text-[#2e7d32] hover:bg-[#e8f5e9] border border-transparent hover:border-[#c8e6c9] transition-all cursor-pointer"
+                              className="p-2 rounded-lg text-[#2e7d32] hover:bg-[#e8f5e9] dark:hover:bg-[#1f3a23] border border-transparent hover:border-[#c8e6c9] dark:hover:border-[#2e7d32]/40 transition-all cursor-pointer"
                               title="Restore / Unarchive Event"
                             >
                               <ArchiveRestore className="h-4 w-4" />
@@ -257,7 +257,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                             <input type="hidden" name="eventId" value={evt.id} />
                             <button
                               type="submit"
-                              className="p-2 rounded-lg text-[#505748] hover:bg-[#f8f4e3] border border-transparent hover:border-[#e6dfcb] transition-all cursor-pointer"
+                              className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all cursor-pointer"
                               title="Archive Event"
                             >
                               <Archive className="h-4 w-4" />
@@ -269,7 +269,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
                         <button
                           type="button"
                           onClick={() => setDeleteEventTarget(evt)}
-                          className="p-2 rounded-lg text-[#c0392b] hover:bg-[#fdf2f2] border border-transparent hover:border-[#f5c6cb] transition-all cursor-pointer"
+                          className="p-2 rounded-lg text-[#c0392b] dark:text-[#ef5350] hover:bg-[#fdf2f2] dark:hover:bg-[#2d1815] border border-transparent hover:border-[#f5c6cb] dark:hover:border-[#4d201b] transition-all cursor-pointer"
                           title="Delete Event & Attendees"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -297,34 +297,34 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
       {/* Confirmation Modal for Permanent Event Deletion */}
       {deleteEventTarget && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#fefcf1] border-2 border-[#c0392b]/30 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scaleUp">
+          <div className="bg-[#fefcf1] dark:bg-[#1b2117] border-2 border-[#c0392b]/30 dark:border-[#c0392b]/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scaleUp">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-full bg-[#fdf2f2] text-[#c0392b] border border-[#f5c6cb]">
+                <div className="p-2.5 rounded-full bg-[#fdf2f2] dark:bg-[#2d1815] text-[#c0392b] dark:text-[#ef5350] border border-[#f5c6cb] dark:border-[#4d201b]">
                   <AlertTriangle className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-[#2c3324]">
+                  <h3 className="font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
                     Delete Event & Attendees?
                   </h3>
-                  <p className="text-xs text-[#707666]">Permanent destructive action</p>
+                  <p className="text-xs text-[#707666] dark:text-[#a3ab98]">Permanent destructive action</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setDeleteEventTarget(null)}
-                className="text-[#707666] hover:text-[#2c3324] p-1 rounded-lg"
+                className="text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] p-1 rounded-lg"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white border border-[#e6dfcb] text-xs text-[#505748] space-y-2">
+            <div className="p-3.5 rounded-xl bg-white dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-2">
               <p>
                 You are about to permanently delete{' '}
-                <strong className="text-[#2c3324] font-semibold">{deleteEventTarget.title}</strong>.
+                <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{deleteEventTarget.title}</strong>.
               </p>
-              <p className="text-[#c0392b] font-medium bg-[#fdf2f2] p-2 rounded-lg border border-[#f5c6cb]">
+              <p className="text-[#c0392b] dark:text-[#ef5350] font-medium bg-[#fdf2f2] dark:bg-[#2d1815] p-2 rounded-lg border border-[#f5c6cb] dark:border-[#4d201b]">
                 ⚠️ This will also remove ALL registered attendees and receipts for this gathering. This action cannot be undone.
               </p>
             </div>

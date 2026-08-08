@@ -46,9 +46,9 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="min-h-[85vh] bg-[#f8f4e3] flex flex-col">
+    <div className="min-h-[85vh] bg-[#f8f4e3] dark:bg-[#131710] flex flex-col">
       {/* Admin Subheader Bar */}
-      <div className="bg-[#2c3324] text-[#fefcf1] border-b border-[#3d4632] px-4 sm:px-6 lg:px-8 py-3">
+      <div className="bg-[#2c3324] dark:bg-[#0f130d] text-[#fefcf1] border-b border-[#3d4632] dark:border-[#222b1c] px-4 sm:px-6 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-[#e0a861]/20 border border-[#e0a861]/40 flex items-center justify-center text-[#e0a861]">
@@ -82,7 +82,7 @@ export default async function AdminLayout({
       </div>
 
       {/* Admin Nav Tabs */}
-      <div className="bg-white border-b border-[#e6dfcb] px-4 sm:px-6 lg:px-8 shadow-xs">
+      <div className="bg-white dark:bg-[#1b2117] border-b border-[#e6dfcb] dark:border-[#323d2b] px-4 sm:px-6 lg:px-8 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto py-2">
           {adminNav.map((item) => {
             const Icon = item.icon;
@@ -90,7 +90,7 @@ export default async function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#505748] hover:text-[#2c3324] hover:bg-[#f8f4e3] transition-colors whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f] transition-colors whitespace-nowrap"
               >
                 <Icon className="h-4 w-4 text-[#e0a861]" />
                 <span>{item.label}</span>

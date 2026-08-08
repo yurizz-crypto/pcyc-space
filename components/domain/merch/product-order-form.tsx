@@ -195,6 +195,11 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   );
                 })}
               </div>
+              {state?.fieldErrors?.selectedSize?.[0] && (
+                <p className="text-xs text-[#c0392b] dark:text-[#ef5350]">
+                  {state.fieldErrors.selectedSize[0]}
+                </p>
+              )}
             </div>
           )}
 
@@ -287,6 +292,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   name="recipientName"
                   defaultValue={`${user.firstName} ${user.lastName}`}
                   required
+                  error={state?.fieldErrors?.recipientName?.[0]}
                 />
 
                 <Input
@@ -295,6 +301,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   defaultValue={user.phoneNumber || ''}
                   placeholder="09123456789"
                   required
+                  error={state?.fieldErrors?.contactNumber?.[0]}
                 />
 
                 <Input
@@ -311,12 +318,14 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                     name="city"
                     placeholder="e.g. Quezon City"
                     required
+                    error={state?.fieldErrors?.city?.[0]}
                   />
                   <Input
                     label="Province / Region"
                     name="province"
                     placeholder="e.g. Metro Manila"
                     required
+                    error={state?.fieldErrors?.province?.[0]}
                   />
                 </div>
 
@@ -324,6 +333,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   label="Postal ZIP Code (Optional)"
                   name="zipCode"
                   placeholder="e.g. 1100"
+                  error={state?.fieldErrors?.zipCode?.[0]}
                 />
               </div>
 
@@ -353,6 +363,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   name="referenceNumber"
                   placeholder="e.g. 1004 8920 1827"
                   required
+                  error={state?.fieldErrors?.referenceNumber?.[0]}
                 />
 
                 <ImageUpload
@@ -364,6 +375,11 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
             </div>
           ) : (
             <div className="space-y-4 animate-fadeIn">
+              <input
+                type="hidden"
+                name="recipientName"
+                value={`${user.firstName} ${user.lastName}`.trim()}
+              />
               {/* Event Pickup Note */}
               <div className="p-3.5 rounded-xl bg-[#f0f4eb] dark:bg-[#1b2117] border border-[#d3dec2] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#2c3324] dark:text-[#fefcf1]">
@@ -380,6 +396,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 name="contactNumber"
                 defaultValue={user.phoneNumber || ''}
                 placeholder="09123456789"
+                error={state?.fieldErrors?.contactNumber?.[0]}
               />
 
               {/* Optional GCash Attachment for Event Pickup */}
@@ -407,6 +424,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                       label="GCash Reference Number"
                       name="referenceNumber"
                       placeholder="e.g. 1004 8920 1827"
+                      error={state?.fieldErrors?.referenceNumber?.[0]}
                     />
 
                     <ImageUpload

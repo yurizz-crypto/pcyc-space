@@ -87,15 +87,15 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
   return (
     <div className="space-y-4">
       {/* Action Bar: Search, Filters & Print Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e6dfcb] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-3 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
             onClick={() => handleTabChange('ALL')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ALL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             All ({totalCount})
@@ -103,10 +103,10 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
           <button
             type="button"
             onClick={() => handleTabChange('CONFIRMED')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'CONFIRMED'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Confirmed ({confirmedCount})
@@ -114,10 +114,10 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
           <button
             type="button"
             onClick={() => handleTabChange('QUEUED')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'QUEUED'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Review Queue ({queuedCount})
@@ -125,10 +125,10 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
           <button
             type="button"
             onClick={() => handleTabChange('VENUE')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'VENUE'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Pay at Venue ({venueCount})
@@ -137,13 +137,13 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
 
         <div className="flex items-center gap-2">
           <div className="relative flex-1 sm:w-60">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
             <input
               type="text"
               placeholder="Search attendees..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] bg-[#f8f4e3]/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2c3324]"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
             />
           </div>
 
@@ -157,7 +157,7 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
       </div>
 
       {/* Attendees Card & Table */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
@@ -176,16 +176,16 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
           {filteredAttendees.length === 0 ? (
             <div className="text-center py-12 space-y-3">
               <Users className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
-              <p className="text-sm font-semibold text-[#2c3324]">
+              <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No attendees match your search' : 'No attendees in this category'}
               </p>
-              <p className="text-xs text-[#707666]">
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                 {searchQuery ? 'Try clearing or modifying your search keyword.' : 'Registrations will appear here.'}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="divide-y divide-[#e6dfcb]">
+              <div className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b]">
                 {paginatedAttendees.map(({ registration: reg, profile }) => {
                   const isGcash = reg.paymentOption === 'GCASH';
                   const isVenue = reg.paymentOption === 'VENUE_DESK';
@@ -194,12 +194,12 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                   return (
                     <div
                       key={reg.id}
-                      className="py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-[#f8f4e3]/40 transition-colors px-2 rounded-xl"
+                      className="py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-[#f8f4e3]/40 dark:hover:bg-[#252e1f]/40 transition-colors px-2 rounded-xl"
                     >
                       {/* Member Info */}
                       <div className="space-y-1 min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-serif font-bold text-base text-[#2c3324]">
+                          <span className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1]">
                             {profile.firstName} {profile.lastName}
                           </span>
                           <Badge
@@ -224,12 +224,12 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                           </Badge>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
                           <span>{profile.email}</span>
                           {profile.phoneNumber && (
                             <>
                               <span>•</span>
-                              <span className="font-mono text-[#2c3324] font-medium">{profile.phoneNumber}</span>
+                              <span className="font-mono text-[#2c3324] dark:text-[#fefcf1] font-medium">{profile.phoneNumber}</span>
                             </>
                           )}
                           <span>•</span>
@@ -239,7 +239,7 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                         </div>
 
                         {reg.specialRequirements && (
-                          <p className="text-xs text-[#9a6423] bg-[#f8f4e3] p-2 rounded-lg border border-[#e6dfcb] mt-1 max-w-2xl">
+                          <p className="text-xs text-[#9a6423] dark:text-[#f0be7c] bg-[#f8f4e3] dark:bg-[#252e1f] p-2 rounded-lg border border-[#e6dfcb] dark:border-[#323d2b] mt-1 max-w-2xl">
                             <strong>Special Notes:</strong> {reg.specialRequirements}
                           </p>
                         )}
@@ -247,10 +247,10 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
 
                       {/* Payment Details & Receipt Link */}
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs shrink-0 self-end md:self-center">
-                        <div className="p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-1">
-                          <div className="flex items-center gap-1.5 font-bold text-[#2c3324]">
-                            {isGcash && <QrCode className="h-3.5 w-3.5 text-[#9a6423]" />}
-                            {isVenue && <Building2 className="h-3.5 w-3.5 text-[#9a6423]" />}
+                        <div className="p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] space-y-1">
+                          <div className="flex items-center gap-1.5 font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                            {isGcash && <QrCode className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />}
+                            {isVenue && <Building2 className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />}
                             <span>
                               {isFree
                                 ? 'Free Admission'
@@ -261,8 +261,8 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                           </div>
 
                           {reg.referenceNumber && (
-                            <div className="text-[11px] text-[#707666]">
-                              Ref #: <strong className="font-mono text-[#2c3324]">{reg.referenceNumber}</strong>
+                            <div className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                              Ref #: <strong className="font-mono text-[#2c3324] dark:text-[#fefcf1]">{reg.referenceNumber}</strong>
                             </div>
                           )}
                         </div>
@@ -272,10 +272,10 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                             href={reg.receiptImageUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-2 rounded-xl bg-white border border-[#e6dfcb] hover:border-[#e0a861] transition-all shadow-xs group"
+                            className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#e0a861] dark:hover:border-[#e0a861] transition-all shadow-xs group"
                             title="View Full GCash Receipt"
                           >
-                            <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-[#e6dfcb] bg-[#f8f4e3]">
+                            <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3] dark:bg-[#252e1f]">
                               <Image
                                 src={reg.receiptImageUrl}
                                 alt="GCash Proof"
@@ -283,7 +283,7 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                                 className="object-cover group-hover:scale-105 transition-transform"
                               />
                             </div>
-                            <span className="text-[11px] text-[#9a6423] font-medium flex items-center gap-1">
+                            <span className="text-[11px] text-[#9a6423] dark:text-[#f0be7c] font-medium flex items-center gap-1">
                               <span>Proof</span>
                               <ExternalLink className="h-3 w-3" />
                             </span>

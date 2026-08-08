@@ -63,12 +63,12 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
       : '/images/logo/pcyc-transparent-logo.png';
 
   return (
-    <Card className="border-[#e6dfcb] shadow-md">
+    <Card className="shadow-md">
       <form action={formAction}>
         <input type="hidden" name="productId" value={product.id} />
         <input type="hidden" name="existingImageUrl" value={currentImg} />
 
-        <CardHeader className="border-b border-[#e6dfcb] pb-4">
+        <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-[#e0a861]" />
             <CardTitle className="text-xl">Edit Merchandise: {product.name}</CardTitle>
@@ -80,7 +80,7 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
 
         <CardContent className="space-y-5 pt-6">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
@@ -100,7 +100,7 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
 
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold text-[#2c3324] uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
                   URL Slug <span className="text-[#c0392b]">*</span>
                 </label>
                 {isManuallyEdited && (
@@ -129,8 +129,8 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
           {/* 2. Existing Image Preview & Device Image Attachment */}
           <div className="space-y-3">
             {currentImg && (
-              <div className="p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] flex items-center gap-4">
-                <div className="relative h-16 w-16 rounded-lg overflow-hidden border border-[#e6dfcb] bg-white shrink-0">
+              <div className="p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center gap-4">
+                <div className="relative h-16 w-16 rounded-lg overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] shrink-0">
                   <Image
                     src={currentImg}
                     alt="Current Product Image"
@@ -139,8 +139,8 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
                   />
                 </div>
                 <div className="text-xs space-y-0.5">
-                  <strong className="block text-[#2c3324]">Current Product Photo</strong>
-                  <p className="text-[#707666]">Upload a new image below if you wish to replace it.</p>
+                  <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Current Product Photo</strong>
+                  <p className="text-[#707666] dark:text-[#a3ab98]">Upload a new image below if you wish to replace it.</p>
                 </div>
               </div>
             )}
@@ -206,35 +206,35 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
 
           {/* 6. Toggles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
               <div>
-                <strong className="block text-xs text-[#2c3324]">Available for Purchase</strong>
-                <span className="text-[11px] text-[#707666]">Display in public store.</span>
+                <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Available for Purchase</strong>
+                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">Display in public store.</span>
               </div>
               <input
                 type="checkbox"
                 name="isAvailable"
                 defaultChecked={product.isAvailable}
-                className="h-5 w-5 rounded border-[#e6dfcb] text-[#2c3324] focus:ring-[#e0a861]"
+                className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
               />
             </div>
 
-            <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
               <div>
-                <strong className="block text-xs text-[#2c3324]">Pre-Order Item</strong>
-                <span className="text-[11px] text-[#707666]">Item will be made-to-order.</span>
+                <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Pre-Order Item</strong>
+                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">Item will be made-to-order.</span>
               </div>
               <input
                 type="checkbox"
                 name="isPreorder"
                 defaultChecked={product.isPreorder}
-                className="h-5 w-5 rounded border-[#e6dfcb] text-[#2c3324] focus:ring-[#e0a861]"
+                className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
               />
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] pt-4">
+        <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
           <Link href="/admin/merch">
             <Button type="button" variant="outline" size="md">
               <span>Cancel</span>

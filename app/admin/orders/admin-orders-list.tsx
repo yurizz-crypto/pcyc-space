@@ -75,15 +75,15 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   return (
     <div className="space-y-4">
       {/* Tabs & Search Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-[#e6dfcb] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-2.5 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
             onClick={() => handleTabChange('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'ALL'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             All ({totalCount})
@@ -93,8 +93,8 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
             onClick={() => handleTabChange('PENDING')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'PENDING'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Pending Verification ({pendingCount})
@@ -104,8 +104,8 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
             onClick={() => handleTabChange('APPROVED')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'APPROVED'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Approved ({approvedCount})
@@ -115,8 +115,8 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
             onClick={() => handleTabChange('REJECTED')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
               filterTab === 'REJECTED'
-                ? 'bg-[#2c3324] text-white shadow-xs'
-                : 'text-[#505748] hover:text-[#2c3324] hover:bg-[#e6dfcb]/50'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
             }`}
           >
             Rejected ({rejectedCount})
@@ -124,19 +124,19 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             placeholder="Search orders, ref, name..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] bg-[#f8f4e3]/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2c3324]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
           />
         </div>
       </div>
 
       {/* Orders List Card */}
-      <Card className="border-[#e6dfcb]">
+      <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">
             Merchandise Transactions ({filteredOrders.length})
@@ -149,10 +149,10 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-12 space-y-3">
               <Receipt className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
-              <p className="text-sm font-semibold text-[#2c3324]">
+              <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No orders match your search criteria' : 'No orders in this category'}
               </p>
-              <p className="text-xs text-[#707666]">
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                 {searchQuery ? 'Try modifying your search keywords.' : 'Orders submitted by members will appear here.'}
               </p>
             </div>
@@ -166,11 +166,11 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                   return (
                     <div
                       key={ord.id}
-                      className="p-5 rounded-2xl bg-white border border-[#e6dfcb] shadow-xs space-y-4 hover:border-[#e0a861]/60 transition-colors"
+                      className="p-5 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs space-y-4 hover:border-[#e0a861]/60 transition-colors"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0ebd3] pb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0ebd3] dark:border-[#323d2b] pb-3">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-sm font-bold text-[#2c3324]">
+                          <span className="font-mono text-sm font-bold text-[#2c3324] dark:text-[#fefcf1]">
                             {ord.orderNumber}
                           </span>
                           <Badge
@@ -189,7 +189,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                           </Badge>
                         </div>
 
-                        <div className="flex items-center gap-3 text-xs text-[#707666]">
+                        <div className="flex items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
                           <span>Placed on: {formatDate(ord.createdAt)}</span>
                           <span>•</span>
                           <PriceTag price={ord.totalAmount} />
@@ -197,16 +197,16 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                       </div>
 
                       {/* Customer Delivery Details */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#505748]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#505748] dark:text-[#a3ab98]">
                         <div>
-                          <strong className="block text-[#2c3324]">Recipient:</strong>
+                          <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Recipient:</strong>
                           <span>
                             {shipping?.recipientName || (ord.user ? `${ord.user.firstName} ${ord.user.lastName}` : 'Member')}{' '}
                             ({shipping?.contactNumber || ord.user?.phoneNumber || 'N/A'})
                           </span>
                         </div>
                         <div>
-                          <strong className="block text-[#2c3324]">Delivery Address:</strong>
+                          <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Delivery Address:</strong>
                           <span>
                             {shipping?.deliveryAddress}, {shipping?.city}, {shipping?.province}
                           </span>
@@ -215,11 +215,11 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
 
                       {/* Payment Receipt Info & Action */}
                       {receipt ? (
-                        <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div className="space-y-1 text-xs">
                             <div className="flex items-center gap-2">
                               <QrCode className="h-4 w-4 text-[#e0a861]" />
-                              <span className="font-semibold text-[#2c3324]">
+                              <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                                 Payment: {receipt.paymentMethod}
                               </span>
                               <Badge
@@ -236,9 +236,9 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                               </Badge>
                             </div>
                             {receipt.referenceNumber && (
-                              <div>
+                              <div className="dark:text-[#a3ab98]">
                                 Ref No:{' '}
-                                <span className="font-mono font-bold">{receipt.referenceNumber}</span>
+                                <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">{receipt.referenceNumber}</span>
                               </div>
                             )}
                           </div>

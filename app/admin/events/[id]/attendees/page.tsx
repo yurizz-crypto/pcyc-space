@@ -48,15 +48,15 @@ export default async function EventAttendeesPage({ params }: EventAttendeesPageP
         <div className="space-y-1">
           <Link
             href="/admin/events"
-            className="inline-flex items-center gap-1.5 text-xs text-[#505748] hover:text-[#2c3324] font-medium"
+            className="inline-flex items-center gap-1.5 text-xs text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] font-medium"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Events Management</span>
           </Link>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
             {event.title} &mdash; Registered Attendees
           </h1>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666]">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
               <span>{formatEventSchedule(event.startDate, event.endDate)}</span>

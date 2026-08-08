@@ -59,22 +59,22 @@ export function Pagination({
   return (
     <div
       className={cn(
-        'flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2 text-xs text-[#505748]',
+        'flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-2 text-xs text-[#505748] dark:text-[#a3ab98]',
         className
       )}
     >
       {/* Count summary */}
       {showCount && totalItems !== undefined && (
-        <div className="text-[#707666]">
+        <div className="text-[#707666] dark:text-[#a3ab98]">
           {startItem && endItem ? (
             <span>
-              Showing <strong className="text-[#2c3324] font-semibold">{startItem}</strong> to{' '}
-              <strong className="text-[#2c3324] font-semibold">{endItem}</strong> of{' '}
-              <strong className="text-[#2c3324] font-semibold">{totalItems}</strong> entries
+              Showing <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{startItem}</strong> to{' '}
+              <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{endItem}</strong> of{' '}
+              <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{totalItems}</strong> entries
             </span>
           ) : (
             <span>
-              Total: <strong className="text-[#2c3324] font-semibold">{totalItems}</strong> items
+              Total: <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{totalItems}</strong> items
             </span>
           )}
         </div>
@@ -89,7 +89,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
-          className="h-8 w-8 p-0 border-[#e6dfcb] text-[#505748] disabled:opacity-40"
+          className="h-8 w-8 p-0 border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] disabled:opacity-40"
           aria-label="First page"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
-          className="h-8 w-8 p-0 border-[#e6dfcb] text-[#505748] disabled:opacity-40"
+          className="h-8 w-8 p-0 border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] disabled:opacity-40"
           aria-label="Previous page"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -113,7 +113,7 @@ export function Pagination({
           {pages.map((p, idx) => {
             if (p === '...') {
               return (
-                <span key={`ellipsis-${idx}`} className="px-2 text-[#8a9180] select-none">
+                <span key={`ellipsis-${idx}`} className="px-2 text-[#8a9180] dark:text-[#707666] select-none">
                   &hellip;
                 </span>
               );
@@ -131,8 +131,8 @@ export function Pagination({
                 className={cn(
                   'h-8 min-w-[32px] px-2 rounded-lg text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-[#2c3324] text-white shadow-xs'
-                    : 'text-[#505748] hover:bg-[#f8f4e3] hover:text-[#2c3324] border border-transparent'
+                    ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
+                    : 'text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent'
                 )}
               >
                 {pageNum}
@@ -148,7 +148,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
-          className="h-8 w-8 p-0 border-[#e6dfcb] text-[#505748] disabled:opacity-40"
+          className="h-8 w-8 p-0 border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] disabled:opacity-40"
           aria-label="Next page"
         >
           <ChevronRight className="h-4 w-4" />
@@ -161,7 +161,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
-          className="h-8 w-8 p-0 border-[#e6dfcb] text-[#505748] disabled:opacity-40"
+          className="h-8 w-8 p-0 border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] disabled:opacity-40"
           aria-label="Last page"
         >
           <ChevronsRight className="h-4 w-4" />
