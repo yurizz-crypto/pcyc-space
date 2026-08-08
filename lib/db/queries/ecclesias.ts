@@ -14,7 +14,7 @@ export const getDisplayedEcclesias = cache(async function getDisplayedEcclesias(
        .select()
        .from(ecclesias)
        .where(eq(ecclesias.isDisplayed, true))
-       .orderBy(asc(ecclesias.orderIndex), asc(ecclesias.name));
+       .orderBy(asc(ecclesias.region), asc(ecclesias.name));
   } catch (error: any) {
     if (
       error?.digest === 'DYNAMIC_SERVER_USAGE' ||

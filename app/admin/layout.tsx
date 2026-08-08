@@ -2,6 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
+import { getCurrentUserNotifications, getUnreadNotificationCount } from '@/lib/db/queries/notifications';
+import { NotificationBell } from '@/components/domain/notifications/notification-bell';
+import type { Notification } from '@/lib/db/schema/notifications';
 import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard,
@@ -37,6 +40,11 @@ export default async function AdminLayout({
     redirect('/portal');
   }
 
+  const [notifications, unreadCount] = await Promise.all([
+    getCurrentUserNotifications(10),
+    getUnreadNotificationCount(profile.id),
+  ]);
+
   const adminNav = [
     { href: '/admin', label: 'Overview', icon: LayoutDashboard },
     { href: '/admin/ecclesias', label: 'Ecclesias Directory', icon: Church },
@@ -69,7 +77,13 @@ export default async function AdminLayout({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center bg-[#1e2418] dark:bg-[#181d14] rounded-xl px-2 border border-[#3d4632]">
+              <NotificationBell
+                initialNotifications={notifications}
+                initialUnreadCount={unreadCount}
+              />
+            </div>
             <Link
               href="/portal"
               className="inline-flex items-center gap-1 text-[#e0a861] hover:underline"

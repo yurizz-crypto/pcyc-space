@@ -27,15 +27,16 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
   const totalCount = products.length;
   const activeCount = products.filter((p) => p.isAvailable).length;
   const preorderCount = products.filter((p) => p.isPreorder).length;
-  const apparelCount = products.filter((p) => p.category === 'Apparel').length;
-  const accessoriesCount = products.filter((p) => p.category === 'Accessories').length;
+  const apparelCount = products.filter((p) => (p.category || '').trim().toLowerCase() === 'apparel').length;
+  const accessoriesCount = products.filter((p) => (p.category || '').trim().toLowerCase() === 'accessories').length;
 
   // Filter list
   const filteredProducts = products.filter((prod) => {
+    const cat = (prod.category || '').trim().toLowerCase();
     if (filterTab === 'ACTIVE' && !prod.isAvailable) return false;
     if (filterTab === 'PREORDER' && !prod.isPreorder) return false;
-    if (filterTab === 'APPAREL' && prod.category !== 'Apparel') return false;
-    if (filterTab === 'ACCESSORIES' && prod.category !== 'Accessories') return false;
+    if (filterTab === 'APPAREL' && cat !== 'apparel') return false;
+    if (filterTab === 'ACCESSORIES' && cat !== 'accessories') return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();

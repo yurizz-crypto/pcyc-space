@@ -2,15 +2,31 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import { PriceTag } from '@/components/molecules/price-tag';
 import { Pagination } from '@/components/ui/pagination';
 import { verifyReceiptAction } from '@/app/actions/orders';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatCurrency } from '@/lib/utils';
 import type { OrderWithDetails } from '@/lib/db/queries/orders';
-import { Receipt, CheckCircle, XCircle, QrCode, Search } from 'lucide-react';
+import {
+  Receipt,
+  CheckCircle,
+  XCircle,
+  QrCode,
+  Search,
+  Eye,
+  ExternalLink,
+  MapPin,
+  Package,
+  Truck,
+  Copy,
+  Check,
+  AlertTriangle,
+} from 'lucide-react';
 
 interface AdminOrdersListProps {
   orders: OrderWithDetails[];
@@ -22,6 +38,11 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   const [filterTab, setFilterTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Selected Order for Receipt Lightbox Modal
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<OrderWithDetails | null>(null);
+  const [rejectionReason, setRejectionReason] = useState<string>('Reference number did not match GCash account transaction.');
+  const [copiedRef, setCopiedRef] = useState(false);
 
   // Compute counts
   const totalCount = orders.length;
@@ -70,6 +91,58 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   const handleSearchChange = (val: string) => {
     setSearchQuery(val);
     setCurrentPage(1);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedRef(true);
+    setTimeout(() => setCopiedRef(false), 2000);
+  };
+
+  // Helper to format clean, professional fulfillment logistics
+  const formatLogistics = (ord: OrderWithDetails) => {
+    const shipping = ord.shippingInfo;
+    const addr = (shipping?.deliveryAddress || '').toLowerCase();
+    const city = (shipping?.city || '').toLowerCase();
+    const notesStr = (shipping?.notes || ord.notes || '').toLowerCase();
+
+    const isEventPickup =
+      addr.includes('event') ||
+      addr.includes('pickup') ||
+      addr.includes('desk') ||
+      city === 'n/a' ||
+      city.includes('event') ||
+      notesStr.includes('event pickup') ||
+      !shipping?.deliveryAddress;
+
+    const recipientName =
+      shipping?.recipientName || (ord.user ? `${ord.user.firstName} ${ord.user.lastName}` : 'PCYC Member');
+    const contactNumber = shipping?.contactNumber || ord.user?.phoneNumber || 'Not provided';
+
+    if (isEventPickup) {
+      return {
+        isEventPickup: true,
+        typeLabel: 'Event Registration Desk Claim',
+        recipientName,
+        contactNumber,
+        locationLabel: 'PCYC Youth Camp Venue • On-site Registration Desk Claim',
+        notes: shipping?.notes || ord.notes,
+      };
+    }
+
+    // Standard Courier Delivery
+    const addressParts = [shipping?.deliveryAddress, shipping?.city, shipping?.province, shipping?.zipCode]
+      .filter(Boolean)
+      .filter((p) => p !== 'N/A' && p !== 'n/a' && p?.trim() !== '');
+
+    return {
+      isEventPickup: false,
+      typeLabel: 'Standard Courier Delivery',
+      recipientName,
+      contactNumber,
+      locationLabel: addressParts.join(', ') || 'Courier Address on File',
+      notes: shipping?.notes || ord.notes,
+    };
   };
 
   return (
@@ -142,7 +215,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
             Merchandise Transactions ({filteredOrders.length})
           </CardTitle>
           <CardDescription>
-            Live database records of merchandise transactions and payment receipts.
+            Live database records of merchandise transactions, GCash payment verification, and fulfillment logistics.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -160,14 +233,15 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
             <div className="space-y-4">
               <div className="space-y-4">
                 {paginatedOrders.map((ord) => {
-                  const shipping = ord.shippingInfo;
                   const receipt = ord.receipt;
+                  const logistics = formatLogistics(ord);
 
                   return (
                     <div
                       key={ord.id}
                       className="p-5 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs space-y-4 hover:border-[#e0a861]/60 transition-colors"
                     >
+                      {/* Order Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0ebd3] dark:border-[#323d2b] pb-3">
                         <div className="flex items-center gap-3">
                           <span className="font-mono text-sm font-bold text-[#2c3324] dark:text-[#fefcf1]">
@@ -196,95 +270,174 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                         </div>
                       </div>
 
-                      {/* Customer Delivery Details */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#505748] dark:text-[#a3ab98]">
-                        <div>
-                          <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Recipient:</strong>
-                          <span>
-                            {shipping?.recipientName || (ord.user ? `${ord.user.firstName} ${ord.user.lastName}` : 'Member')}{' '}
-                            ({shipping?.contactNumber || ord.user?.phoneNumber || 'N/A'})
-                          </span>
+                      {/* Customer & Fulfillment Logistics Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-[#505748] dark:text-[#a3ab98] p-3.5 rounded-xl bg-[#faf7ec]/60 dark:bg-[#161c13] border border-[#f0ebd3] dark:border-[#273220]">
+                        {/* Recipient */}
+                        <div className="space-y-1">
+                          <strong className="block text-[#2c3324] dark:text-[#fefcf1] font-semibold">
+                            Recipient Contact:
+                          </strong>
+                          <div className="text-sm font-serif font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                            {logistics.recipientName}
+                          </div>
+                          <div className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                            Phone / GCash: <span className="font-mono font-semibold">{logistics.contactNumber}</span>
+                          </div>
                         </div>
-                        <div>
-                          <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Delivery Address:</strong>
-                          <span>
-                            {shipping?.deliveryAddress}, {shipping?.city}, {shipping?.province}
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* Payment Receipt Info & Action */}
-                      {receipt ? (
-                        <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="space-y-1 text-xs">
-                            <div className="flex items-center gap-2">
-                              <QrCode className="h-4 w-4 text-[#e0a861]" />
-                              <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                                Payment: {receipt.paymentMethod}
+                        {/* Fulfillment Mode */}
+                        <div className="space-y-1">
+                          <strong className="block text-[#2c3324] dark:text-[#fefcf1] font-semibold">
+                            Fulfillment Logistics:
+                          </strong>
+                          <div className="flex items-center gap-1.5">
+                            {logistics.isEventPickup ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#e0a861]/20 text-[#85531b] dark:text-[#f0be7c] border border-[#e0a861]/40">
+                                <Package className="h-3 w-3" />
+                                {logistics.typeLabel}
                               </span>
-                              <Badge
-                                variant={
-                                  receipt.verificationStatus === 'APPROVED'
-                                    ? 'success'
-                                    : receipt.verificationStatus === 'REJECTED'
-                                    ? 'destructive'
-                                    : 'gold'
-                                }
-                                size="sm"
-                              >
-                                {receipt.verificationStatus}
-                              </Badge>
-                            </div>
-                            {receipt.referenceNumber && (
-                              <div className="dark:text-[#a3ab98]">
-                                Ref No:{' '}
-                                <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">{receipt.referenceNumber}</span>
-                              </div>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2e7d32]/15 text-[#2e7d32] dark:text-[#81c784] border border-[#2e7d32]/30">
+                                <Truck className="h-3 w-3" />
+                                {logistics.typeLabel}
+                              </span>
                             )}
                           </div>
-
-                          {receipt.verificationStatus === 'PENDING' && (
-                            <div className="flex items-center gap-2">
-                              <form action={verifyReceiptAction}>
-                                <input type="hidden" name="orderId" value={ord.id} />
-                                <input type="hidden" name="receiptId" value={receipt.id} />
-                                <input type="hidden" name="decision" value="APPROVED" />
-                                <Button
-                                  type="submit"
-                                  variant="primary"
-                                  size="sm"
-                                  className="gap-1.5 shadow-xs"
-                                >
-                                  <CheckCircle className="h-3.5 w-3.5" />
-                                  <span>Verify & Approve</span>
-                                </Button>
-                              </form>
-
-                              <form action={verifyReceiptAction}>
-                                <input type="hidden" name="orderId" value={ord.id} />
-                                <input type="hidden" name="receiptId" value={receipt.id} />
-                                <input type="hidden" name="decision" value="REJECTED" />
-                                <input
-                                  type="hidden"
-                                  name="adminNotes"
-                                  value="Payment screenshot reference did not match GCash account record."
-                                />
-                                <Button
-                                  type="submit"
-                                  variant="destructive"
-                                  size="sm"
-                                  className="gap-1.5"
-                                >
-                                  <XCircle className="h-3.5 w-3.5" />
-                                  <span>Reject</span>
-                                </Button>
-                              </form>
+                          <div className="text-[11px] text-[#505748] dark:text-[#a3ab98] flex items-start gap-1 pt-0.5">
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#8a9180] mt-0.5" />
+                            <span>{logistics.locationLabel}</span>
+                          </div>
+                          {logistics.notes && (
+                            <div className="text-[10px] text-[#707666] dark:text-[#a3ab98] italic pt-1">
+                              Note: &ldquo;{logistics.notes}&rdquo;
                             </div>
                           )}
                         </div>
+                      </div>
+
+                      {/* Payment Receipt Info & Action Box */}
+                      {receipt ? (
+                        <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                          <div className="flex items-start sm:items-center gap-3">
+                            {/* Receipt Thumbnail (if uploaded) */}
+                            {receipt.receiptImageUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReceiptOrder(ord)}
+                                className="relative group shrink-0 h-14 w-14 rounded-lg overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] shadow-2xs hover:ring-2 hover:ring-[#e0a861] transition-all cursor-pointer"
+                                title="Click to inspect receipt proof"
+                              >
+                                <img
+                                  src={receipt.receiptImageUrl}
+                                  alt="Receipt thumbnail"
+                                  className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                                />
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                  <Eye className="h-4 w-4 text-white" />
+                                </div>
+                              </button>
+                            ) : (
+                              <div className="h-12 w-12 rounded-lg bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] flex items-center justify-center shrink-0">
+                                <QrCode className="h-6 w-6" />
+                              </div>
+                            )}
+
+                            {/* Payment Meta */}
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                                  GCash Payment Proof
+                                </span>
+                                <Badge
+                                  variant={
+                                    receipt.verificationStatus === 'APPROVED'
+                                      ? 'success'
+                                      : receipt.verificationStatus === 'REJECTED'
+                                      ? 'destructive'
+                                      : 'gold'
+                                  }
+                                  size="sm"
+                                >
+                                  {receipt.verificationStatus}
+                                </Badge>
+                              </div>
+
+                              {receipt.referenceNumber && (
+                                <div className="dark:text-[#a3ab98]">
+                                  GCash Ref No:{' '}
+                                  <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                                    {receipt.referenceNumber}
+                                  </span>
+                                </div>
+                              )}
+
+                              <div className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                                Amount Claimed: <strong className="font-mono text-[#2c3324] dark:text-[#fefcf1]">{formatCurrency(Number(receipt.amountPaid || ord.totalAmount))}</strong>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end">
+                            {/* Inspect Proof Button */}
+                            {receipt.receiptImageUrl && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedReceiptOrder(ord)}
+                                className="gap-1.5 text-xs bg-white dark:bg-[#1b2117]"
+                              >
+                                <Eye className="h-3.5 w-3.5 text-[#e0a861]" />
+                                <span>Inspect Receipt</span>
+                              </Button>
+                            )}
+
+                            {/* Inline Approval & Rejection Forms */}
+                            {receipt.verificationStatus === 'PENDING' && (
+                              <>
+                                <form action={verifyReceiptAction}>
+                                  <input type="hidden" name="orderId" value={ord.id} />
+                                  <input type="hidden" name="receiptId" value={receipt.id} />
+                                  <input type="hidden" name="decision" value="APPROVED" />
+                                  <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="sm"
+                                    className="gap-1.5 shadow-xs"
+                                  >
+                                    <CheckCircle className="h-3.5 w-3.5" />
+                                    <span>Approve</span>
+                                  </Button>
+                                </form>
+
+                                <form action={verifyReceiptAction}>
+                                  <input type="hidden" name="orderId" value={ord.id} />
+                                  <input type="hidden" name="receiptId" value={receipt.id} />
+                                  <input type="hidden" name="decision" value="REJECTED" />
+                                  <input
+                                    type="hidden"
+                                    name="adminNotes"
+                                    value="Payment screenshot reference did not match GCash account record."
+                                  />
+                                  <Button
+                                    type="submit"
+                                    variant="destructive"
+                                    size="sm"
+                                    className="gap-1.5"
+                                  >
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    <span>Reject</span>
+                                  </Button>
+                                </form>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       ) : (
-                        <div className="text-xs text-[#8a9180] italic">
-                          No payment receipt uploaded yet by customer.
+                        <div className="p-3.5 rounded-xl bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 border border-dashed border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#8a9180] flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-[#e0a861]" />
+                          <span>No payment receipt screenshot uploaded yet by member.</span>
                         </div>
                       )}
                     </div>
@@ -305,6 +458,209 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* ================================================================= */}
+      {/* High-Resolution Receipt Proof Inspection Lightbox Modal */}
+      {/* ================================================================= */}
+      <Modal
+        isOpen={!!selectedReceiptOrder}
+        onClose={() => setSelectedReceiptOrder(null)}
+        title="GCash Payment Verification Proof"
+        description={`Order #${selectedReceiptOrder?.orderNumber} • Placed by ${selectedReceiptOrder?.shippingInfo?.recipientName || 'Member'}`}
+        className="max-w-4xl"
+      >
+        {selectedReceiptOrder && selectedReceiptOrder.receipt && (
+          <div className="space-y-6 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {/* Receipt Screenshot Viewer (7 columns) */}
+              <div className="md:col-span-7 bg-[#131710] rounded-2xl p-3 flex flex-col items-center justify-center border border-[#323d2b] min-h-[380px]">
+                {selectedReceiptOrder.receipt.receiptImageUrl ? (
+                  <div className="space-y-3 w-full flex flex-col items-center">
+                    <div className="relative max-h-[460px] overflow-auto rounded-xl border border-white/10 shadow-inner bg-black/40">
+                      <img
+                        src={selectedReceiptOrder.receipt.receiptImageUrl}
+                        alt="GCash Payment Proof Full Resolution"
+                        className="w-full object-contain max-h-[460px] mx-auto rounded-lg"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center gap-3 pt-1">
+                      <a
+                        href={selectedReceiptOrder.receipt.receiptImageUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="inline-flex items-center gap-1.5 text-xs text-[#f0be7c] hover:underline font-semibold"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Open Original Image in Full Tab</span>
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-xs text-[#a3ab98] py-12 space-y-2">
+                    <QrCode className="h-10 w-10 mx-auto text-[#e0a861] opacity-60" />
+                    <p>No receipt image file available for this transaction.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Transaction Inspection Panel (5 columns) */}
+              <div className="md:col-span-5 space-y-4 text-xs">
+                {/* Meta details */}
+                <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-[#707666] dark:text-[#a3ab98] tracking-wider block">
+                      Transaction Ref Number
+                    </span>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <span className="font-mono text-sm font-extrabold text-[#2c3324] dark:text-[#fefcf1]">
+                        {selectedReceiptOrder.receipt.referenceNumber || 'N/A'}
+                      </span>
+                      {selectedReceiptOrder.receipt.referenceNumber && (
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(selectedReceiptOrder.receipt?.referenceNumber || '')}
+                          className="p-1 rounded-md hover:bg-black/10 dark:hover:bg-white/10 text-[#707666] dark:text-[#a3ab98] transition-colors"
+                          title="Copy reference number"
+                        >
+                          {copiedRef ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#e6dfcb] dark:border-[#323d2b]">
+                    <div>
+                      <span className="text-[10px] text-[#707666] dark:text-[#a3ab98] block">Amount Paid</span>
+                      <span className="font-mono font-bold text-sm text-[#2c3324] dark:text-[#fefcf1]">
+                        {formatCurrency(Number(selectedReceiptOrder.receipt.amountPaid || selectedReceiptOrder.totalAmount))}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#707666] dark:text-[#a3ab98] block">Payment Channel</span>
+                      <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">GCash Philippines</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
+                    <span className="text-[10px] text-[#707666] dark:text-[#a3ab98]">Current Status:</span>
+                    <Badge
+                      variant={
+                        selectedReceiptOrder.receipt.verificationStatus === 'APPROVED'
+                          ? 'success'
+                          : selectedReceiptOrder.receipt.verificationStatus === 'REJECTED'
+                          ? 'destructive'
+                          : 'gold'
+                      }
+                      size="sm"
+                    >
+                      {selectedReceiptOrder.receipt.verificationStatus}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Verification Decision Form */}
+                {selectedReceiptOrder.receipt.verificationStatus === 'PENDING' ? (
+                  <div className="space-y-3 pt-2">
+                    <span className="text-[11px] font-bold text-[#2c3324] dark:text-[#fefcf1] block">
+                      Admin Verification Action:
+                    </span>
+
+                    {/* Approve Action */}
+                    <form
+                      action={async (formData) => {
+                        await verifyReceiptAction(formData);
+                        setSelectedReceiptOrder(null);
+                      }}
+                    >
+                      <input type="hidden" name="orderId" value={selectedReceiptOrder.id} />
+                      <input type="hidden" name="receiptId" value={selectedReceiptOrder.receipt?.id} />
+                      <input type="hidden" name="decision" value="APPROVED" />
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="md"
+                        className="w-full gap-2 shadow-sm font-bold bg-[#2e7d32] hover:bg-[#1b5e20] text-white"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Confirm & Approve Payment</span>
+                      </Button>
+                    </form>
+
+                    {/* Reject Action with Reason */}
+                    <div className="pt-3 border-t border-[#e6dfcb] dark:border-[#323d2b] space-y-2">
+                      <label className="text-[10px] font-semibold text-[#707666] dark:text-[#a3ab98] block">
+                        Rejection Reason (Sent to Member):
+                      </label>
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          'Reference did not match GCash record',
+                          'Screenshot unreadable or cut off',
+                          'Incorrect payment amount',
+                        ].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setRejectionReason(preset)}
+                            className="text-[9px] px-2 py-0.5 rounded bg-[#f8f4e3] dark:bg-[#252e1f] text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] border border-[#e6dfcb] dark:border-[#323d2b]"
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        value={rejectionReason}
+                        onChange={(e) => setRejectionReason(e.target.value)}
+                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] dark:text-[#fefcf1]"
+                      />
+
+                      <form
+                        action={async (formData) => {
+                          await verifyReceiptAction(formData);
+                          setSelectedReceiptOrder(null);
+                        }}
+                      >
+                        <input type="hidden" name="orderId" value={selectedReceiptOrder.id} />
+                        <input type="hidden" name="receiptId" value={selectedReceiptOrder.receipt?.id} />
+                        <input type="hidden" name="decision" value="REJECTED" />
+                        <input type="hidden" name="adminNotes" value={rejectionReason} />
+                        <Button
+                          type="submit"
+                          variant="destructive"
+                          size="sm"
+                          className="w-full gap-2 mt-1"
+                        >
+                          <XCircle className="h-4 w-4" />
+                          <span>Reject Receipt</span>
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-[#e8f5e9]/50 dark:bg-[#1f3a23]/50 border border-[#c8e6c9] dark:border-[#2e7d32]/40 text-xs text-[#2e7d32] dark:text-[#81c784] flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 shrink-0" />
+                    <span>
+                      This transaction was already {selectedReceiptOrder.receipt.verificationStatus.toLowerCase()} by an admin.
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-[#e6dfcb] dark:border-[#323d2b] flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setSelectedReceiptOrder(null)}
+              >
+                Close Inspection
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
+

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
@@ -15,7 +15,7 @@ export default function NewEcclesiaPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Back Link */}
+      {/* Back Navigation */}
       <div>
         <Link
           href="/admin/ecclesias"
@@ -27,141 +27,120 @@ export default function NewEcclesiaPage() {
       </div>
 
       {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] flex items-center justify-center">
-              <Church className="h-5 w-5" />
+      <Card className="shadow-md">
+        <form
+          action={async (formData) => {
+            setIsSubmitting(true);
+            await createEcclesiaAction(formData);
+            setIsSubmitting(false);
+          }}
+        >
+          <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] flex items-center justify-center">
+                <Church className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-serif">Add New Philippine Ecclesia</CardTitle>
+                <CardDescription>
+                  Register a fellowship location to appear across the directory, stats, and registration forms.
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-xl font-serif">Add New Philippine Ecclesia</CardTitle>
-              <CardDescription>
-                Register a fellowship location to appear across the directory, stats, and registration forms.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form
-            action={async (formData) => {
-              setIsSubmitting(true);
-              await createEcclesiaAction(formData);
-              setIsSubmitting(false);
-            }}
-            className="space-y-6"
-          >
+          </CardHeader>
+
+          <CardContent className="space-y-4 pt-6">
+            {/* 1. Name & Region */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Ecclesia Name */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  Ecclesia Name <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  name="name"
-                  placeholder="e.g. Iloilo Ecclesia"
-                  required
-                />
-              </div>
-
-              {/* Region */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  Region <span className="text-red-500">*</span>
-                </label>
-                <Select
-                  name="region"
-                  defaultValue="Luzon"
-                  options={[
-                    { value: 'Luzon', label: 'Luzon' },
-                    { value: 'Visayas', label: 'Visayas' },
-                    { value: 'Mindanao', label: 'Mindanao' },
-                  ]}
-                  required
-                />
-              </div>
-
-              {/* City / Province */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  City / Municipality <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  name="city"
-                  placeholder="e.g. Iloilo City"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Address Details */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                Complete Address Details <span className="text-red-500">*</span>
-              </label>
-              <Textarea
-                name="address"
-                rows={2}
-                placeholder="e.g. Jaro District, Iloilo City, Iloilo Province"
-                required
-              />
-            </div>
-
-            {/* Meeting Schedule */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                Meeting Schedule <span className="text-red-500">*</span>
-              </label>
               <Input
-                name="meetingSchedule"
-                placeholder="e.g. Sundays 9:30 AM (Memorial Service), Thursdays 7:30 PM (Bible Class)"
+                label="Ecclesia Name"
+                name="name"
+                placeholder="e.g. Iloilo Ecclesia"
+                required
+              />
+
+              <Select
+                label="Region"
+                name="region"
+                defaultValue="Luzon"
+                options={[
+                  { value: 'Luzon', label: 'Luzon' },
+                  { value: 'Visayas', label: 'Visayas' },
+                  { value: 'Mindanao', label: 'Mindanao' },
+                ]}
                 required
               />
             </div>
 
-            {/* Contact Person */}
+            {/* 2. City & Contact Person */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  Contact Person / Brother (Optional)
-                </label>
-                <Input
-                  name="contactPerson"
-                  placeholder="e.g. Bro. Stephen Santos"
-                />
-              </div>
+              <Input
+                label="City / Municipality"
+                name="city"
+                placeholder="e.g. Iloilo City"
+                required
+              />
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  Display Order Index
-                </label>
-                <Input
-                  name="orderIndex"
-                  type="number"
-                  defaultValue="0"
-                />
-              </div>
+              <Input
+                label="Contact Person & Phone (Optional)"
+                name="contactPerson"
+                placeholder="e.g. Bro. Stephen Santos (+63 917 123 4567)"
+              />
             </div>
 
-            {/* Submit Buttons */}
-            <div className="pt-4 border-t border-[#f0ebd3] dark:border-[#323d2b] flex items-center justify-end gap-3">
-              <Link href="/admin/ecclesias">
-                <Button type="button" variant="outline" size="md">
-                  Cancel
-                </Button>
-              </Link>
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                className="gap-2 shadow-xs"
-                disabled={isSubmitting}
-              >
-                <Save className="h-4 w-4" />
-                <span>{isSubmitting ? 'Saving Ecclesia...' : 'Save Ecclesia'}</span>
+            {/* 3. Meeting Schedule */}
+            <Textarea
+              label="Meeting Schedule & Weekly Times"
+              name="meetingSchedule"
+              rows={2}
+              placeholder="e.g. Sundays 9:30 AM (Memorial Service), Thursdays 7:30 PM (Bible Class)"
+              required
+            />
+
+            {/* 4. Full Address */}
+            <Textarea
+              label="Full Physical Address / Hall Location"
+              name="address"
+              rows={2}
+              placeholder="e.g. Jaro District, Iloilo City, Iloilo Province"
+              required
+            />
+
+            {/* 5. Display in Directory Toggle */}
+            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
+              <div>
+                <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Display in Directory</strong>
+                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Visible in Home page metrics, About directory, and Member registration.
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                name="isDisplayed"
+                defaultChecked={true}
+                className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
+              />
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
+            <Link href="/admin/ecclesias">
+              <Button type="button" variant="outline" size="md">
+                <span>Cancel</span>
               </Button>
-            </div>
-          </form>
-        </CardContent>
+            </Link>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isSubmitting}
+              className="gap-2 shadow-xs"
+            >
+              <Save className="h-4 w-4" />
+              <span>Save Ecclesia</span>
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

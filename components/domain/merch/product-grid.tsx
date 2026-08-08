@@ -27,17 +27,22 @@ export function ProductGrid({
   // Filter products based on search query and category filter
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      // Category filter
-      if (categoryFilter !== 'ALL' && product.category !== categoryFilter) {
-        return false;
+      // Category filter (case-insensitive and whitespace safe)
+      if (categoryFilter.toUpperCase() !== 'ALL') {
+        const prodCat = (product.category || '').trim().toLowerCase();
+        const filterCat = categoryFilter.trim().toLowerCase();
+        if (prodCat !== filterCat) {
+          return false;
+        }
       }
 
       // Search query filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
-        const matchesName = product.name.toLowerCase().includes(query);
-        const matchesDesc = product.description.toLowerCase().includes(query);
-        if (!matchesName && !matchesDesc) {
+        const matchesName = (product.name || '').toLowerCase().includes(query);
+        const matchesDesc = (product.description || '').toLowerCase().includes(query);
+        const matchesCat = (product.category || '').toLowerCase().includes(query);
+        if (!matchesName && !matchesDesc && !matchesCat) {
           return false;
         }
       }
@@ -65,10 +70,10 @@ export function ProductGrid({
 
   const categories = [
     { value: 'ALL', label: 'All Merchandise' },
-    { value: 'APPAREL', label: 'Apparel & Shirts' },
-    { value: 'ACCESSORIES', label: 'Accessories' },
-    { value: 'BAGS', label: 'Bags & Totes' },
-    { value: 'OTHER', label: 'Other Items' },
+    { value: 'Apparel', label: 'Apparel & Shirts' },
+    { value: 'Accessories', label: 'Accessories & Totes' },
+    { value: 'Stationery', label: 'Stationery & Stickers' },
+    { value: 'Drinkware', label: 'Drinkware & Flasks' },
   ];
 
   return (
@@ -77,23 +82,29 @@ export function ProductGrid({
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b]">
         {/* Category Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          {categories.map((cat) => (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => {
-                setCategoryFilter(cat.value);
-                setCurrentPage(1);
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                categoryFilter === cat.value
-                  ? 'bg-[#2c3324] text-[#fefcf1] shadow-xs'
-                  : 'bg-white/80 dark:bg-[#1b2117]/80 text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b]'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const isSelected =
+              categoryFilter.toUpperCase() === cat.value.toUpperCase() ||
+              (cat.value === 'ALL' && categoryFilter === 'ALL');
+
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => {
+                  setCategoryFilter(cat.value);
+                  setCurrentPage(1);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isSelected
+                    ? 'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#1b2117] shadow-xs font-bold'
+                    : 'bg-white/80 dark:bg-[#1b2117]/80 text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b]'
+                }`}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Search Input */}

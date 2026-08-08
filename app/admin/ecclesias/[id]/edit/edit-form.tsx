@@ -28,13 +28,17 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
         <input type="hidden" name="id" value={ecclesia.id} />
 
         <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
-          <div className="flex items-center gap-2">
-            <Church className="h-5 w-5 text-[#e0a861]" />
-            <CardTitle className="text-xl">Edit Ecclesia: {ecclesia.name}</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] flex items-center justify-center">
+              <Church className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-serif">Edit Ecclesia: {ecclesia.name}</CardTitle>
+              <CardDescription>
+                Update directory information, location, meeting times, or contact details.
+              </CardDescription>
+            </div>
           </div>
-          <CardDescription>
-            Update directory information, location, meeting times, or contact details.
-          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4 pt-6">
@@ -65,10 +69,11 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
                 { value: 'Visayas', label: 'Visayas' },
                 { value: 'Mindanao', label: 'Mindanao' },
               ]}
+              required
             />
           </div>
 
-          {/* 2. City & Address */}
+          {/* 2. City & Contact Person */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="City / Municipality"
@@ -80,51 +85,42 @@ export function EditEcclesiaForm({ ecclesia }: EditEcclesiaFormProps) {
             />
 
             <Input
-              label="Display Order Index"
-              name="orderIndex"
-              type="number"
-              defaultValue={String(ecclesia.orderIndex)}
-              placeholder="0"
-              error={state?.fieldErrors?.orderIndex?.[0]}
+              label="Contact Person & Phone (Optional)"
+              name="contactPerson"
+              defaultValue={ecclesia.contactPerson || ''}
+              placeholder="e.g. Bro. Jonathan Santos (+63 917 123 4567)"
+              error={state?.fieldErrors?.contactPerson?.[0]}
             />
           </div>
 
-          {/* 3. Address */}
-          <Input
+          {/* 3. Meeting Schedule */}
+          <Textarea
+            label="Meeting Schedule & Weekly Times"
+            name="meetingSchedule"
+            defaultValue={ecclesia.meetingSchedule}
+            placeholder="e.g. Sundays 9:30 AM (Memorial Service), 11:00 AM (Sunday School)"
+            required
+            rows={2}
+            error={state?.fieldErrors?.meetingSchedule?.[0]}
+          />
+
+          {/* 4. Full Physical Address */}
+          <Textarea
             label="Full Physical Address / Hall Location"
             name="address"
             defaultValue={ecclesia.address}
             placeholder="e.g. 12th Avenue, Cubao, Quezon City"
             required
+            rows={2}
             error={state?.fieldErrors?.address?.[0]}
           />
 
-          {/* 4. Contact Person */}
-          <Input
-            label="Contact Person & Phone (Optional)"
-            name="contactPerson"
-            defaultValue={ecclesia.contactPerson || ''}
-            placeholder="e.g. Bro. Jonathan Doe (+63 917 123 4567)"
-            error={state?.fieldErrors?.contactPerson?.[0]}
-          />
-
-          {/* 5. Meeting Schedule */}
-          <Textarea
-            label="Meeting Schedule"
-            name="meetingSchedule"
-            defaultValue={ecclesia.meetingSchedule}
-            placeholder="e.g. Sundays 9:30 AM (Memorial Service), 11:00 AM (Sunday School)"
-            required
-            rows={3}
-            error={state?.fieldErrors?.meetingSchedule?.[0]}
-          />
-
-          {/* 6. Display Toggle */}
+          {/* 5. Display in Directory Toggle */}
           <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
             <div>
               <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Display in Directory</strong>
               <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
-                Visible in Home page count, About directory, and Member registration.
+                Visible in Home page metrics, About directory, and Member registration.
               </span>
             </div>
             <input

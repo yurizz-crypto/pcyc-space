@@ -157,15 +157,16 @@ export async function createOrderAction(
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
     const orderNumber = `PCYC-${year}-${randomSuffix}`;
 
+    const isEventPickup = data.fulfillmentType === 'EVENT_PICKUP';
     const shippingInfoPayload = {
       recipientName: data.recipientName,
       contactNumber: data.contactNumber || profile.phoneNumber || 'N/A',
-      deliveryAddress:
-        data.deliveryAddress ||
-        (data.fulfillmentType === 'EVENT_PICKUP' ? 'Event Desk Pickup' : 'Standard Delivery'),
-      city: data.city || 'N/A',
-      province: data.province || 'N/A',
-      zipCode: data.zipCode || undefined,
+      deliveryAddress: isEventPickup
+        ? 'Event Registration Desk'
+        : data.deliveryAddress || 'Standard Courier Delivery',
+      city: isEventPickup ? 'Event Venue' : data.city || '',
+      province: isEventPickup ? 'Event Venue' : data.province || '',
+      zipCode: isEventPickup ? undefined : data.zipCode || undefined,
       notes: data.notes || undefined,
     };
 
