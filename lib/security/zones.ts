@@ -7,8 +7,16 @@
 export const ROUTE_ZONES = {
   /**
    * Public Zone: Fully open to unauthenticated and authenticated traffic.
+   * Includes API routes and auth callback endpoints.
    */
-  PUBLIC: ['/', '/about', '/events', '/merch', '/api/health'],
+  PUBLIC: ['/', '/about', '/events', '/merch', '/api/health', '/api/auth'],
+
+  /**
+   * Auth Recovery Zone: Pages that need to be accessible by authenticated
+   * users during auth flows (e.g., password reset after clicking email link).
+   * These are NOT redirected even if the user has an active session.
+   */
+  AUTH_RECOVERY: ['/reset-password/update'],
 
   /**
    * Restricted-Public (Guest-Only) Zone:
@@ -46,11 +54,23 @@ export function classifyRouteZone(pathname: string): RouteZoneType {
     return 'PRIVATE_MEMBER';
   }
 
-  // 3. Check Restricted-Public (Guest Only)
-  if (ROUTE_ZONES.RESTRICTED_PUBLIC.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
+  // 3. Check Auth Recovery routes (must come BEFORE RESTRICTED_PUBLIC check)
+  // These pages need to be accessible even when the user has a valid session
+  // (e.g., /reset-password/update after clicking a recovery email link)
+  if (ROUTE_ZONES.AUTH_RECOVERY.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
+    return 'PUBLIC';
+  }
+
+  // 4. Check Public zone (API routes, static pages)
+  if (ROUTE_ZONES.PUBLIC.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
+    return 'PUBLIC';
+  }
+
+  // 5. Check Restricted-Public (Guest Only) — exact match only, not sub-paths
+  if (ROUTE_ZONES.RESTRICTED_PUBLIC.some((route) => pathname === route)) {
     return 'RESTRICTED_PUBLIC';
   }
 
-  // 4. Default: Public Zone
+  // 6. Default: Public Zone
   return 'PUBLIC';
 }

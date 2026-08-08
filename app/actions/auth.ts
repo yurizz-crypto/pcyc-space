@@ -186,7 +186,7 @@ export async function resetPasswordAction(
       : 'http://localhost:3000');
 
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${appUrl}/reset-password`,
+    redirectTo: `${appUrl}/api/auth/callback?type=recovery`,
   });
 
   if (error) {
