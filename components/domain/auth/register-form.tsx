@@ -158,7 +158,7 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
             label="Contact Number (Optional)"
             name="phoneNumber"
             type="tel"
-            placeholder="0917 123 4567"
+            placeholder="09123456789"
             error={state?.fieldErrors?.phoneNumber?.[0]}
           />
 

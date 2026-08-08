@@ -240,7 +240,7 @@ export function ProfileSettingsForm({ profile, ecclesias }: ProfileSettingsFormP
             id="phoneNumber"
             name="phoneNumber"
             type="tel"
-            placeholder="e.g. 09127341648 or +639127341648"
+            placeholder="e.g. 09123456789 or +639123456789"
             defaultValue={profile.phoneNumber || ''}
             className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] text-[#2c3324] dark:text-[#fefcf1] placeholder:text-[#8a9180] focus:outline-none focus:ring-2 focus:ring-[#2c3324]/20 dark:focus:ring-[#e0a861]/30 focus:border-[#2c3324] dark:focus:border-[#e0a861]"
           />

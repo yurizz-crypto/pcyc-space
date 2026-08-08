@@ -293,7 +293,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   label="Contact Phone Number"
                   name="contactNumber"
                   defaultValue={user.phoneNumber || ''}
-                  placeholder="0912 734 1648"
+                  placeholder="09123456789"
                   required
                 />
 
@@ -379,7 +379,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 label="Contact Phone Number (Optional)"
                 name="contactNumber"
                 defaultValue={user.phoneNumber || ''}
-                placeholder="0912 734 1648"
+                placeholder="09123456789"
               />
 
               {/* Optional GCash Attachment for Event Pickup */}
