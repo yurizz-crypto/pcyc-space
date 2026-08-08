@@ -17,10 +17,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-xs font-semibold uppercase tracking-wider text-[#2c3324]"
+            className="block text-xs font-semibold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]"
           >
             {label}
-            {required && <span className="text-[#c0392b] ml-1">*</span>}
+            {required && <span className="text-[#c0392b] dark:text-[#ef5350] ml-1">*</span>}
           </label>
         )}
         <textarea
@@ -28,11 +28,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           required={required}
           className={cn(
-            'flex min-h-[100px] w-full rounded-xl border border-[#e6dfcb] bg-white px-3.5 py-2.5 text-sm text-[#2c3324]',
-            'placeholder:text-[#8a9180] transition-colors',
+            'flex min-h-[100px] w-full rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] px-3.5 py-2.5 text-sm text-[#2c3324] dark:text-[#fefcf1]',
+            'placeholder:text-[#8a9180] dark:placeholder:text-[#6e7564] transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e0a861] focus-visible:border-transparent',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            error && 'border-[#c0392b] focus-visible:ring-[#c0392b]',
+            error && 'border-[#c0392b] dark:border-[#ef5350] focus-visible:ring-[#c0392b]',
             className
           )}
           aria-invalid={error ? 'true' : undefined}
@@ -46,12 +46,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
         {error && (
-          <p id={`${textareaId}-error`} className="text-xs text-[#c0392b] font-medium">
+          <p id={`${textareaId}-error`} className="text-xs text-[#c0392b] dark:text-[#ef5350] font-medium">
             {error}
           </p>
         )}
         {!error && helperText && (
-          <p id={`${textareaId}-helper`} className="text-xs text-[#707666]">
+          <p id={`${textareaId}-helper`} className="text-xs text-[#707666] dark:text-[#a3ab98]">
             {helperText}
           </p>
         )}

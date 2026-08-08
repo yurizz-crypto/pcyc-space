@@ -185,8 +185,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-xs font-semibold text-[#2c3324] uppercase tracking-wider">
-          {label} {required && <span className="text-[#c0392b]">*</span>}
+        <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
+          {label} {required && <span className="text-[#c0392b] dark:text-[#ef5350]">*</span>}
         </label>
       )}
 
@@ -203,10 +203,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       {/* Upload Zone or Preview Card */}
       {preview ? (
-        <div className="relative rounded-2xl border-2 border-[#e6dfcb] bg-[#f8f4e3]/40 p-4 transition-all duration-200 hover:border-[#e0a861]">
+        <div className="relative rounded-2xl border-2 border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/40 dark:bg-[#1b2117] p-4 transition-all duration-200 hover:border-[#e0a861]">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             {/* Thumbnail */}
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border border-[#e6dfcb] bg-white shadow-xs">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] shadow-xs">
               <img
                 src={preview}
                 alt="Upload preview"
@@ -216,20 +216,20 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
             {/* Meta and actions */}
             <div className="flex-1 space-y-1 text-center sm:text-left min-w-0">
-              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-[#2c3324]">
+              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {isProcessing ? (
                   <Loader2 className="h-4 w-4 animate-spin text-[#e0a861]" />
                 ) : (
-                  <CheckCircle2 className="h-4 w-4 text-[#2e7d32]" />
+                  <CheckCircle2 className="h-4 w-4 text-[#2e7d32] dark:text-[#66bb6a]" />
                 )}
                 <span className="truncate">{fileDetails?.name || 'Attached Image'}</span>
               </div>
               {fileDetails && (
-                <p className="text-[11px] text-[#707666]">
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
                   Optimized size: {fileDetails.size}
                 </p>
               )}
-              <p className="text-[11px] text-[#505748]">
+              <p className="text-[11px] text-[#505748] dark:text-[#a3ab98]">
                 Ready to be uploaded with this submission.
               </p>
 
@@ -237,14 +237,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1 text-xs font-medium text-[#2c3324] bg-white border border-[#e6dfcb] rounded-lg hover:bg-[#fefcf1] transition-colors"
+                  className="px-3 py-1 text-xs font-medium text-[#2c3324] dark:text-[#fefcf1] bg-white dark:bg-[#20271c] border border-[#e6dfcb] dark:border-[#323d2b] rounded-lg hover:bg-[#fefcf1] dark:hover:bg-[#252e1f] transition-colors"
                 >
                   Change Image
                 </button>
                 <button
                   type="button"
                   onClick={handleRemove}
-                  className="px-3 py-1 text-xs font-medium text-[#c0392b] bg-[#fdf2f2] border border-[#f5c6cb] rounded-lg hover:bg-[#fae4e4] transition-colors"
+                  className="px-3 py-1 text-xs font-medium text-[#c0392b] dark:text-[#ef5350] bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] rounded-lg hover:bg-[#fae4e4] dark:hover:bg-[#3d1e1a] transition-colors"
                 >
                   Remove
                 </button>
@@ -264,12 +264,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           className={clsx(
             'group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200',
             isDragging
-              ? 'border-[#e0a861] bg-[#f8f4e3]'
-              : 'border-[#e6dfcb] bg-[#fefcf1]/70 hover:border-[#e0a861] hover:bg-[#f8f4e3]/50',
-            activeError && 'border-[#f5c6cb] bg-[#fdf2f2]/40'
+              ? 'border-[#e0a861] bg-[#f8f4e3] dark:bg-[#252e1f]'
+              : 'border-[#e6dfcb] dark:border-[#323d2b] bg-[#fefcf1]/70 dark:bg-[#1b2117]/80 hover:border-[#e0a861] hover:bg-[#f8f4e3]/50 dark:hover:bg-[#252e1f]/50',
+            activeError && 'border-[#f5c6cb] dark:border-[#ef5350] bg-[#fdf2f2]/40 dark:bg-[#2d1815]/40'
           )}
         >
-          <div className="h-12 w-12 rounded-full bg-white border border-[#e6dfcb] flex items-center justify-center shadow-xs text-[#e0a861] group-hover:scale-110 transition-transform">
+          <div className="h-12 w-12 rounded-full bg-white dark:bg-[#20271c] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-center shadow-xs text-[#e0a861] group-hover:scale-110 transition-transform">
             {isProcessing ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
@@ -278,10 +278,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
 
           <div className="mt-3 space-y-1">
-            <p className="text-xs font-semibold text-[#2c3324]">
-              Click to browse from your device <span className="text-[#707666] font-normal">or drag & drop</span>
+            <p className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
+              Click to browse from your device <span className="text-[#707666] dark:text-[#a3ab98] font-normal">or drag & drop</span>
             </p>
-            <p className="text-[11px] text-[#707666]">{helperText}</p>
+            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">{helperText}</p>
           </div>
         </div>
       )}

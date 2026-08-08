@@ -50,13 +50,13 @@ export function Modal({
       {/* Modal Dialog */}
       <div
         className={cn(
-          'relative w-full max-w-lg rounded-2xl bg-[#fefcf1] border border-[#e6dfcb] p-6 shadow-2xl z-10 animate-in zoom-in-95 duration-200 text-[#2c3324]',
+          'relative w-full max-w-lg rounded-2xl bg-[#fefcf1] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] p-6 shadow-2xl z-10 animate-in zoom-in-95 duration-200 text-[#2c3324] dark:text-[#fefcf1]',
           className
         )}
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-xl p-1.5 text-[#707666] hover:bg-[#2c3324]/10 hover:text-[#2c3324] transition-colors"
+          className="absolute right-4 top-4 rounded-xl p-1.5 text-[#707666] dark:text-[#a3ab98] hover:bg-[#2c3324]/10 dark:hover:bg-[#fefcf1]/10 hover:text-[#2c3324] dark:hover:text-[#fefcf1] transition-colors"
           aria-label="Close modal"
         >
           <X className="h-5 w-5" />
@@ -64,9 +64,9 @@ export function Modal({
 
         {title && (
           <div className="mb-4 pr-8">
-            <h3 className="font-serif text-2xl font-bold text-[#2c3324]">{title}</h3>
+            <h3 className="font-serif text-2xl font-bold text-[#2c3324] dark:text-[#fefcf1]">{title}</h3>
             {description && (
-              <p className="mt-1 text-sm text-[#707666]">{description}</p>
+              <p className="mt-1 text-sm text-[#707666] dark:text-[#a3ab98]">{description}</p>
             )}
           </div>
         )}

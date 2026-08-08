@@ -43,25 +43,25 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col w-full">
       {/* TESTING PHASE ANNOUNCEMENT BANNER */}
-      <div className="w-full bg-[#fbf1e2] border-b border-[#e0a861]/40 text-[#422e1b] py-3.5 px-4 sm:px-6 lg:px-8">
+      <div className="w-full bg-[#fbf1e2] dark:bg-[#2b2315] border-b border-[#e0a861]/40 text-[#422e1b] dark:text-[#f0be7c] py-3.5 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#e0a861]/20 flex items-center justify-center shrink-0 text-[#9a6423]">
+            <div className="h-8 w-8 rounded-full bg-[#e0a861]/20 dark:bg-[#e0a861]/15 flex items-center justify-center shrink-0 text-[#9a6423] dark:text-[#f0be7c]">
               <AlertTriangle className="h-4 w-4" />
             </div>
             <div className="text-xs sm:text-sm">
-              <span className="font-bold text-[#2c3324] uppercase tracking-wide mr-1.5 px-2 py-0.5 bg-[#e0a861]/20 rounded-md">
+              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wide mr-1.5 px-2 py-0.5 bg-[#e0a861]/20 dark:bg-[#e0a861]/15 rounded-md">
                 Testing Phase
               </span>
-              <span className="text-[#5c4936]">
+              <span className="text-[#5c4936] dark:text-[#d4b896]">
                 This website is currently in its active development and testing phase.{' '}
-                <strong className="font-semibold text-[#2c3324]">
+                <strong className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                   Event registration and merchandise ordering are currently disabled.
                 </strong>
               </span>
             </div>
           </div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] shrink-0">
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] dark:text-[#f0be7c] shrink-0">
             <Clock className="h-3.5 w-3.5" />
             <span>Full Launch Coming Soon</span>
           </div>
@@ -183,16 +183,16 @@ export default async function HomePage() {
       </section>
 
       {/* 2. PILLARS / MISSION SECTION */}
-      <section className="py-20 bg-[#fefcf1]">
+      <section className="py-20 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <Badge variant="gold" size="md">
               Our Core Purpose
             </Badge>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
               What We Stand For in PCYC
             </h2>
-            <p className="text-base sm:text-lg text-[#707666]">
+            <p className="text-base sm:text-lg text-[#707666] dark:text-[#a3ab98]">
               PCYC is a Christ-centered brotherhood circle dedicated to encouraging one
               another in the truth of God’s Word until the return of our Lord.
             </p>
@@ -200,14 +200,14 @@ export default async function HomePage() {
 
           <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Pillar 1 */}
-            <div className="rounded-2xl border border-[#e6dfcb] bg-white p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] text-[#e0a861] flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-[#9a6423]" />
+            <div className="rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center">
+                <BookOpen className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#2c3324]">
+              <h3 className="font-serif text-xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Faithful Bible Study
               </h3>
-              <p className="text-sm text-[#707666] leading-relaxed">
+              <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 We believe the Holy Scriptures are the inspired Word of God. Our camps
                 and monthly circles focus on deep, practical study of Biblical truth and
                 the Gospel of the Kingdom.
@@ -215,28 +215,28 @@ export default async function HomePage() {
             </div>
 
             {/* Pillar 2 */}
-            <div className="rounded-2xl border border-[#e6dfcb] bg-white p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] text-[#e0a861] flex items-center justify-center">
-                <Users className="h-6 w-6 text-[#9a6423]" />
+            <div className="rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center">
+                <Users className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#2c3324]">
+              <h3 className="font-serif text-xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Island-Wide Fellowship
               </h3>
-              <p className="text-sm text-[#707666] leading-relaxed">
+              <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 Uniting young believers across Luzon, Visayas, and Mindanao. We foster
                 genuine, lifelong bonds of mutual encouragement, prayer, and hospitality.
               </p>
             </div>
 
             {/* Pillar 3 */}
-            <div className="rounded-2xl border border-[#e6dfcb] bg-white p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] text-[#e0a861] flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-[#9a6423]" />
+            <div className="rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] p-8 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-2xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#2c3324]">
+              <h3 className="font-serif text-xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Ministry & Service
               </h3>
-              <p className="text-sm text-[#707666] leading-relaxed">
+              <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 Empowering the next generation of Christadelphians to serve in their
                 local ecclesias, teach Sunday school, and support preaching the Gospel in the Philippines.
               </p>
@@ -246,17 +246,17 @@ export default async function HomePage() {
       </section>
 
       {/* 3. FEATURED UPCOMING EVENTS (LIVE DB) */}
-      <section className="py-20 bg-[#f8f4e3] border-y border-[#e6dfcb]">
+      <section className="py-20 bg-[#f8f4e3] dark:bg-[#1b2117] border-y border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-8">
             <div className="space-y-2">
               <Badge variant="forest" size="md">
                 Gatherings & Camps
               </Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Upcoming Youth Events
               </h2>
-              <p className="text-sm sm:text-base text-[#707666]">
+              <p className="text-sm sm:text-base text-[#707666] dark:text-[#a3ab98]">
                 Mark your calendars and preview upcoming camp and fellowship schedules.
               </p>
             </div>
@@ -269,8 +269,8 @@ export default async function HomePage() {
           </div>
 
           {/* Testing Notice inside Events section */}
-          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 flex items-center gap-3 text-xs sm:text-sm">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 dark:bg-[#2b2315] border border-amber-200/80 dark:border-[#5c4936] text-amber-900 dark:text-amber-200 flex items-center gap-3 text-xs sm:text-sm">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
               <strong>Registration Notice:</strong> Camp registration is currently in testing mode and not yet accepting submissions. Dates and details are for preview purposes.
             </span>
@@ -285,17 +285,17 @@ export default async function HomePage() {
       </section>
 
       {/* 4. MERCHANDISE & FUNDRAISING HIGHLIGHT (LIVE DB) */}
-      <section className="py-20 bg-[#fefcf1]">
+      <section className="py-20 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 pb-8">
             <div className="space-y-2">
               <Badge variant="gold" size="md">
                 PCYC Merch Shop
               </Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Wear the Message. Support the Mission.
               </h2>
-              <p className="text-sm sm:text-base text-[#707666]">
+              <p className="text-sm sm:text-base text-[#707666] dark:text-[#a3ab98]">
                 100% of merchandise proceeds go towards youth camp travel subsidies and study materials.
               </p>
             </div>
@@ -308,8 +308,8 @@ export default async function HomePage() {
           </div>
 
           {/* Testing Notice inside Merch section */}
-          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 flex items-center gap-3 text-xs sm:text-sm">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+          <div className="mb-8 p-3.5 rounded-xl bg-amber-50/80 dark:bg-[#2b2315] border border-amber-200/80 dark:border-[#5c4936] text-amber-900 dark:text-amber-200 flex items-center gap-3 text-xs sm:text-sm">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
               <strong>Store Preview Notice:</strong> Merchandise catalog is currently in preview mode. Checkout and order fulfillment are temporarily paused during website testing.
             </span>

@@ -27,15 +27,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       primary:
         'bg-[#e0a861] text-[#2c3324] font-semibold hover:bg-[#ca914a] shadow-sm hover:shadow-md focus:ring-[#e0a861]',
       secondary:
-        'bg-[#2c3324] text-[#fefcf1] hover:bg-[#3d4632] shadow-sm hover:shadow-md focus:ring-[#2c3324]',
+        'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#131710] hover:bg-[#3d4632] dark:hover:bg-[#f0be7c] shadow-sm hover:shadow-md focus:ring-[#2c3324] dark:focus:ring-[#e0a861]',
       outline:
-        'border-2 border-[#2c3324]/20 text-[#2c3324] hover:bg-[#2c3324]/5 hover:border-[#2c3324]/40 focus:ring-[#2c3324]',
+        'border-2 border-[#2c3324]/20 dark:border-[#e6dfcb]/30 text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-[#fefcf1]/10 hover:border-[#2c3324]/40 dark:hover:border-[#e6dfcb]/50 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]',
       ghost:
-        'text-[#2c3324] hover:bg-[#2c3324]/8 focus:ring-[#2c3324]',
+        'text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/8 dark:hover:bg-[#fefcf1]/10 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]',
       destructive:
-        'bg-[#c0392b] text-white hover:bg-[#a93226] focus:ring-[#c0392b]',
+        'bg-[#c0392b] dark:bg-[#ef5350] text-white hover:bg-[#a93226] dark:hover:bg-[#e53935] focus:ring-[#c0392b]',
       'gold-subtle':
-        'bg-[#fbf1e2] text-[#915e21] border border-[#e0a861]/30 hover:bg-[#f5e3ca] focus:ring-[#e0a861]',
+        'bg-[#fbf1e2] dark:bg-[#2b2315] text-[#915e21] dark:text-[#f0be7c] border border-[#e0a861]/30 dark:border-[#e0a861]/30 hover:bg-[#f5e3ca] dark:hover:bg-[#352c1a] focus:ring-[#e0a861]',
     };
 
     const sizes = {

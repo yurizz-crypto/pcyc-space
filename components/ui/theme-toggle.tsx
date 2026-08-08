@@ -20,7 +20,7 @@ export function ThemeToggle({ className = '', size = 'md' }: ThemeToggleProps) {
   if (!mounted) {
     return (
       <div
-        className={`inline-flex items-center justify-center rounded-xl p-2 text-[#707666] bg-[#f8f4e3] border border-[#e6dfcb] opacity-50 ${className}`}
+        className={`inline-flex items-center justify-center rounded-xl p-2 text-[#707666] dark:text-[#a3ab98] bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] opacity-50 ${className}`}
         aria-hidden="true"
       >
         <span className="h-4 w-4" />

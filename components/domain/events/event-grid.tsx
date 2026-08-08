@@ -75,7 +75,7 @@ export function EventGrid({
   return (
     <div className="space-y-8">
       {/* Search and Filter Controls */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#f8f4e3] border border-[#e6dfcb]">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b]">
         {/* Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
           {filterOptions.map((opt) => (
@@ -89,7 +89,7 @@ export function EventGrid({
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 statusFilter === opt.value
                   ? 'bg-[#2c3324] text-[#fefcf1] shadow-xs'
-                  : 'bg-white/80 text-[#505748] hover:bg-white border border-[#e6dfcb]'
+                  : 'bg-white/80 dark:bg-[#1b2117]/80 text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b]'
               }`}
             >
               {opt.label}
@@ -99,7 +99,7 @@ export function EventGrid({
 
         {/* Search Bar */}
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             placeholder="Search by title, location, theme..."
@@ -108,7 +108,7 @@ export function EventGrid({
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm rounded-xl border border-[#e6dfcb] bg-white text-[#2c3324] placeholder:text-[#8a9180] focus:outline-none focus:ring-2 focus:ring-[#2c3324]/20 focus:border-[#2c3324]"
+            className="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] text-[#2c3324] dark:text-[#fefcf1] placeholder:text-[#8a9180] focus:outline-none focus:ring-2 focus:ring-[#2c3324]/20 focus:border-[#2c3324]"
           />
           {searchQuery && (
             <button
@@ -117,7 +117,7 @@ export function EventGrid({
                 setSearchQuery('');
                 setCurrentPage(1);
               }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#707666] hover:text-[#2c3324]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -127,12 +127,12 @@ export function EventGrid({
 
       {/* Grid of Results */}
       {filteredEvents.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-[#f8f4e3]/50 border border-dashed border-[#e6dfcb] space-y-3">
-          <Calendar className="h-8 w-8 text-[#9a6423] mx-auto opacity-70" />
-          <h3 className="font-serif font-bold text-base text-[#2c3324]">
+        <div className="p-12 text-center rounded-2xl bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 border border-dashed border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
+          <Calendar className="h-8 w-8 text-[#9a6423] dark:text-[#f0be7c] mx-auto opacity-70" />
+          <h3 className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1]">
             No matching events found
           </h3>
-          <p className="text-xs sm:text-sm text-[#707666] max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] max-w-md mx-auto">
             We couldn&apos;t find any events matching &ldquo;{searchQuery}&rdquo;. Try clearing your search or selecting a different filter.
           </p>
           <button
@@ -142,7 +142,7 @@ export function EventGrid({
               setStatusFilter('ALL');
               setCurrentPage(1);
             }}
-            className="text-xs font-bold text-[#9a6423] hover:underline"
+            className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] hover:underline"
           >
             Clear Filters
           </button>

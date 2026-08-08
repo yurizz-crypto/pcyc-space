@@ -89,7 +89,7 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
   return (
     <div className="space-y-10">
       {/* Search & Filter Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[#e6dfcb] shadow-xs">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs">
         {/* Region Filter Tabs */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <button
@@ -97,8 +97,8 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
             onClick={() => setSelectedRegion('ALL')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
               selectedRegion === 'ALL'
-                ? 'bg-[#2c3324] text-[#fefcf1] shadow-xs'
-                : 'bg-[#f8f4e3] text-[#505748] hover:bg-[#ede7d1]'
+                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#131710] shadow-xs'
+                : 'bg-[#f8f4e3] dark:bg-[#252e1f] text-[#505748] dark:text-[#a3ab98] hover:bg-[#ede7d1] dark:hover:bg-[#2a3324]'
             }`}
           >
             <Compass className="h-3.5 w-3.5" />
@@ -115,8 +115,8 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
               onClick={() => setSelectedRegion(reg.key)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
                 selectedRegion === reg.key
-                  ? 'bg-[#2c3324] text-[#fefcf1] shadow-xs'
-                  : 'bg-[#f8f4e3] text-[#505748] hover:bg-[#ede7d1]'
+                  ? 'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#131710] shadow-xs'
+                  : 'bg-[#f8f4e3] dark:bg-[#252e1f] text-[#505748] dark:text-[#a3ab98] hover:bg-[#ede7d1] dark:hover:bg-[#2a3324]'
               }`}
             >
               <span>{reg.key}</span>
@@ -133,19 +133,19 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
         {/* Live Search Input */}
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666] dark:text-[#a3ab98]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by city, name, or area..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#fefcf1] border border-[#e6dfcb] rounded-xl text-[#2c3324] placeholder-[#707666] focus:outline-none focus:border-[#e0a861] focus:ring-1 focus:ring-[#e0a861]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#fefcf1] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] rounded-xl text-[#2c3324] dark:text-[#fefcf1] placeholder-[#707666] dark:placeholder-[#8a9180] focus:outline-none focus:border-[#e0a861] focus:ring-1 focus:ring-[#e0a861]"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#707666] hover:text-[#2c3324]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]"
             >
               Clear
             </button>
@@ -155,10 +155,10 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
       {/* No Results Fallback */}
       {totalFilteredCount === 0 && (
-        <div className="p-12 rounded-3xl bg-white border border-[#e6dfcb] text-center space-y-3 shadow-xs">
+        <div className="p-12 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-3 shadow-xs">
           <Building2 className="h-10 w-10 text-[#e0a861] mx-auto" />
-          <h3 className="font-serif font-bold text-xl text-[#2c3324]">No Ecclesias Found</h3>
-          <p className="text-xs sm:text-sm text-[#707666] max-w-md mx-auto">
+          <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">No Ecclesias Found</h3>
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] max-w-md mx-auto">
             {searchQuery
               ? `No ecclesias match "${searchQuery}". Please check the spelling or select a different region.`
               : 'There are currently no ecclesias listed in this category.'}
@@ -179,18 +179,18 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
               className="space-y-6 scroll-mt-24"
             >
               {/* Region Section Header */}
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-4 border-b border-[#e6dfcb]">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-4 border-b border-[#e6dfcb] dark:border-[#323d2b]">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Map className="h-4 w-4 text-[#e0a861]" />
-                    <span className="text-xs font-bold text-[#9a6423] uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] uppercase tracking-wider">
                       {region.subtitle}
                     </span>
                   </div>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                     {region.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#707666]">{region.description}</p>
+                  <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">{region.description}</p>
                 </div>
                 <div className="shrink-0">
                   <Badge variant={region.badgeVariant} size="sm">
@@ -201,8 +201,8 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
               {/* Ecclesias Grid */}
               {list.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-white/60 border border-dashed border-[#e6dfcb] text-center space-y-2">
-                  <p className="text-xs text-[#707666]">
+                <div className="p-8 rounded-2xl bg-white/60 dark:bg-[#1b2117]/60 border border-dashed border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-2">
+                  <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                     No verified ecclesias are listed in {region.key} yet. New meeting circles will be published as verified.
                   </p>
                 </div>
@@ -211,23 +211,23 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
                   {list.map((ecc) => (
                     <Card
                       key={ecc.id}
-                      className="group flex flex-col justify-between hover:shadow-md hover:border-[#e0a861] transition-all duration-200 bg-white"
+                      className="group flex flex-col justify-between hover:shadow-md hover:border-[#e0a861] transition-all duration-200 bg-white dark:bg-[#1b2117]"
                     >
                       <CardHeader className="space-y-2 pb-3">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#f8f4e3] text-[#9a6423] border border-[#e6dfcb]">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#f8f4e3] dark:bg-[#252e1f] text-[#9a6423] dark:text-[#f0be7c] border border-[#e6dfcb] dark:border-[#323d2b]">
                             {ecc.city || ecc.region}
                           </span>
-                          <span className="text-[10px] text-[#707666] font-medium">
+                          <span className="text-[10px] text-[#707666] dark:text-[#a3ab98] font-medium">
                             {ecc.region}
                           </span>
                         </div>
-                        <CardTitle className="font-serif text-xl text-[#2c3324] leading-snug group-hover:text-[#9a6423] transition-colors">
+                        <CardTitle className="font-serif text-xl text-[#2c3324] dark:text-[#fefcf1] leading-snug group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors">
                           {ecc.name}
                         </CardTitle>
                       </CardHeader>
 
-                      <CardContent className="space-y-3 text-xs text-[#505748] pt-0">
+                      <CardContent className="space-y-3 text-xs text-[#505748] dark:text-[#a3ab98] pt-0">
                         {/* Address */}
                         <div className="flex items-start gap-2.5">
                           <MapPin className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
@@ -238,7 +238,7 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
                         <div className="flex items-start gap-2.5">
                           <Clock className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
                           <div className="space-y-0.5">
-                            <span className="font-medium text-[#2c3324] block">
+                            <span className="font-medium text-[#2c3324] dark:text-[#fefcf1] block">
                               Meeting Schedule:
                             </span>
                             <span className="leading-relaxed">{ecc.meetingSchedule}</span>
@@ -247,10 +247,10 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
                         {/* Contact Person */}
                         {ecc.contactPerson && (
-                          <div className="flex items-start gap-2.5 pt-1 border-t border-[#f4efe0]">
-                            <UserCheck className="h-4 w-4 text-[#707666] shrink-0 mt-0.5" />
-                            <span className="text-[#707666]">
-                              Contact / Coordinator: <strong className="text-[#2c3324] font-medium">{ecc.contactPerson}</strong>
+                          <div className="flex items-start gap-2.5 pt-1 border-t border-[#f4efe0] dark:border-[#323d2b]">
+                            <UserCheck className="h-4 w-4 text-[#707666] dark:text-[#a3ab98] shrink-0 mt-0.5" />
+                            <span className="text-[#707666] dark:text-[#a3ab98]">
+                              Contact / Coordinator: <strong className="text-[#2c3324] dark:text-[#fefcf1] font-medium">{ecc.contactPerson}</strong>
                             </span>
                           </div>
                         )}

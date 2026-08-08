@@ -26,7 +26,7 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
   const isBaptized = designation === 'BROTHER' || designation === 'SISTER';
 
   return (
-    <Card className="border-[#e6dfcb] shadow-sm">
+    <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-sm">
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl">Personal & Ecclesial Details</CardTitle>
         <CardDescription>
@@ -78,7 +78,7 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
 
           {/* 2. Designation Selection */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#2c3324]">
+            <label className="text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
               Designation / Fellowship Status <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -87,8 +87,8 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
                   key={des}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center cursor-pointer transition-all ${
                     designation === des
-                      ? 'border-[#e0a861] bg-[#e0a861]/15 text-[#2c3324] font-bold shadow-xs'
-                      : 'border-[#e6dfcb] bg-white text-[#505748] hover:bg-[#f8f4e3]'
+                      ? 'border-[#e0a861] bg-[#e0a861]/15 text-[#2c3324] dark:text-[#fefcf1] font-bold shadow-xs'
+                      : 'border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117]'
                   }`}
                 >
                   <input
@@ -107,8 +107,8 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
 
           {/* 3. Conditional Baptism Date */}
           {isBaptized && (
-            <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-2 animate-fadeIn">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#2c3324]">
+            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-2 animate-fadeIn">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 <Calendar className="h-4 w-4 text-[#e0a861]" />
                 <span>Baptism Date</span>
               </div>
@@ -191,7 +191,7 @@ export function RegisterForm({ ecclesias }: RegisterFormProps) {
             {isPending ? 'Registering Member Space...' : 'Complete Registration'}
           </Button>
 
-          <p className="text-center text-xs text-[#707666]">
+          <p className="text-center text-xs text-[#707666] dark:text-[#a3ab98]">
             Already registered?{' '}
             <Link
               href="/login"

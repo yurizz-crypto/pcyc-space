@@ -13,7 +13,7 @@ export function PriceTag({ price, isPreorder, className }: PriceTagProps) {
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <span className="font-serif font-bold text-base sm:text-lg text-[#2c3324]">
+      <span className="font-serif font-bold text-base sm:text-lg text-[#2c3324] dark:text-[#fefcf1]">
         {formatPHP(numericPrice)}
       </span>
       {isPreorder && (

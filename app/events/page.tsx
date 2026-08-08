@@ -16,15 +16,15 @@ export default async function EventsPage() {
   return (
     <div className="flex flex-col w-full">
       {/* Testing Notice Banner */}
-      <div className="w-full bg-[#fbf1e2] border-b border-[#e0a861]/40 text-[#422e1b] py-3 px-4 sm:px-6 lg:px-8">
+      <div className="w-full bg-[#fbf1e2] dark:bg-[#2b2315] border-b border-[#e0a861]/40 text-[#422e1b] dark:text-[#f0be7c] py-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-xs sm:text-sm">
           <div className="flex items-center gap-2.5">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
-              <strong className="text-[#2c3324]">Testing Phase Notice:</strong> Event registrations are currently disabled while the website is in testing. All event dates and details are for preview only.
+              <strong className="text-[#2c3324] dark:text-[#fefcf1]">Testing Phase Notice:</strong> Event registrations are currently disabled while the website is in testing. All event dates and details are for preview only.
             </span>
           </div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] shrink-0">
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] dark:text-[#f0be7c] shrink-0">
             <Clock className="h-3.5 w-3.5" />
             <span>Official Registrations Opening Soon</span>
           </div>
@@ -37,7 +37,7 @@ export default async function EventsPage() {
         description="Discover upcoming nationwide camps, regional gatherings, and local study circles for the Philippine Christadelphian brotherhood."
       />
 
-      <section className="py-12 sm:py-16 bg-[#fefcf1]">
+      <section className="py-12 sm:py-16 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <EventGrid
             events={events}

@@ -21,7 +21,7 @@ function LoginForm() {
   const redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect') || '';
 
   return (
-    <Card className="border-[#e6dfcb] shadow-lg">
+    <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-lg">
       <form action={formAction}>
         {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
 
@@ -32,7 +32,7 @@ function LoginForm() {
 
         <CardContent className="space-y-4">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
@@ -60,7 +60,7 @@ function LoginForm() {
             <div className="flex justify-end pt-1">
               <Link
                 href="/reset-password"
-                className="text-xs text-[#9a6423] hover:underline font-medium"
+                className="text-xs text-[#9a6423] dark:text-[#f0be7c] hover:underline font-medium"
               >
                 Forgot password?
               </Link>
@@ -80,11 +80,11 @@ function LoginForm() {
             <span>Sign In to PCYC Space</span>
           </Button>
 
-          <div className="text-center text-xs text-[#707666] pt-2">
+          <div className="text-center text-xs text-[#707666] dark:text-[#a3ab98] pt-2">
             Don&apos;t have an account yet?{' '}
             <Link
               href="/register"
-              className="text-[#9a6423] font-semibold hover:underline"
+              className="text-[#9a6423] dark:text-[#f0be7c] font-semibold hover:underline"
             >
               Join PCYC here
             </Link>
@@ -97,7 +97,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#fefcf1]">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#fefcf1] dark:bg-[#131710]">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
@@ -112,15 +112,15 @@ export default function LoginPage() {
               />
             </div>
           </Link>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
             Welcome to PCYC Space
           </h1>
-          <p className="text-xs sm:text-sm text-[#707666]">
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
             Sign in to manage event registrations, orders, and ecclesia profile.
           </p>
         </div>
 
-        <Suspense fallback={<div className="h-64 rounded-3xl bg-white animate-pulse" />}>
+        <Suspense fallback={<div className="h-64 rounded-3xl bg-white dark:bg-[#1b2117] animate-pulse" />}>
           <LoginForm />
         </Suspense>
       </div>

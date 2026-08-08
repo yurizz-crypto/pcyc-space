@@ -40,13 +40,13 @@ export function ReceiptUploadModal({
     >
       {state?.success ? (
         <div className="p-6 text-center space-y-4 animate-fadeIn">
-          <div className="h-12 w-12 rounded-full bg-[#e8f5e9] text-[#2e7d32] mx-auto flex items-center justify-center">
+          <div className="h-12 w-12 rounded-full bg-[#e8f5e9] text-[#2e7d32] dark:text-[#66bb6a] mx-auto flex items-center justify-center">
             <CheckCircle2 className="h-7 w-7" />
           </div>
-          <h3 className="font-serif text-lg font-bold text-[#2c3324]">
+          <h3 className="font-serif text-lg font-bold text-[#2c3324] dark:text-[#fefcf1]">
             Payment Receipt Submitted!
           </h3>
-          <p className="text-xs text-[#505748] leading-relaxed">
+          <p className="text-xs text-[#505748] dark:text-[#a3ab98] leading-relaxed">
             {state.message || 'Your proof of payment has been queued for verification.'}
           </p>
           <div className="pt-2">
@@ -66,30 +66,30 @@ export function ReceiptUploadModal({
           <input type="hidden" name="orderId" value={orderId} />
 
           {state?.error && (
-            <div className="p-3 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
           )}
 
           {/* Account Instruction */}
-          <div className="p-3.5 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-2 text-xs">
+          <div className="p-3.5 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-[#2c3324]">Total Payable:</span>
-              <span className="font-serif font-bold text-sm text-[#9a6423]">
+              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">Total Payable:</span>
+              <span className="font-serif font-bold text-sm text-[#9a6423] dark:text-[#f0be7c]">
                 {formatCurrency(Number(amount))}
               </span>
             </div>
-            <div className="border-t border-[#e6dfcb]/80 pt-2 flex items-center justify-between">
-              <span className="text-[#707666]">GCash Number:</span>
-              <span className="font-mono font-bold text-[#2c3324]">0912-734-1648 (Yuri S.)</span>
+            <div className="border-t border-[#e6dfcb]/80 dark:border-[#323d2b]/80 pt-2 flex items-center justify-between">
+              <span className="text-[#707666] dark:text-[#a3ab98]">GCash Number:</span>
+              <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">0912-734-1648 (Yuri S.)</span>
             </div>
           </div>
 
           <input type="hidden" name="paymentMethod" value="GCASH" />
-          <div className="p-3 rounded-xl bg-white border border-[#d3dec2] flex items-center justify-between text-xs">
-            <span className="text-[#707666]">Payment Method:</span>
-            <span className="font-bold text-[#2c3324]">GCash (0912-734-1648)</span>
+          <div className="p-3 rounded-xl bg-white dark:bg-[#1b2117] border border-[#d3dec2] flex items-center justify-between text-xs">
+            <span className="text-[#707666] dark:text-[#a3ab98]">Payment Method:</span>
+            <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">GCash (0912-734-1648)</span>
           </div>
 
           <Input
@@ -114,7 +114,7 @@ export function ReceiptUploadModal({
             helperText="Upload the confirmation screenshot saved from your payment app."
           />
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-[#e6dfcb]">
+          <div className="flex justify-end gap-2 pt-2 border-t border-[#e6dfcb] dark:border-[#323d2b]">
             <Button type="button" variant="outline" size="md" onClick={onClose}>
               <span>Cancel</span>
             </Button>

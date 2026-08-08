@@ -25,19 +25,19 @@ export default async function AboutPage() {
       />
 
       {/* 1. WHO ARE THE CHRISTADELPHIANS */}
-      <section className="py-16 sm:py-20 bg-[#fefcf1]">
+      <section className="py-16 sm:py-20 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6">
               <Badge variant="gold" size="md">
                 Our Faith
               </Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                 Who are the Christadelphians?
               </h2>
-              <div className="space-y-4 text-sm sm:text-base text-[#505748] leading-relaxed">
+              <div className="space-y-4 text-sm sm:text-base text-[#505748] dark:text-[#a3ab98] leading-relaxed">
                 <p>
-                  The name <strong className="text-[#2c3324]">Christadelphian</strong> means
+                  The name <strong className="text-[#2c3324] dark:text-[#fefcf1]">Christadelphian</strong> means
                   &ldquo;Brothers and Sisters in Christ.&rdquo; We are a worldwide, Bible-based
                   community with no paid clergy or centralized hierarchy, patterned after the
                   first-century ecclesias.
@@ -66,34 +66,34 @@ export default async function AboutPage() {
 
             {/* Doctrinal Foundation Highlights */}
             <div className="lg:col-span-6 space-y-4">
-              <div className="p-6 rounded-2xl border border-[#e6dfcb] bg-white shadow-xs space-y-2">
-                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324]">
+              <div className="p-6 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] shadow-xs space-y-2">
+                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
                   <BookOpen className="h-5 w-5 text-[#e0a861]" />
                   <span>The Authority of Scripture</span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#707666]">
+                <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
                   The 66 books of the Holy Bible are the solely inspired revelation from God,
                   able to make us wise unto salvation through faith in Christ Jesus (2 Timothy 3:15-17).
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-[#e6dfcb] bg-white shadow-xs space-y-2">
-                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324]">
+              <div className="p-6 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] shadow-xs space-y-2">
+                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
                   <ShieldCheck className="h-5 w-5 text-[#e0a861]" />
                   <span>The Hope of Israel & The Kingdom</span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#707666]">
+                <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
                   God will fulfill His promises by sending Jesus Christ back to Earth to raise the
                   dead, grant immortality to faithful believers, and rule from Jerusalem (Acts 1:11, Daniel 2:44).
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-[#e6dfcb] bg-white shadow-xs space-y-2">
-                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324]">
+              <div className="p-6 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117] shadow-xs space-y-2">
+                <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
                   <Heart className="h-5 w-5 text-[#e0a861]" />
                   <span>Baptism & New Life</span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#707666]">
+                <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
                   Full immersion baptism upon sincere confession of the Gospel of the Kingdom and the
                   name of Jesus Christ, uniting the believer with the seed of Abraham (Galatians 3:27-29).
                 </p>
@@ -104,16 +104,16 @@ export default async function AboutPage() {
       </section>
 
       {/* 2. HISTORY & PURPOSE OF PCYC */}
-      <section className="py-16 sm:py-20 bg-[#f8f4e3] border-y border-[#e6dfcb]">
+      <section className="py-16 sm:py-20 bg-[#f8f4e3] dark:bg-[#1b2117] border-y border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
             <Badge variant="forest" size="md">
               Our Journey
             </Badge>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
               The Story of Philippine Christadelphian Youth Circle
             </h2>
-            <p className="text-sm sm:text-base text-[#505748] leading-relaxed">
+            <p className="text-sm sm:text-base text-[#505748] dark:text-[#a3ab98] leading-relaxed">
               PCYC was born out of a desire for Christadelphian young people throughout Luzon,
               Visayas, and Mindanao to meet regularly, encourage each other, and cultivate strong
               spiritual roots during their youth and student years.
@@ -121,28 +121,28 @@ export default async function AboutPage() {
           </div>
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-[#e6dfcb] space-y-3">
+            <div className="p-6 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
               <span className="font-serif font-bold text-2xl text-[#e0a861]">01</span>
-              <h3 className="font-serif text-lg font-bold text-[#2c3324]">Annual Youth Camps</h3>
-              <p className="text-xs text-[#707666] leading-relaxed">
+              <h3 className="font-serif text-lg font-bold text-[#2c3324] dark:text-[#fefcf1]">Annual Youth Camps</h3>
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 National gatherings that rotate through inspiring retreat venues in the Philippines,
                 giving youth days of uninterrupted study, prayer, and fellowship.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#e6dfcb] space-y-3">
+            <div className="p-6 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
               <span className="font-serif font-bold text-2xl text-[#e0a861]">02</span>
-              <h3 className="font-serif text-lg font-bold text-[#2c3324]">Monthly Study Circles</h3>
-              <p className="text-xs text-[#707666] leading-relaxed">
+              <h3 className="font-serif text-lg font-bold text-[#2c3324] dark:text-[#fefcf1]">Monthly Study Circles</h3>
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 Ecclesia-based and online youth classes that tackle pressing questions on morality,
                 career, university life, and Christian conduct.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#e6dfcb] space-y-3">
+            <div className="p-6 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
               <span className="font-serif font-bold text-2xl text-[#e0a861]">03</span>
-              <h3 className="font-serif text-lg font-bold text-[#2c3324]">Brotherhood Support</h3>
-              <p className="text-xs text-[#707666] leading-relaxed">
+              <h3 className="font-serif text-lg font-bold text-[#2c3324] dark:text-[#fefcf1]">Brotherhood Support</h3>
+              <p className="text-xs text-[#707666] dark:text-[#a3ab98] leading-relaxed">
                 Fundraising merchandise, travel sponsorships for distant island attendees, and
                 providing camp materials free to those in need.
               </p>
@@ -152,16 +152,16 @@ export default async function AboutPage() {
       </section>
 
       {/* 3. PHILIPPINE ECCLESIAS DIRECTORY - REGIONALLY CATEGORIZED */}
-      <section className="py-16 sm:py-20 bg-[#fefcf1]">
+      <section className="py-16 sm:py-20 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <Badge variant="gold" size="md">
               Find a Fellowship
             </Badge>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324]">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
               Philippine Ecclesia Directory
             </h2>
-            <p className="text-sm sm:text-base text-[#707666]">
+            <p className="text-sm sm:text-base text-[#707666] dark:text-[#a3ab98]">
               Categorized by major island regions across Luzon, Visayas, and Mindanao. Visitors and friends are always welcome to join our Sunday memorial services and youth classes.
             </p>
           </div>

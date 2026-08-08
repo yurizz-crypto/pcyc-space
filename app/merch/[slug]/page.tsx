@@ -60,12 +60,12 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </div>
       </div>
 
-      <section className="py-12 sm:py-16 bg-[#fefcf1]">
+      <section className="py-12 sm:py-16 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Left Product Image Gallery */}
             <div className="lg:col-span-6 space-y-6">
-              <div className="relative aspect-square w-full rounded-3xl bg-[#f8f4e3] border border-[#e6dfcb] p-12 flex items-center justify-center overflow-hidden shadow-sm">
+              <div className="relative aspect-square w-full rounded-3xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] p-12 flex items-center justify-center overflow-hidden shadow-sm">
                 <div className="relative h-72 w-72 sm:h-96 sm:w-96">
                   <Image
                     src={primaryImage}
@@ -85,7 +85,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </div>
 
               {/* Product Info & Highlights */}
-              <div className="p-6 rounded-2xl bg-white border border-[#e6dfcb] space-y-4 shadow-2xs">
+              <div className="p-6 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <Badge variant="gold" size="sm">
                     {product.category}
@@ -100,13 +100,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     </Badge>
                   )}
                 </div>
-                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                   {product.name}
                 </h1>
                 <PriceTag price={product.price} className="text-2xl" />
 
-                <div className="border-t border-[#e6dfcb] pt-4">
-                  <p className="text-xs sm:text-sm text-[#505748] leading-relaxed">
+                <div className="border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
+                  <p className="text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] leading-relaxed">
                     {product.description}
                   </p>
                 </div>
@@ -114,14 +114,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 {/* Available Sizes List */}
                 {sizes.length > 0 && (
                   <div className="space-y-1.5 pt-2">
-                    <span className="text-xs font-bold text-[#2c3324] uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider block">
                       Manufactured Sizes
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {sizes.map((sz) => (
                         <span
                           key={sz}
-                          className="px-3 py-1 rounded-lg text-xs font-medium bg-[#f8f4e3] text-[#2c3324] border border-[#e6dfcb]"
+                          className="px-3 py-1 rounded-lg text-xs font-medium bg-[#f8f4e3] dark:bg-[#1b2117] text-[#2c3324] dark:text-[#fefcf1] border border-[#e6dfcb] dark:border-[#323d2b]"
                         >
                           {sz}
                         </span>
@@ -131,7 +131,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 )}
 
                 {/* Logistics Badges */}
-                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#e6dfcb] text-xs text-[#505748]">
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98]">
                   <div className="flex items-center gap-2">
                     <QrCode className="h-4 w-4 text-[#e0a861] shrink-0" />
                     <span>GCash Direct Verification</span>
@@ -148,22 +148,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <div className="lg:col-span-6">
               {profile && (profile.role === 'ADMIN' || profile.role === 'SUPERADMIN') ? (
                 /* Admin View: CMS Controls instead of Member Ordering */
-                <div className="p-8 rounded-3xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-6 shadow-sm">
+                <div className="p-8 rounded-3xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-6 shadow-sm">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-[#2c3324] text-[#e0a861] flex items-center justify-center">
                       <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-serif text-lg font-bold text-[#2c3324]">
+                      <h3 className="font-serif text-lg font-bold text-[#2c3324] dark:text-[#fefcf1]">
                         Administrator CMS Access
                       </h3>
-                      <p className="text-xs text-[#707666]">
+                      <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
                         Logged in as {profile.email} ({profile.role})
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#505748] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] leading-relaxed">
                     Administrators have elevated management privileges. To edit this product&apos;s details, update available sizing, or manage inventory, use the Admin CMS.
                   </p>
 
@@ -186,16 +186,16 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <ProductOrderForm product={product} user={profile} />
               ) : (
                 /* Guest View: Sign In / Register Prompt */
-                <div className="p-8 rounded-3xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-6 shadow-sm text-center">
+                <div className="p-8 rounded-3xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-6 shadow-sm text-center">
                   <div className="h-14 w-14 rounded-2xl bg-[#2c3324] text-[#e0a861] mx-auto flex items-center justify-center shadow-md">
                     <ShoppingBag className="h-7 w-7" />
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="font-serif text-2xl font-bold text-[#2c3324]">
+                    <h3 className="font-serif text-2xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                       Sign In to Order
                     </h3>
-                    <p className="text-xs sm:text-sm text-[#505748] max-w-sm mx-auto">
+                    <p className="text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] max-w-sm mx-auto">
                       Please log in with your PCYC member account to select your size, choose event pickup or delivery, and upload your payment proof.
                     </p>
                   </div>

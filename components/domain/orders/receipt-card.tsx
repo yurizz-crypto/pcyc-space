@@ -53,28 +53,28 @@ export function ReceiptCard({
   };
 
   return (
-    <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#e6dfcb] space-y-3.5 shadow-2xs hover:shadow-sm transition-shadow">
+    <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3.5 shadow-2xs hover:shadow-sm transition-shadow">
       <div className="flex items-center justify-between">
-        <span className="font-mono font-bold text-sm text-[#2c3324]">
+        <span className="font-mono font-bold text-sm text-[#2c3324] dark:text-[#fefcf1]">
           {orderNumber}
         </span>
         {getStatusBadge()}
       </div>
 
       {itemsSummary && (
-        <p className="text-xs text-[#2c3324] font-medium line-clamp-1">
+        <p className="text-xs text-[#2c3324] dark:text-[#fefcf1] font-medium line-clamp-1">
           {itemsSummary}
         </p>
       )}
 
-      <div className="flex items-center justify-between text-xs text-[#707666]">
-        <span>Total: <strong className="text-[#2c3324]">{formatCurrency(Number(amount))}</strong></span>
+      <div className="flex items-center justify-between text-xs text-[#707666] dark:text-[#a3ab98]">
+        <span>Total: <strong className="text-[#2c3324] dark:text-[#fefcf1]">{formatCurrency(Number(amount))}</strong></span>
         <span>Placed: {formatDate(createdAt)}</span>
       </div>
 
       {/* Verification Notes / Feedback from Admin */}
       {verificationNotes && (
-        <div className="p-2.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[11px] text-[#c0392b] flex items-start gap-1.5">
+        <div className="p-2.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[11px] text-[#c0392b] dark:text-[#ef5350] flex items-start gap-1.5">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span>Note: {verificationNotes}</span>
         </div>
@@ -82,17 +82,17 @@ export function ReceiptCard({
 
       {/* Proof of Payment Details */}
       {receiptUrl ? (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb]">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#20271c] border border-[#e6dfcb] dark:border-[#323d2b]">
           <div className="flex items-center gap-2 text-xs">
             <QrCode className="h-4 w-4 text-[#e0a861]" />
-            <span className="font-semibold text-[#2c3324]">{paymentMethod}</span>
-            {referenceNumber && <span className="font-mono text-xs text-[#707666]">({referenceNumber})</span>}
+            <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">{paymentMethod}</span>
+            {referenceNumber && <span className="font-mono text-xs text-[#707666] dark:text-[#a3ab98]">({referenceNumber})</span>}
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsZoomOpen(true)}
-              className="text-xs text-[#9a6423] font-semibold hover:underline flex items-center gap-1"
+              className="text-xs text-[#9a6423] dark:text-[#f0be7c] font-semibold hover:underline flex items-center gap-1"
             >
               <Eye className="h-3.5 w-3.5" />
               <span>View</span>
@@ -101,7 +101,7 @@ export function ReceiptCard({
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(true)}
-                className="text-xs text-[#2c3324] font-semibold hover:underline flex items-center gap-1 ml-2"
+                className="text-xs text-[#2c3324] dark:text-[#fefcf1] font-semibold hover:underline flex items-center gap-1 ml-2"
               >
                 <UploadCloud className="h-3.5 w-3.5" />
                 <span>Re-Upload</span>
@@ -110,8 +110,8 @@ export function ReceiptCard({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3]/60 border border-[#e6dfcb] border-dashed">
-          <div className="flex items-center gap-2 text-xs text-[#8a9180]">
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3]/60 dark:bg-[#20271c]/60 border border-[#e6dfcb] dark:border-[#323d2b] border-dashed">
+          <div className="flex items-center gap-2 text-xs text-[#8a9180] dark:text-[#a3ab98]">
             <Clock className="h-3.5 w-3.5 text-[#e0a861]" />
             <span>No proof of payment attached yet</span>
           </div>
@@ -136,7 +136,7 @@ export function ReceiptCard({
           title={`Proof of Payment — Order ${orderNumber}`}
         >
           <div className="space-y-4">
-            <div className="relative aspect-[3/4] max-h-[70vh] w-full rounded-xl overflow-hidden bg-black/5">
+            <div className="relative aspect-[3/4] max-h-[70vh] w-full rounded-xl overflow-hidden bg-black/5 dark:bg-white/5">
               <Image
                 src={receiptUrl}
                 alt={`Receipt screenshot for order ${orderNumber}`}
@@ -144,7 +144,7 @@ export function ReceiptCard({
                 className="object-contain"
               />
             </div>
-            <div className="flex items-center justify-between text-xs text-[#707666] pt-2 border-t border-[#e6dfcb]">
+            <div className="flex items-center justify-between text-xs text-[#707666] dark:text-[#a3ab98] pt-2 border-t border-[#e6dfcb] dark:border-[#323d2b]">
               <span>Method: {paymentMethod}</span>
               <span>Ref: {referenceNumber || 'N/A'}</span>
             </div>

@@ -16,9 +16,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.imageUrls?.[0] || '/images/logo/pcyc-transparent-logo.png';
 
   return (
-    <Card className="flex flex-col h-full border-[#e6dfcb] hover:border-[#2c3324] hover:shadow-md transition-all group overflow-hidden">
+    <Card className="flex flex-col h-full border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#2c3324] dark:hover:border-[#e0a861] hover:shadow-md transition-all group overflow-hidden">
       {/* Product Image Container */}
-      <div className="relative aspect-square w-full bg-[#f8f4e3] flex items-center justify-center overflow-hidden p-6">
+      <div className="relative aspect-square w-full bg-[#f8f4e3] dark:bg-[#1b2117] flex items-center justify-center overflow-hidden p-6">
         <Image
           src={primaryImage}
           alt={product.name}
@@ -52,23 +52,23 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <CardHeader className="space-y-1 pb-2">
-        <CardTitle className="text-base group-hover:text-[#9a6423] transition-colors line-clamp-1">
+        <CardTitle className="text-base group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors line-clamp-1">
           {product.name}
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3 flex-1 pb-4">
-        <p className="text-xs text-[#707666] line-clamp-2 leading-relaxed">
+        <p className="text-xs text-[#707666] dark:text-[#a3ab98] line-clamp-2 leading-relaxed">
           {product.description}
         </p>
 
         {product.availableSizes && product.availableSizes.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap pt-1">
-            <span className="text-[11px] text-[#8a9180] font-medium">Sizes:</span>
+            <span className="text-[11px] text-[#8a9180] dark:text-[#8a9180] font-medium">Sizes:</span>
             {product.availableSizes.map((size) => (
               <span
                 key={size}
-                className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#f8f4e3] border border-[#e6dfcb] text-[#505748] font-semibold"
+                className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] font-semibold"
               >
                 {size}
               </span>
@@ -77,11 +77,11 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </CardContent>
 
-      <CardFooter className="pt-3 border-t border-[#e6dfcb]/50 flex items-center justify-between">
+      <CardFooter className="pt-3 border-t border-[#e6dfcb]/50 dark:border-[#323d2b]/50 flex items-center justify-between">
         <PriceTag price={product.price} isPreorder={product.isPreorder} />
         <Link
           href={`/merch/${product.slug}`}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2c3324] group-hover:text-[#9a6423] transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors"
         >
           <span>Order</span>
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />

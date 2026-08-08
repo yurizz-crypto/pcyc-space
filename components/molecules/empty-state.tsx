@@ -26,16 +26,16 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'text-center py-16 px-6 rounded-3xl bg-white border border-[#e6dfcb] shadow-xs max-w-lg mx-auto space-y-4',
+        'text-center py-16 px-6 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs max-w-lg mx-auto space-y-4',
         className
       )}
     >
-      <div className="h-16 w-16 rounded-2xl bg-[#f8f4e3] text-[#9a6423] border border-[#e6dfcb] mx-auto flex items-center justify-center">
+      <div className="h-16 w-16 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] text-[#9a6423] dark:text-[#f0be7c] border border-[#e6dfcb] dark:border-[#323d2b] mx-auto flex items-center justify-center">
         <Icon className="h-8 w-8" />
       </div>
       <div className="space-y-1.5">
-        <h3 className="font-serif font-bold text-xl text-[#2c3324]">{title}</h3>
-        <p className="text-xs sm:text-sm text-[#707666] leading-relaxed max-w-sm mx-auto">
+        <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">{title}</h3>
+        <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed max-w-sm mx-auto">
           {description}
         </p>
       </div>

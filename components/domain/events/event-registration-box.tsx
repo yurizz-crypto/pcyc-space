@@ -67,18 +67,18 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-6 space-y-4 text-xs text-[#505748]">
-          <div className="p-4 rounded-xl bg-white border border-[#d3dec2] space-y-2.5">
+        <CardContent className="p-6 space-y-4 text-xs text-[#505748] dark:text-[#a3ab98]">
+          <div className="p-4 rounded-xl bg-white dark:bg-[#1b2117] border border-[#d3dec2] space-y-2.5">
             <div className="flex justify-between items-center">
-              <span className="text-[#707666]">Attendee:</span>
-              <strong className="text-[#2c3324]">{user?.firstName} {user?.lastName}</strong>
+              <span className="text-[#707666] dark:text-[#a3ab98]">Attendee:</span>
+              <strong className="text-[#2c3324] dark:text-[#fefcf1]">{user?.firstName} {user?.lastName}</strong>
             </div>
             <div className="flex justify-between items-center border-t border-[#f0f4eb] pt-2">
-              <span className="text-[#707666]">Registration Fee:</span>
-              <span className="font-bold text-[#2c3324]">{isFree ? 'Free Admission' : formatPHP(feeNum)}</span>
+              <span className="text-[#707666] dark:text-[#a3ab98]">Registration Fee:</span>
+              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">{isFree ? 'Free Admission' : formatPHP(feeNum)}</span>
             </div>
             <div className="flex justify-between items-center border-t border-[#f0f4eb] pt-2">
-              <span className="text-[#707666]">Payment Method:</span>
+              <span className="text-[#707666] dark:text-[#a3ab98]">Payment Method:</span>
               <Badge variant={isGcashPending ? 'gold' : 'success'} size="sm">
                 {isFree
                   ? 'Free'
@@ -90,7 +90,7 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
           </div>
 
           {state?.message && (
-            <p className="p-3 rounded-xl bg-[#f0f4eb] text-[#2c3324] font-medium text-center">
+            <p className="p-3 rounded-xl bg-[#f0f4eb] dark:bg-[#1b2117] text-[#2c3324] dark:text-[#fefcf1] font-medium text-center">
               {state.message}
             </p>
           )}
@@ -130,8 +130,8 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
         </CardHeader>
 
         <CardContent className="p-6 space-y-4">
-          <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] text-xs text-[#505748] space-y-2">
-            <p className="font-medium text-[#2c3324]">Member Authentication Required</p>
+          <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-2">
+            <p className="font-medium text-[#2c3324] dark:text-[#fefcf1]">Member Authentication Required</p>
             <p>Please log in or register with your PCYC member account to reserve your slot and register for this gathering.</p>
           </div>
 
@@ -179,7 +179,7 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
 
   // 4. Registration Form for Logged-In Members
   return (
-    <Card className="border-[#e0a861]/40 shadow-lg bg-[#fefcf1]">
+    <Card className="border-[#e0a861]/40 shadow-lg bg-[#fefcf1] dark:bg-[#131710]">
       <form action={formAction}>
         <input type="hidden" name="eventId" value={event.id} />
         <input type="hidden" name="paymentOption" value={isFree ? 'FREE' : paymentOption} />
@@ -203,7 +203,7 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
 
         <CardContent className="p-6 space-y-5">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
@@ -211,7 +211,7 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
 
           {!isFree && (
             <div className="space-y-3">
-              <label className="text-xs font-bold text-[#2c3324] uppercase tracking-wider block">
+              <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider block">
                 Choose Payment Method <span className="text-[#c0392b]">*</span>
               </label>
 
@@ -221,15 +221,15 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
                   onClick={() => setPaymentOption('GCASH')}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     paymentOption === 'GCASH'
-                      ? 'border-[#2c3324] bg-[#2c3324]/5 ring-1 ring-[#2c3324]'
-                      : 'border-[#e6dfcb] bg-[#f8f4e3]/50 hover:bg-[#f8f4e3]'
+                      ? 'border-[#2c3324] dark:border-[#fefcf1] bg-[#2c3324]/5 dark:bg-[#fefcf1]/5 ring-1 ring-[#2c3324] dark:ring-[#fefcf1]'
+                      : 'border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117]'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#2c3324]">
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#2c3324] dark:text-[#fefcf1]">
                     <QrCode className="h-4 w-4 text-[#e0a861]" />
                     <span>Pay via GCash</span>
                   </div>
-                  <p className="text-[11px] text-[#707666] mt-0.5">
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-0.5">
                     Fast-track confirmation by uploading screenshot receipt.
                   </p>
                 </button>
@@ -239,15 +239,15 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
                   onClick={() => setPaymentOption('VENUE_DESK')}
                   className={`p-3 rounded-xl border text-left transition-all ${
                     paymentOption === 'VENUE_DESK'
-                      ? 'border-[#2c3324] bg-[#2c3324]/5 ring-1 ring-[#2c3324]'
-                      : 'border-[#e6dfcb] bg-[#f8f4e3]/50 hover:bg-[#f8f4e3]'
+                      ? 'border-[#2c3324] dark:border-[#fefcf1] bg-[#2c3324]/5 dark:bg-[#fefcf1]/5 ring-1 ring-[#2c3324] dark:ring-[#fefcf1]'
+                      : 'border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117]'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#2c3324]">
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-[#2c3324] dark:text-[#fefcf1]">
                     <Building2 className="h-4 w-4 text-[#e0a861]" />
                     <span>Pay at Venue Desk</span>
                   </div>
-                  <p className="text-[11px] text-[#707666] mt-0.5">
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-0.5">
                     Settle registration fee upon arrival on Day 1.
                   </p>
                 </button>
@@ -255,16 +255,16 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
 
               {/* GCash Details & Upload Box */}
               {paymentOption === 'GCASH' && (
-                <div className="p-4 rounded-xl bg-gradient-to-br from-[#f8f4e3] to-[#fefcf1] border-2 border-[#e0a861] space-y-4 animate-fadeIn">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#2c3324]">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-[#f8f4e3] dark:from-[#1b2117] to-[#fefcf1] dark:to-[#131710] border-2 border-[#e0a861] space-y-4 animate-fadeIn">
+                  <div className="flex items-center justify-between text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
                     <div className="flex items-center gap-1.5">
-                      <QrCode className="h-4 w-4 text-[#9a6423]" />
+                      <QrCode className="h-4 w-4 text-[#9a6423] dark:text-[#f0be7c]" />
                       <span>PCYC Official GCash</span>
                     </div>
-                    <span className="font-mono text-sm text-[#9a6423]">0912-734-1648 (Yuri S.)</span>
+                    <span className="font-mono text-sm text-[#9a6423] dark:text-[#f0be7c]">0912-734-1648 (Yuri S.)</span>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-white border border-[#e6dfcb] text-[11px] text-[#707666]">
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[11px] text-[#707666] dark:text-[#a3ab98]">
                     Please send exact registration fee <strong>{formatPHP(feeNum)}</strong> and provide reference details below.
                   </div>
 

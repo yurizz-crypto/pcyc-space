@@ -17,15 +17,15 @@ export function Badge({
     'inline-flex items-center font-medium rounded-full transition-colors whitespace-nowrap';
 
   const variants = {
-    gold: 'bg-[#fbf1e2] text-[#9a6423] border border-[#e0a861]/40 font-semibold',
-    forest: 'bg-[#2c3324] text-[#fefcf1] border border-[#2c3324]',
-    cream: 'bg-[#f8f4e3] text-[#2c3324] border border-[#e6dfcb]',
-    success: 'bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9]',
-    warning: 'bg-[#fff8e1] text-[#b78103] border border-[#ffe082]',
-    error: 'bg-[#fbe9e7] text-[#c0392b] border border-[#ffccbc]',
-    destructive: 'bg-[#fdf2f2] text-[#c0392b] border border-[#f5c6cb]',
-    slate: 'bg-slate-100 text-slate-700 border border-slate-200',
-    outline: 'border border-[#2c3324]/30 text-[#2c3324] bg-transparent',
+    gold: 'bg-[#fbf1e2] dark:bg-[#2b2315] text-[#9a6423] dark:text-[#f0be7c] border border-[#e0a861]/40 dark:border-[#e0a861]/30 font-semibold',
+    forest: 'bg-[#2c3324] dark:bg-[#20271b] text-[#fefcf1] border border-[#2c3324] dark:border-[#38452f]',
+    cream: 'bg-[#f8f4e3] dark:bg-[#1d2419] text-[#2c3324] dark:text-[#fefcf1] border border-[#e6dfcb] dark:border-[#323d2b]',
+    success: 'bg-[#e8f5e9] dark:bg-[#162917] text-[#2e7d32] dark:text-[#66bb6a] border border-[#c8e6c9] dark:border-[#1e4620]',
+    warning: 'bg-[#fff8e1] dark:bg-[#2c2211] text-[#b78103] dark:text-[#ffb74d] border border-[#ffe082] dark:border-[#4d381c]',
+    error: 'bg-[#fbe9e7] dark:bg-[#2d1815] text-[#c0392b] dark:text-[#ef5350] border border-[#ffccbc] dark:border-[#4d201b]',
+    destructive: 'bg-[#fdf2f2] dark:bg-[#2d1815] text-[#c0392b] dark:text-[#ef5350] border border-[#f5c6cb] dark:border-[#4d201b]',
+    slate: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700',
+    outline: 'border border-[#2c3324]/30 dark:border-[#fefcf1]/30 text-[#2c3324] dark:text-[#fefcf1] bg-transparent',
   };
 
   const sizes = {

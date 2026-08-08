@@ -15,7 +15,7 @@ export default async function RegisterPage() {
   const displayedEcclesias = await getDisplayedEcclesias();
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#fefcf1]">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#fefcf1] dark:bg-[#131710]">
       <div className="w-full max-w-lg space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
@@ -30,10 +30,10 @@ export default async function RegisterPage() {
               />
             </div>
           </Link>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
             Join PCYC Fellowship
           </h1>
-          <p className="text-xs sm:text-sm text-[#707666]">
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
             Create your account to register for camps, study circles, and stay connected.
           </p>
         </div>

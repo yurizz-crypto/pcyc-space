@@ -1,6 +1,44 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-forest-950: #0f140d;
+  --color-forest-900: #1b2117;
+  --color-forest-800: #2c3324;
+  --color-forest-700: #38452f;
+  --color-forest-600: #46573a;
+  --color-forest-500: #556847;
+  --color-forest-400: #6f855d;
+  --color-forest-300: #93a882;
+  --color-forest-200: #c1cfb5;
+  --color-forest-100: #e4ebe0;
+  --color-forest-50: #f4f7f2;
+
+  --color-cream-950: #2c3324;
+  --color-cream-900: #3d4632;
+  --color-cream-800: #5a634e;
+  --color-cream-700: #7c8571;
+  --color-cream-600: #a3ab98;
+  --color-cream-500: #c5ccc0;
+  --color-cream-400: #e6dfcb;
+  --color-cream-300: #eee9db;
+  --color-cream-200: #f4efe2;
+  --color-cream-100: #f8f4e3;
+  --color-cream-50: #fefcf1;
+
+  --color-gold-950: #351f08;
+  --color-gold-900: #5c370e;
+  --color-gold-800: #885114;
+  --color-gold-700: #b56c1b;
+  --color-gold-600: #ca914a;
+  --color-gold-500: #e0a861;
+  --color-gold-400: #e8bd82;
+  --color-gold-300: #f0d1a4;
+  --color-gold-200: #f8e6c7;
+  --color-gold-100: #fbf1e2;
+  --color-gold-50: #fef9f2;
+}
 
 @layer base {
   :root {

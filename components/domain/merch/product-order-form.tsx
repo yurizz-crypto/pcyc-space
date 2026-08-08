@@ -59,7 +59,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
   // Order Success Screen
   if (state?.success && state.orderNumber) {
     return (
-      <Card className="border-[#2e7d32]/30 bg-[#fefcf1] shadow-xl overflow-hidden animate-fadeIn">
+      <Card className="border-[#2e7d32]/30 bg-[#fefcf1] dark:bg-[#131710] shadow-xl overflow-hidden animate-fadeIn">
         <div className="bg-[#2e7d32] text-white p-6 text-center space-y-2">
           <div className="h-12 w-12 rounded-full bg-white/20 text-white mx-auto flex items-center justify-center">
             <CheckCircle2 className="h-7 w-7" />
@@ -71,45 +71,45 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
         </div>
 
         <CardContent className="p-6 sm:p-8 space-y-6">
-          <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-3">
-            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] pb-2">
-              <span className="text-[#707666]">Item</span>
-              <strong className="text-[#2c3324]">{product.name}</strong>
+          <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
+            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] dark:border-[#323d2b] pb-2">
+              <span className="text-[#707666] dark:text-[#a3ab98]">Item</span>
+              <strong className="text-[#2c3324] dark:text-[#fefcf1]">{product.name}</strong>
             </div>
             {hasSizes && (
-              <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] pb-2">
-                <span className="text-[#707666]">Selected Size</span>
+              <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] dark:border-[#323d2b] pb-2">
+                <span className="text-[#707666] dark:text-[#a3ab98]">Selected Size</span>
                 <Badge variant="gold" size="sm">{selectedSize}</Badge>
               </div>
             )}
-            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] pb-2">
-              <span className="text-[#707666]">Quantity</span>
-              <span className="font-bold text-[#2c3324]">{quantity} pc(s)</span>
+            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] dark:border-[#323d2b] pb-2">
+              <span className="text-[#707666] dark:text-[#a3ab98]">Quantity</span>
+              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">{quantity} pc(s)</span>
             </div>
-            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] pb-2">
-              <span className="text-[#707666]">Fulfillment</span>
-              <span className="font-medium text-[#2c3324]">
+            <div className="flex justify-between items-center text-sm border-b border-[#e6dfcb] dark:border-[#323d2b] pb-2">
+              <span className="text-[#707666] dark:text-[#a3ab98]">Fulfillment</span>
+              <span className="font-medium text-[#2c3324] dark:text-[#fefcf1]">
                 {fulfillmentType === 'EVENT_PICKUP' ? '🎪 Event Pickup (Upcoming Camp)' : '🚚 Courier Delivery'}
               </span>
             </div>
-            <div className="flex justify-between items-center text-base font-serif font-bold text-[#2c3324] pt-1">
+            <div className="flex justify-between items-center text-base font-serif font-bold text-[#2c3324] dark:text-[#fefcf1] pt-1">
               <span>Total Payable</span>
-              <span className="text-[#9a6423] text-lg">{formatCurrency(totalAmount)}</span>
+              <span className="text-[#9a6423] dark:text-[#f0be7c] text-lg">{formatCurrency(totalAmount)}</span>
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#f0f4eb] border border-[#d3dec2] space-y-3 text-xs text-[#505748]">
-            <div className="flex items-center gap-2 font-bold text-[#2c3324]">
-              <QrCode className="h-4 w-4 text-[#2e7d32]" />
+          <div className="p-5 rounded-2xl bg-[#f0f4eb] dark:bg-[#1b2117] border border-[#d3dec2] dark:border-[#323d2b] space-y-3 text-xs text-[#505748] dark:text-[#a3ab98]">
+            <div className="flex items-center gap-2 font-bold text-[#2c3324] dark:text-[#fefcf1]">
+              <QrCode className="h-4 w-4 text-[#2e7d32] dark:text-[#66bb6a]" />
               <span>Next Step: GCash Payment</span>
             </div>
             <p>
               Please send <strong>{formatCurrency(totalAmount)}</strong> to the official PCYC GCash:
             </p>
-            <div className="p-3 rounded-xl bg-white border border-[#d3dec2] font-mono text-center text-sm font-bold text-[#2c3324]">
+            <div className="p-3 rounded-xl bg-white dark:bg-[#1b2117] border border-[#d3dec2] font-mono text-center text-sm font-bold text-[#2c3324] dark:text-[#fefcf1]">
               0912-734-1648 (Yuri S.)
             </div>
-            <p className="text-[11px] text-[#707666]">
+            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
               Upload your receipt in the Member Portal to fast-track verification.
             </p>
           </div>
@@ -133,33 +133,33 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
   }
 
   return (
-    <Card className="border-[#e6dfcb] shadow-lg bg-[#fefcf1]">
+    <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-lg bg-[#fefcf1] dark:bg-[#131710]">
       <form action={formAction}>
         <input type="hidden" name="productId" value={product.id} />
         <input type="hidden" name="selectedSize" value={selectedSize} />
         <input type="hidden" name="quantity" value={quantity} />
         <input type="hidden" name="fulfillmentType" value={fulfillmentType} />
 
-        <CardHeader className="border-b border-[#e6dfcb] pb-4">
+        <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
           <div className="flex items-center justify-between">
             <Badge variant="gold" size="sm">
               {product.isPreorder ? 'Pre-Order Open' : 'In Stock'}
             </Badge>
-            <span className="font-serif text-xl font-bold text-[#9a6423]">
+            <span className="font-serif text-xl font-bold text-[#9a6423] dark:text-[#f0be7c]">
               {formatCurrency(unitPrice)}
             </span>
           </div>
-          <CardTitle className="text-lg sm:text-xl text-[#2c3324] pt-1">
+          <CardTitle className="text-lg sm:text-xl text-[#2c3324] dark:text-[#fefcf1] pt-1">
             Place Member Order
           </CardTitle>
           <CardDescription className="text-xs">
-            Ordering as <strong className="text-[#2c3324]">{user.firstName} {user.lastName}</strong> ({user.ecclesia || 'PCYC Youth'})
+            Ordering as <strong className="text-[#2c3324] dark:text-[#fefcf1]">{user.firstName} {user.lastName}</strong> ({user.ecclesia || 'PCYC Youth'})
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6 pt-6">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] border border-[#f5c6cb] text-[#c0392b] text-xs flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
@@ -169,11 +169,11 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
           {hasSizes && (
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-[#2c3324] uppercase tracking-wider">
-                  Select Size <span className="text-[#c0392b]">*</span>
+                <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
+                  Select Size <span className="text-[#c0392b] dark:text-[#ef5350]">*</span>
                 </label>
-                <span className="text-xs text-[#707666]">
-                  Selected: <strong className="text-[#2c3324]">{selectedSize}</strong>
+                <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                  Selected: <strong className="text-[#2c3324] dark:text-[#fefcf1]">{selectedSize}</strong>
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -187,7 +187,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                       className={`min-w-[48px] h-10 px-3.5 rounded-xl text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-[#2c3324] text-[#fefcf1] shadow-sm ring-2 ring-[#e0a861]'
-                          : 'bg-[#f8f4e3] border border-[#e6dfcb] text-[#505748] hover:bg-[#e6dfcb]/50'
+                          : 'bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:bg-[#e6dfcb]/50'
                       }`}
                     >
                       {size}
@@ -200,38 +200,38 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
 
           {/* 2. Quantity Selector */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#2c3324] uppercase tracking-wider block">
+            <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider block">
               Quantity
             </label>
             <div className="flex items-center gap-3">
-              <div className="flex items-center border border-[#e6dfcb] rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="flex items-center border border-[#e6dfcb] dark:border-[#323d2b] rounded-xl overflow-hidden bg-white dark:bg-[#1b2117] shadow-2xs">
                 <button
                   type="button"
                   onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                  className="px-3.5 py-2 text-[#505748] hover:bg-[#f8f4e3] font-bold text-sm transition-colors"
+                  className="px-3.5 py-2 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-sm transition-colors"
                 >
                   -
                 </button>
-                <span className="px-4 py-2 text-sm font-bold text-[#2c3324] min-w-[40px] text-center">
+                <span className="px-4 py-2 text-sm font-bold text-[#2c3324] dark:text-[#fefcf1] min-w-[40px] text-center">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity((prev) => Math.min(50, prev + 1))}
-                  className="px-3.5 py-2 text-[#505748] hover:bg-[#f8f4e3] font-bold text-sm transition-colors"
+                  className="px-3.5 py-2 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-sm transition-colors"
                 >
                   +
                 </button>
               </div>
-              <span className="text-xs text-[#707666]">
-                Subtotal: <strong className="text-[#2c3324]">{formatCurrency(itemSubtotal)}</strong>
+              <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                Subtotal: <strong className="text-[#2c3324] dark:text-[#fefcf1]">{formatCurrency(itemSubtotal)}</strong>
               </span>
             </div>
           </div>
 
           {/* 3. Fulfillment Mode (Event Pickup vs Courier Delivery) */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#2c3324] uppercase tracking-wider block">
+            <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider block">
               Fulfillment Method
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -240,15 +240,15 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 onClick={() => setFulfillmentType('EVENT_PICKUP')}
                 className={`p-3.5 rounded-xl border text-left transition-all ${
                   fulfillmentType === 'EVENT_PICKUP'
-                    ? 'border-[#2c3324] bg-[#2c3324]/5 shadow-xs ring-1 ring-[#2c3324]'
-                    : 'border-[#e6dfcb] bg-[#f8f4e3]/50 hover:bg-[#f8f4e3]'
+                    ? 'border-[#2c3324] dark:border-[#fefcf1] bg-[#2c3324]/5 shadow-xs ring-1 ring-[#2c3324] dark:ring-[#fefcf1]'
+                    : 'border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117]'
                 }`}
               >
-                <div className="flex items-center gap-2 font-bold text-xs text-[#2c3324]">
+                <div className="flex items-center gap-2 font-bold text-xs text-[#2c3324] dark:text-[#fefcf1]">
                   <Calendar className="h-4 w-4 text-[#e0a861]" />
                   <span>Event Pickup (Free)</span>
                 </div>
-                <p className="text-[11px] text-[#707666] mt-1">
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">
                   Claim at upcoming PCYC Youth Camp registration desk. Payment optional upon pickup.
                 </p>
               </button>
@@ -258,15 +258,15 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 onClick={() => setFulfillmentType('DELIVERY')}
                 className={`p-3.5 rounded-xl border text-left transition-all ${
                   fulfillmentType === 'DELIVERY'
-                    ? 'border-[#2c3324] bg-[#2c3324]/5 shadow-xs ring-1 ring-[#2c3324]'
-                    : 'border-[#e6dfcb] bg-[#f8f4e3]/50 hover:bg-[#f8f4e3]'
+                    ? 'border-[#2c3324] dark:border-[#fefcf1] bg-[#2c3324]/5 shadow-xs ring-1 ring-[#2c3324] dark:ring-[#fefcf1]'
+                    : 'border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#1b2117]/50 hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117]'
                 }`}
               >
-                <div className="flex items-center gap-2 font-bold text-xs text-[#2c3324]">
+                <div className="flex items-center gap-2 font-bold text-xs text-[#2c3324] dark:text-[#fefcf1]">
                   <Truck className="h-4 w-4 text-[#e0a861]" />
                   <span>Door Delivery (+₱120)</span>
                 </div>
-                <p className="text-[11px] text-[#707666] mt-1">
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">
                   Shipped directly to your home address. GCash payment required upfront.
                 </p>
               </button>
@@ -276,9 +276,9 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
           {/* Conditional Delivery Form & Mandatory Payment */}
           {fulfillmentType === 'DELIVERY' ? (
             <div className="space-y-4 animate-fadeIn">
-              <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324]">
-                  <MapPin className="h-4 w-4 text-[#9a6423]" />
+              <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                  <MapPin className="h-4 w-4 text-[#9a6423] dark:text-[#f0be7c]" />
                   <span>Courier Delivery Details</span>
                 </div>
 
@@ -328,23 +328,23 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
               </div>
 
               {/* Mandatory Payment Proof for Delivery */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-[#f8f4e3] to-[#fefcf1] border-2 border-[#e0a861] space-y-4 shadow-xs">
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-[#f8f4e3] dark:from-[#1b2117] to-[#fefcf1] dark:to-[#131710] border-2 border-[#e0a861] space-y-4 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324]">
-                    <QrCode className="h-4 w-4 text-[#9a6423]" />
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                    <QrCode className="h-4 w-4 text-[#9a6423] dark:text-[#f0be7c]" />
                     <span>GCash Payment (Required for Delivery)</span>
                   </div>
                   <Badge variant="gold" size="sm">Required</Badge>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white border border-[#e6dfcb] space-y-2 text-xs">
+                <div className="p-3.5 rounded-xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#707666]">Official GCash:</span>
-                    <span className="font-mono font-bold text-sm text-[#2c3324]">0912-734-1648 (Yuri S.)</span>
+                    <span className="text-[#707666] dark:text-[#a3ab98]">Official GCash:</span>
+                    <span className="font-mono font-bold text-sm text-[#2c3324] dark:text-[#fefcf1]">0912-734-1648 (Yuri S.)</span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-[#f0f4eb] pt-2">
-                    <span className="text-[#707666]">Total Amount to Send:</span>
-                    <strong className="text-sm text-[#9a6423] font-serif">{formatCurrency(totalAmount)}</strong>
+                  <div className="flex items-center justify-between border-t border-[#f0f4eb] dark:border-[#323d2b] pt-2">
+                    <span className="text-[#707666] dark:text-[#a3ab98]">Total Amount to Send:</span>
+                    <strong className="text-sm text-[#9a6423] dark:text-[#f0be7c] font-serif">{formatCurrency(totalAmount)}</strong>
                   </div>
                 </div>
 
@@ -365,9 +365,9 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
           ) : (
             <div className="space-y-4 animate-fadeIn">
               {/* Event Pickup Note */}
-              <div className="p-3.5 rounded-xl bg-[#f0f4eb] border border-[#d3dec2] text-xs text-[#505748] space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-[#2c3324]">
-                  <Info className="h-3.5 w-3.5 text-[#2e7d32]" />
+              <div className="p-3.5 rounded-xl bg-[#f0f4eb] dark:bg-[#1b2117] border border-[#d3dec2] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                  <Info className="h-3.5 w-3.5 text-[#2e7d32] dark:text-[#66bb6a]" />
                   <span>Pre-Order Pickup Protocol</span>
                 </div>
                 <p>
@@ -383,22 +383,22 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
               />
 
               {/* Optional GCash Attachment for Event Pickup */}
-              <div className="border-t border-[#e6dfcb] pt-4 space-y-3">
+              <div className="border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4 space-y-3">
                 <button
                   type="button"
                   onClick={() => setShowReceiptUpload(!showReceiptUpload)}
-                  className="text-xs font-bold text-[#9a6423] hover:underline flex items-center gap-1.5"
+                  className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] hover:underline flex items-center gap-1.5"
                 >
                   <QrCode className="h-4 w-4" />
                   <span>{showReceiptUpload ? '− Hide GCash Receipt Upload' : '+ Pay Now via GCash & Attach Screenshot (Optional)'}</span>
                 </button>
 
                 {showReceiptUpload && (
-                  <div className="p-4 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] space-y-4 animate-fadeIn">
-                    <div className="text-xs text-[#505748] space-y-1">
-                      <p className="font-bold text-[#2c3324]">PCYC Official GCash:</p>
-                      <p className="font-mono text-sm font-bold text-[#9a6423]">0912-734-1648 (Yuri S.)</p>
-                      <p className="text-[11px] text-[#707666]">
+                  <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 animate-fadeIn">
+                    <div className="text-xs text-[#505748] dark:text-[#a3ab98] space-y-1">
+                      <p className="font-bold text-[#2c3324] dark:text-[#fefcf1]">PCYC Official GCash:</p>
+                      <p className="font-mono text-sm font-bold text-[#9a6423] dark:text-[#f0be7c]">0912-734-1648 (Yuri S.)</p>
+                      <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
                         Amount to send: <strong>{formatCurrency(totalAmount)}</strong>
                       </p>
                     </div>
@@ -447,7 +447,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3 border-t border-[#e6dfcb] pt-4">
+        <CardFooter className="flex flex-col gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
           <Button
             type="submit"
             variant="primary"
@@ -459,7 +459,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
             <span>Confirm & Place Order ({formatCurrency(totalAmount)})</span>
           </Button>
 
-          <p className="text-center text-[11px] text-[#707666]">
+          <p className="text-center text-[11px] text-[#707666] dark:text-[#a3ab98]">
             By placing this order, you support PCYC youth fellowship and camp subsidies.
           </p>
         </CardFooter>
