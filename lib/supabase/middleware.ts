@@ -56,6 +56,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   // =========================================================================
   // STEP 2: Zero-Database Auth Session Inspection
   // =========================================================================
+
+  // INTERCEPT: If URL has a 'code' query param (from Supabase Auth email links),
+  // immediately forward it to our auth callback handler to exchange for a session.
+  if (request.nextUrl.searchParams.has('code') && pathname !== '/api/auth/callback') {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = '/api/auth/callback';
+    return NextResponse.redirect(callbackUrl);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   });

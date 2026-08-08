@@ -29,7 +29,7 @@
 
 ## 📖 About
 
-**PCYC Space** is the canonical digital platform for the **Philippine Christadelphian Youth Circle** — the only Christadelphian youth circle in the Philippines. It serves as the central hub where members across ecclesias in Manila, Davao, Cebu, and beyond can connect, register for fellowship events, browse and order fundraising merchandise, and stay rooted in their shared faith.
+**PCYC Space** is the canonical digital platform for the **Philippine Christadelphian Youth Circle**. It serves as the central hub where members across ecclesias in Manila, Davao, Bukidnon, and beyond can connect, register for fellowship events, browse and order fundraising merchandise, and stay rooted in their shared faith.
 
 > *"Success means the site is the first place members check for PCYC updates and the first thing a curious visitor finds when looking for Christadelphian youth community in the Philippines."*
 
