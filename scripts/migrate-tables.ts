@@ -66,7 +66,37 @@ async function migrate() {
       ADD CONSTRAINT payment_receipts_order_id_orders_id_fk
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE;
     `;
-    console.log('✓ payment_receipts foreign keys configured.');
+    // 5. Create notifications table and notification_type enum if not exists
+    console.log('Creating notification_type enum and notifications table if not exists...');
+    await sql`
+      DO $$ BEGIN
+        CREATE TYPE notification_type AS ENUM('EVENT_REGISTRATION', 'ORDER_STATUS', 'PAYMENT_VERIFICATION', 'ACCOUNT', 'ANNOUNCEMENT', 'SYSTEM');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+        type notification_type DEFAULT 'SYSTEM' NOT NULL,
+        title text NOT NULL,
+        message text NOT NULL,
+        link_url text,
+        is_read boolean DEFAULT false NOT NULL,
+        metadata jsonb,
+        created_at timestamp with time zone DEFAULT now() NOT NULL
+      );
+    `;
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications (user_id, is_read);
+    `;
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON notifications (user_id, created_at);
+    `;
+    console.log('✓ notifications table and indexes ready.');
 
     console.log('\n--- Migration Successfully Completed! ---');
   } catch (error) {

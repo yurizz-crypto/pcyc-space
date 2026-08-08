@@ -179,7 +179,15 @@ export async function resetPasswordAction(
   }
 
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email);
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.NODE_ENV === 'production'
+      ? 'https://pcyc-space.vercel.app'
+      : 'http://localhost:3000');
+
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${appUrl}/reset-password`,
+  });
 
   if (error) {
     logger.warn({ error: error.message }, 'Password reset request failed');

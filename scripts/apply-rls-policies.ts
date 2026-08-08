@@ -256,6 +256,28 @@ async function applyRLSPolicies() {
             WHERE profiles.id = auth.uid() AND profiles.role IN ('ADMIN', 'SUPERADMIN')
           )
         );
+
+      -- NOTIFICATIONS POLICIES
+      ALTER TABLE IF EXISTS public.notifications ENABLE ROW LEVEL SECURITY;
+      DROP POLICY IF EXISTS "Allow users to view own notifications" ON public.notifications;
+      DROP POLICY IF EXISTS "Allow users to update own notifications" ON public.notifications;
+      DROP POLICY IF EXISTS "Allow system/admins to insert notifications" ON public.notifications;
+
+      CREATE POLICY "Allow users to view own notifications"
+        ON public.notifications FOR SELECT
+        TO authenticated
+        USING (auth.uid() = user_id);
+
+      CREATE POLICY "Allow users to update own notifications"
+        ON public.notifications FOR UPDATE
+        TO authenticated
+        USING (auth.uid() = user_id)
+        WITH CHECK (auth.uid() = user_id);
+
+      CREATE POLICY "Allow system/admins to insert notifications"
+        ON public.notifications FOR INSERT
+        TO authenticated
+        WITH CHECK (true);
     `);
     console.log('   ✅ All RLS security policies successfully created.');
 
@@ -265,7 +287,7 @@ async function applyRLSPolicies() {
       SELECT tablename, rowsecurity 
       FROM pg_tables 
       WHERE schemaname = 'public' 
-        AND tablename IN ('profiles', 'events', 'products', 'orders', 'order_items', 'payment_receipts', 'event_registrations', 'ecclesias', 'site_settings');
+        AND tablename IN ('profiles', 'events', 'products', 'orders', 'order_items', 'payment_receipts', 'event_registrations', 'ecclesias', 'site_settings', 'notifications');
     `;
 
     console.table(rlsStatus);
