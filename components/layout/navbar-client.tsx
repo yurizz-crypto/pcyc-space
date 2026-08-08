@@ -9,13 +9,21 @@ import { Button } from '@/components/ui/button';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { NavUserMenu } from '@/components/layout/nav-user-menu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { NotificationBell } from '@/components/domain/notifications/notification-bell';
 import type { Profile } from '@/lib/db/schema/users';
+import type { Notification } from '@/lib/db/schema/notifications';
 
 export interface NavbarClientProps {
   profile: Profile | null;
+  initialNotifications?: Notification[];
+  initialUnreadCount?: number;
 }
 
-export function NavbarClient({ profile }: NavbarClientProps) {
+export function NavbarClient({
+  profile,
+  initialNotifications = [],
+  initialUnreadCount = 0,
+}: NavbarClientProps) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -98,6 +106,14 @@ export function NavbarClient({ profile }: NavbarClientProps) {
             <div className="hidden md:flex items-center gap-3">
               <ThemeToggle />
 
+              {/* In-App Notification Bell for Logged-in Members & Admins */}
+              {profile && (
+                <NotificationBell
+                  initialNotifications={initialNotifications}
+                  initialUnreadCount={initialUnreadCount}
+                />
+              )}
+
               <Link
                 href="/merch"
                 className="relative p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5 transition-colors"
@@ -134,6 +150,12 @@ export function NavbarClient({ profile }: NavbarClientProps) {
             {/* Mobile Menu Trigger & Actions */}
             <div className="flex md:hidden items-center gap-2">
               <ThemeToggle size="sm" />
+              {profile && (
+                <NotificationBell
+                  initialNotifications={initialNotifications}
+                  initialUnreadCount={initialUnreadCount}
+                />
+              )}
               <Link href="/merch" className="p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1]">
                 <ShoppingBag className="h-5 w-5" />
               </Link>

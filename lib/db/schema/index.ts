@@ -3,6 +3,7 @@ import { profiles } from './users';
 import { events, eventRegistrations } from './events';
 import { products } from './products';
 import { orders, orderItems, paymentReceipts } from './orders';
+import { notifications } from './notifications';
 
 export * from './users';
 export * from './events';
@@ -10,6 +11,7 @@ export * from './products';
 export * from './orders';
 export * from './ecclesias';
 export * from './settings';
+export * from './notifications';
 
 // ==========================================
 // DRIZZLE RELATIONS DEFINITIONS
@@ -20,6 +22,7 @@ export const profilesRelations = relations(profiles, ({ many }) => ({
   eventRegistrations: many(eventRegistrations),
   createdEvents: many(events),
   verifiedReceipts: many(paymentReceipts),
+  notifications: many(notifications),
 }));
 
 export const eventsRelations = relations(events, ({ one, many }) => ({
@@ -75,6 +78,13 @@ export const paymentReceiptsRelations = relations(paymentReceipts, ({ one }) => 
   }),
   verifiedBy: one(profiles, {
     fields: [paymentReceipts.verifiedById],
+    references: [profiles.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(profiles, {
+    fields: [notifications.userId],
     references: [profiles.id],
   }),
 }));

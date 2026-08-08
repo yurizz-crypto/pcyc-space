@@ -10,6 +10,11 @@ import { revalidatePath } from 'next/cache';
 import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
+import { dispatchNotification } from '@/lib/notifications/dispatcher';
+import {
+  renderEventRegistrationEmail,
+  renderAdminEventRegistrationAlert,
+} from '@/lib/email/templates/event-registration';
 
 export interface AdminEventActionState {
   success: boolean;
@@ -527,6 +532,54 @@ export async function registerForEventAction(
         { eventId: event.id, userId: profile.id, paymentOption: finalPaymentOption },
         'User registered for event successfully'
       );
+
+      // Dispatch Attendee Ticket Confirmation & Admin Notification
+      const attendeeName = `${profile.firstName} ${profile.lastName}`;
+      const regEmailData = {
+        userName: attendeeName,
+        userDesignation: profile.designation,
+        userEcclesia: profile.ecclesia,
+        eventTitle: event.title,
+        eventTheme: event.theme,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        location: event.location,
+        registrationFee: event.registrationFee,
+        paymentOption: finalPaymentOption,
+        paymentStatus: finalPaymentStatus,
+        referenceNumber: referenceNumber || null,
+        specialRequirements: specialRequirements || null,
+      };
+
+      await dispatchNotification({
+        userId: profile.id,
+        type: 'EVENT_REGISTRATION',
+        title: `Registered for ${event.title}! 🎟️`,
+        message:
+          finalPaymentOption === 'GCASH'
+            ? `Your registration is queued for payment verification (GCash Ref: ${referenceNumber || 'N/A'}).`
+            : finalPaymentOption === 'VENUE_DESK'
+            ? `Registration confirmed! You can settle the fee (${feeNum > 0 ? `₱${feeNum}` : 'FREE'}) at the venue desk.`
+            : `Registration confirmed! See you at ${event.location}.`,
+        linkUrl: `/events/${event.slug}`,
+        metadata: { eventId: event.id, eventSlug: event.slug, referenceNumber },
+        email: {
+          to: profile.email,
+          subject: `Event Ticket Confirmation: ${event.title}`,
+          html: renderEventRegistrationEmail(regEmailData),
+        },
+        notifyAdmins: true,
+        adminAlert: {
+          title: `New Registration: ${attendeeName}`,
+          message: `${attendeeName} registered for "${event.title}" (${finalPaymentOption}).`,
+          linkUrl: '/admin/events',
+          emailSubject: `[Admin Alert] New Registration for ${event.title}`,
+          emailHtml: renderAdminEventRegistrationAlert({
+            ...regEmailData,
+            userEmail: profile.email,
+          }),
+        },
+      });
 
       try {
         invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.event(event.slug));

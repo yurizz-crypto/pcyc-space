@@ -3,12 +3,19 @@
 import { db } from '@/lib/db';
 import { orders, orderItems, paymentReceipts, type PaymentMethod } from '@/lib/db/schema/orders';
 import { products } from '@/lib/db/schema/products';
-import { getCurrentUserProfile } from '@/lib/db/queries/users';
+import { profiles } from '@/lib/db/schema/users';
+import { getCurrentUserProfile, getUserProfileById } from '@/lib/db/queries/users';
 import { orderSchema, isSizeAvailable } from '@/lib/validators';
 import { saveUploadedImage } from '@/lib/storage';
 import { logger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
 import { eq, and } from 'drizzle-orm';
+import { dispatchNotification } from '@/lib/notifications/dispatcher';
+import {
+  renderOrderConfirmationEmail,
+  renderAdminOrderAlert,
+} from '@/lib/email/templates/order-confirmation';
+import { renderPaymentVerificationEmail } from '@/lib/email/templates/payment-verification';
 
 export interface OrderActionResult {
   success: boolean;
@@ -39,104 +46,123 @@ export async function createOrderAction(
 ): Promise<OrderActionResult> {
   try {
     const profile = await getCurrentUserProfile();
-
     if (!profile) {
       return {
         success: false,
-        error: 'Please sign in to your PCYC account to place an order.',
+        error: 'Please log in to your PCYC Member account to place an order.',
       };
     }
 
-    // Role segregation: Admins should not order items as members
+    // Role Segregation: Administrators must not place orders using admin privileges
     if (profile.role === 'ADMIN' || profile.role === 'SUPERADMIN') {
       return {
         success: false,
-        error: 'Administrators cannot place member merchandise orders. Please use a Member account.',
+        error: 'Administrators are not permitted to place merchandise orders from the admin panel.',
       };
-    }
-
-    const receiptFile = formData.get('receiptImage') as File | null;
-    const refNumber = ((formData.get('referenceNumber') as string) || '').trim();
-    const fulfillmentType = (formData.get('fulfillmentType') as 'EVENT_PICKUP' | 'DELIVERY') || 'EVENT_PICKUP';
-
-    // For Door Delivery, payment proof is mandatory
-    if (fulfillmentType === 'DELIVERY') {
-      if (!refNumber || refNumber.length < 3) {
-        return {
-          success: false,
-          error: 'Please enter your GCash reference number for door delivery payment verification.',
-        };
-      }
-      if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
-        return {
-          success: false,
-          error: 'Proof of payment screenshot is required for door delivery. Please attach your GCash transaction confirmation.',
-        };
-      }
     }
 
     const rawData = {
-      productId: formData.get('productId') as string,
-      quantity: Number(formData.get('quantity') || 1),
-      selectedSize: (formData.get('selectedSize') as string) || undefined,
-      fulfillmentType,
-      recipientName: (formData.get('recipientName') as string) || `${profile.firstName} ${profile.lastName}`,
-      contactNumber: ((formData.get('contactNumber') as string) || profile.phoneNumber || '').trim() || undefined,
-      targetEventTitle: (formData.get('targetEventTitle') as string) || 'Upcoming PCYC Youth Camp',
-      deliveryAddress: ((formData.get('deliveryAddress') as string) || '').trim() || undefined,
-      city: ((formData.get('city') as string) || '').trim() || undefined,
-      province: ((formData.get('province') as string) || '').trim() || undefined,
-      zipCode: ((formData.get('zipCode') as string) || '').trim() || undefined,
-      notes: ((formData.get('notes') as string) || '').trim() || undefined,
-      referenceNumber: refNumber || undefined,
+      productId: formData.get('productId'),
+      quantity: Number(formData.get('quantity')),
+      selectedSize: formData.get('selectedSize') || undefined,
+      fulfillmentType: formData.get('fulfillmentType'),
+      recipientName: formData.get('recipientName'),
+      contactNumber: formData.get('contactNumber'),
+      deliveryAddress: formData.get('deliveryAddress') || undefined,
+      city: formData.get('city') || undefined,
+      province: formData.get('province') || undefined,
+      zipCode: formData.get('zipCode') || undefined,
+      notes: formData.get('notes') || undefined,
     };
 
-    const validation = orderSchema.safeParse(rawData);
-    if (!validation.success) {
-      logger.warn({ errors: validation.error.flatten(), userId: profile.id }, 'Order validation failed');
+    const parsed = orderSchema.safeParse(rawData);
+    if (!parsed.success) {
       return {
         success: false,
-        error: 'Please check your order details and provide all required information.',
-        fieldErrors: validation.error.flatten().fieldErrors,
+        error: 'Please correct the errors in the order form.',
+        fieldErrors: parsed.error.flatten().fieldErrors,
       };
     }
 
-    const { data } = validation;
+    const { data } = parsed;
 
-    try {
-      // 1. Fetch and verify product
-      const [targetProduct] = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, data.productId))
-        .limit(1);
+    // Delivery payment proof rule: If shipping via Courier, GCash proof is strictly required
+    const receiptFile = formData.get('receiptImage') as File | null;
+    const refNumber = (formData.get('referenceNumber') as string | null)?.trim() || null;
 
-      if (!targetProduct) {
-        return { success: false, error: 'The requested merchandise item could not be found.' };
-      }
-
-      if (!targetProduct.isAvailable && !targetProduct.isPreorder) {
-        return { success: false, error: 'This merchandise item is currently not available for purchase.' };
-      }
-
-      // 2. Validate selected size
-      if (data.selectedSize && !isSizeAvailable(data.selectedSize, targetProduct.availableSizes || [])) {
+    if (data.fulfillmentType === 'DELIVERY') {
+      if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
         return {
           success: false,
-          error: `Size "${data.selectedSize}" is currently not available for this item. Available: ${(targetProduct.availableSizes || []).join(', ')}`,
+          error: 'GCash payment proof screenshot is required for courier delivery orders.',
         };
       }
+      if (!refNumber) {
+        return {
+          success: false,
+          error: 'Please provide your GCash Reference Number.',
+        };
+      }
+    }
 
-      // 3. Compute price & delivery fee
-      const unitPriceNum = Number(targetProduct.price);
-      const itemSubtotal = unitPriceNum * data.quantity;
-      const deliveryFee = data.fulfillmentType === 'DELIVERY' ? COURIER_DELIVERY_FEE : 0;
-      const totalAmount = itemSubtotal + deliveryFee;
+    // 1. Fetch & validate Product
+    const [targetProduct] = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, data.productId))
+      .limit(1);
 
-      // 4. Generate unique order number (e.g. PCYC-2026-84920)
-      const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-      const orderNumber = `PCYC-2026-${randomSuffix}`;
+    if (!targetProduct) {
+      return {
+        success: false,
+        error: 'The requested merchandise item was not found.',
+      };
+    }
 
+    if (!targetProduct.isAvailable && !targetProduct.isPreorder) {
+      return {
+        success: false,
+        error: 'This item is currently unavailable.',
+      };
+    }
+
+    // 2. Validate Size selection
+    if (
+      targetProduct.availableSizes &&
+      targetProduct.availableSizes.length > 0 &&
+      !isSizeAvailable(data.selectedSize, targetProduct.availableSizes)
+    ) {
+      return {
+        success: false,
+        error: `Please select a valid size (${targetProduct.availableSizes.join(', ')}).`,
+        fieldErrors: { selectedSize: ['Please choose an available size option.'] },
+      };
+    }
+
+    // 3. Calculate Total Amount
+    const unitPriceNum = Number(targetProduct.price);
+    const itemSubtotal = unitPriceNum * data.quantity;
+    const deliveryFee = data.fulfillmentType === 'DELIVERY' ? COURIER_DELIVERY_FEE : 0;
+    const totalAmount = itemSubtotal + deliveryFee;
+
+    // 4. Generate Unique Order Number: PCYC-YYYY-XXXXX
+    const year = new Date().getFullYear();
+    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
+    const orderNumber = `PCYC-${year}-${randomSuffix}`;
+
+    const shippingInfoPayload = {
+      recipientName: data.recipientName,
+      contactNumber: data.contactNumber || profile.phoneNumber || 'N/A',
+      deliveryAddress:
+        data.deliveryAddress ||
+        (data.fulfillmentType === 'EVENT_PICKUP' ? 'Event Desk Pickup' : 'Standard Delivery'),
+      city: data.city || 'N/A',
+      province: data.province || 'N/A',
+      zipCode: data.zipCode || undefined,
+      notes: data.notes || undefined,
+    };
+
+    try {
       // 5. Insert Order
       const [newOrder] = await db
         .insert(orders)
@@ -145,26 +171,13 @@ export async function createOrderAction(
           orderNumber,
           totalAmount: totalAmount.toFixed(2),
           status: 'PENDING_PAYMENT',
-          shippingInfo: {
-            recipientName: data.recipientName,
-            contactNumber: data.contactNumber || profile.phoneNumber || 'N/A',
-            deliveryAddress: data.deliveryAddress || 'Event Pickup at Registration Desk',
-            city: data.city || 'Event Venue',
-            province: data.province || 'Event Venue',
-            zipCode: data.zipCode,
-            notes: data.notes
-              ? `${data.fulfillmentType === 'EVENT_PICKUP' ? `[Event Pickup: ${data.targetEventTitle}] ` : '[Courier Delivery] '}${data.notes}`
-              : data.fulfillmentType === 'EVENT_PICKUP'
-              ? `[Event Pickup: ${data.targetEventTitle}]`
-              : '[Courier Delivery]',
-          },
+          shippingInfo: shippingInfoPayload,
           notes: data.notes || null,
         })
         .returning();
 
-      // Persist phone number to profile if not previously set
-      if (data.contactNumber && !profile.phoneNumber) {
-        const { profiles } = await import('@/lib/db/schema/users');
+      // Update phone number on profile if not set
+      if (!profile.phoneNumber && data.contactNumber) {
         await db
           .update(profiles)
           .set({ phoneNumber: data.contactNumber, updatedAt: new Date() })
@@ -181,6 +194,7 @@ export async function createOrderAction(
       });
 
       // 7. Process Proof of Payment Attachment
+      let hasReceipt = false;
       const amountPaidStr = formData.get('amountPaid') as string | null;
 
       if (receiptFile && typeof receiptFile === 'object' && receiptFile.size > 0 && refNumber) {
@@ -199,6 +213,8 @@ export async function createOrderAction(
             .update(orders)
             .set({ status: 'VERIFICATION_QUEUED', updatedAt: new Date() })
             .where(eq(orders.id, newOrder.id));
+
+          hasReceipt = true;
         }
       }
 
@@ -212,6 +228,61 @@ export async function createOrderAction(
         },
         'Merchandise order placed successfully'
       );
+
+      // Dispatch Order Confirmation Email + In-App Notification + Admin Alert
+      const customerName = `${profile.firstName} ${profile.lastName}`;
+      const orderEmailData = {
+        userName: customerName,
+        userDesignation: profile.designation,
+        orderNumber: newOrder.orderNumber,
+        createdAt: new Date(),
+        totalAmount,
+        items: [
+          {
+            name: targetProduct.name,
+            size: data.selectedSize || null,
+            quantity: data.quantity,
+            unitPrice: unitPriceNum,
+          },
+        ],
+        shippingInfo: {
+          recipientName: data.recipientName,
+          contactNumber: data.contactNumber,
+          deliveryAddress: data.deliveryAddress,
+          city: data.city,
+          province: data.province,
+          notes: data.notes,
+        },
+        hasReceiptUploaded: hasReceipt,
+        referenceNumber: refNumber,
+      };
+
+      await dispatchNotification({
+        userId: profile.id,
+        type: 'ORDER_STATUS',
+        title: `Order #${newOrder.orderNumber} Placed! 🛍️`,
+        message: hasReceipt
+          ? `Thank you! Your payment for Order #${newOrder.orderNumber} (₱${totalAmount.toFixed(2)}) is queued for verification.`
+          : `Order #${newOrder.orderNumber} recorded. Please upload your GCash payment receipt to proceed with fulfillment.`,
+        linkUrl: '/portal',
+        metadata: { orderId: newOrder.id, orderNumber: newOrder.orderNumber, totalAmount },
+        email: {
+          to: profile.email,
+          subject: `Order Confirmation #${newOrder.orderNumber} - PCYC Space`,
+          html: renderOrderConfirmationEmail(orderEmailData),
+        },
+        notifyAdmins: true,
+        adminAlert: {
+          title: `New Order: #${newOrder.orderNumber}`,
+          message: `${customerName} placed order #${newOrder.orderNumber} for ₱${totalAmount.toFixed(2)}.`,
+          linkUrl: '/admin/orders',
+          emailSubject: `[Admin Alert] New Merch Order #${newOrder.orderNumber}`,
+          emailHtml: renderAdminOrderAlert({
+            ...orderEmailData,
+            userEmail: profile.email,
+          }),
+        },
+      });
 
       try {
         revalidatePath('/portal');
@@ -247,13 +318,13 @@ export async function createOrderAction(
     logger.error({ error: err?.message || err }, 'Unhandled error in createOrderAction');
     return {
       success: false,
-      error: err?.message || 'An unexpected error occurred while processing your order.',
+      error: err?.message || 'An unexpected error occurred. Please try again.',
     };
   }
 }
 
 /**
- * Server Action for Members to upload or re-submit their GCash proof of payment receipt.
+ * Server Action for Members (or Admins) to upload/re-submit a GCash receipt for an existing order.
  */
 export async function uploadReceiptAction(
   prevState: ReceiptActionResult,
@@ -261,55 +332,68 @@ export async function uploadReceiptAction(
 ): Promise<ReceiptActionResult> {
   try {
     const profile = await getCurrentUserProfile();
-
     if (!profile) {
-      return { success: false, error: 'Please sign in to upload your payment receipt.' };
+      return {
+        success: false,
+        error: 'Please log in to submit your payment receipt.',
+      };
     }
 
     const orderId = formData.get('orderId') as string;
-    const paymentMethod = (formData.get('paymentMethod') as PaymentMethod) || 'GCASH';
     const referenceNumber = formData.get('referenceNumber') as string;
-    const amountPaid = Number(formData.get('amountPaid') || 0);
+    const paymentMethod = 'GCASH' as PaymentMethod;
+    const amountPaid = formData.get('amountPaid') ? Number(formData.get('amountPaid')) : null;
     const receiptFile = formData.get('receiptImage') as File | null;
 
-    if (!orderId || !referenceNumber || !receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
+    if (!orderId) {
+      return { success: false, error: 'Order ID is missing.' };
+    }
+
+    if (!referenceNumber || referenceNumber.trim().length < 3) {
       return {
         success: false,
-        error: 'Please attach your payment screenshot and enter the GCash reference number.',
+        error: 'Please provide a valid GCash Reference Number.',
+      };
+    }
+
+    if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
+      return {
+        success: false,
+        error: 'Please select a clear screenshot of your GCash receipt.',
+      };
+    }
+
+    // 1. Check order ownership & status
+    const [existingOrder] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+
+    if (!existingOrder) {
+      return { success: false, error: 'Order not found.' };
+    }
+
+    if (existingOrder.userId !== profile.id && profile.role !== 'ADMIN' && profile.role !== 'SUPERADMIN') {
+      return { success: false, error: 'Unauthorized to modify this order.' };
+    }
+
+    // 2. Upload Receipt Image
+    const uploadResult = await saveUploadedImage(
+      receiptFile,
+      'receipts',
+      `receipt-${existingOrder.orderNumber}`
+    );
+
+    if (!uploadResult.success || !uploadResult.url) {
+      return {
+        success: false,
+        error: uploadResult.error || 'Failed to upload receipt screenshot.',
       };
     }
 
     try {
-      // 1. Verify that order exists and belongs to this user (or is admin)
-      const [existingOrder] = await db
-        .select()
-        .from(orders)
-        .where(
-          profile.role === 'ADMIN' || profile.role === 'SUPERADMIN'
-            ? eq(orders.id, orderId)
-            : and(eq(orders.id, orderId), eq(orders.userId, profile.id))
-        )
-        .limit(1);
-
-      if (!existingOrder) {
-        return { success: false, error: 'Order not found or unauthorized.' };
-      }
-
-      // 2. Upload screenshot
-      const uploadResult = await saveUploadedImage(
-        receiptFile,
-        'receipts',
-        `receipt-${existingOrder.orderNumber}`
-      );
-
-      if (!uploadResult.success || !uploadResult.url) {
-        return {
-          success: false,
-          error: uploadResult.error || 'Failed to upload payment receipt screenshot.',
-        };
-      }
-
-      // 3. Upsert payment receipt
+      // 3. Upsert Receipt Record
       const existingReceipts = await db
         .select()
         .from(paymentReceipts)
@@ -326,6 +410,7 @@ export async function uploadReceiptAction(
             amountPaid: (amountPaid || Number(existingOrder.totalAmount)).toFixed(2),
             verificationStatus: 'PENDING',
             verificationNotes: null,
+            createdAt: new Date(),
           })
           .where(eq(paymentReceipts.id, existingReceipts[0].id));
       } else {
@@ -352,6 +437,21 @@ export async function uploadReceiptAction(
         { orderId, orderNumber: existingOrder.orderNumber, userId: profile.id },
         'Payment receipt uploaded and queued for verification'
       );
+
+      // Dispatch in-app notification & admin queue alert
+      await dispatchNotification({
+        userId: existingOrder.userId,
+        type: 'PAYMENT_VERIFICATION',
+        title: `Receipt Submitted for #${existingOrder.orderNumber}`,
+        message: 'Your GCash receipt has been received and queued for admin review.',
+        linkUrl: '/portal',
+        notifyAdmins: true,
+        adminAlert: {
+          title: `Receipt Queued: #${existingOrder.orderNumber}`,
+          message: `New GCash receipt submitted for Order #${existingOrder.orderNumber} (Ref: ${referenceNumber.trim()}).`,
+          linkUrl: '/admin/orders',
+        },
+      });
 
       try {
         revalidatePath('/portal');
@@ -429,6 +529,46 @@ export async function verifyReceiptAction(formData: FormData): Promise<void> {
         .where(eq(orders.id, orderId));
 
       logger.info({ orderId, receiptId, decision, adminId: profile.id }, 'Payment receipt verified');
+
+      // 3. Fetch order & customer profile to dispatch decision notification & email
+      const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+      const [receipt] = await db.select().from(paymentReceipts).where(eq(paymentReceipts.id, receiptId)).limit(1);
+
+      if (order) {
+        const buyer = await getUserProfileById(order.userId);
+        if (buyer) {
+          const isApproved = decision === 'APPROVED';
+          const buyerName = `${buyer.firstName} ${buyer.lastName}`;
+
+          await dispatchNotification({
+            userId: buyer.id,
+            type: 'PAYMENT_VERIFICATION',
+            title: isApproved
+              ? `Payment Approved for #${order.orderNumber}! 💳`
+              : `Payment Review Needed for #${order.orderNumber} ⚠️`,
+            message: isApproved
+              ? `Your payment of ₱${order.totalAmount} has been verified. We are now preparing your order.`
+              : `We could not verify your GCash payment: ${adminNotes || 'Please re-upload a clear receipt screenshot.'}`,
+            linkUrl: '/portal',
+            metadata: { orderId: order.id, orderNumber: order.orderNumber, decision },
+            email: {
+              to: buyer.email,
+              subject: isApproved
+                ? `Payment Approved - Order #${order.orderNumber}`
+                : `Payment Verification Update - Order #${order.orderNumber}`,
+              html: renderPaymentVerificationEmail({
+                userName: buyerName,
+                userDesignation: buyer.designation,
+                orderNumber: order.orderNumber,
+                decision,
+                totalAmount: order.totalAmount,
+                referenceNumber: receipt?.referenceNumber,
+                adminNotes: adminNotes || null,
+              }),
+            },
+          });
+        }
+      }
 
       try {
         revalidatePath('/admin/orders');

@@ -1,31 +1,31 @@
 'use server';
 
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { db } from '@/lib/db';
 import { profiles } from '@/lib/db/schema/users';
 import { eq } from 'drizzle-orm';
-import { registerSchema, loginSchema, resetPasswordSchema } from '@/lib/validators';
+import { loginSchema, registerSchema, resetPasswordSchema } from '@/lib/validators';
 import { logger } from '@/lib/logger';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+import { dispatchNotification } from '@/lib/notifications/dispatcher';
+import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
 
 export interface ActionState {
-  success: boolean;
-  message?: string;
+  success?: boolean;
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  message?: string;
 }
 
 export async function loginAction(
   prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const rawData = {
-    email: formData.get('email'),
-    password: formData.get('password'),
-  };
+  const email = formData.get('email');
+  const password = formData.get('password');
 
-  const parsed = loginSchema.safeParse(rawData);
+  const parsed = loginSchema.safeParse({ email, password });
   if (!parsed.success) {
     return {
       success: false,
@@ -35,36 +35,39 @@ export async function loginAction(
   }
 
   const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password,
   });
 
   if (error) {
-    logger.warn({ error: error.message, email: parsed.data.email }, 'User login failed');
+    logger.warn({ email: parsed.data.email, error: error.message }, 'Failed login attempt');
     return {
       success: false,
       error: error.message,
     };
   }
 
-  logger.info({ userId: data.user.id }, 'User logged in successfully');
-  revalidatePath('/', 'layout');
+  // Resolve role from DB for clean routing
+  let destination = '/portal';
+  if (authData?.user) {
+    try {
+      const userProfile = await db
+        .select({ role: profiles.role })
+        .from(profiles)
+        .where(eq(profiles.id, authData.user.id))
+        .limit(1);
 
-  // Check if user is an ADMIN or SUPERADMIN to redirect directly to Admin Dashboard
-  let targetPath = (formData.get('redirectTo') as string) || '';
-  if (!targetPath) {
-    const userProfiles = await db
-      .select({ role: profiles.role })
-      .from(profiles)
-      .where(eq(profiles.id, data.user.id))
-      .limit(1);
-
-    const role = userProfiles[0]?.role;
-    targetPath = role === 'ADMIN' || role === 'SUPERADMIN' ? '/admin' : '/portal';
+      if (userProfile[0]?.role === 'ADMIN' || userProfile[0]?.role === 'SUPERADMIN') {
+        destination = '/admin';
+      }
+    } catch (e) {
+      logger.error({ error: e }, 'Error checking role during login routing');
+    }
   }
 
-  redirect(targetPath);
+  revalidatePath('/', 'layout');
+  redirect(destination);
 }
 
 export async function registerAction(
@@ -74,6 +77,7 @@ export async function registerAction(
   const rawData = {
     email: formData.get('email'),
     password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
     firstName: formData.get('firstName'),
     middleName: formData.get('middleName') || undefined,
     lastName: formData.get('lastName'),
@@ -129,9 +133,28 @@ export async function registerAction(
         role: 'MEMBER',
       });
       logger.info({ userId: authData.user.id }, 'Profile record created successfully');
+
+      // Dispatch Welcome In-App Notification & Welcome Email
+      const fullName = `${parsed.data.firstName} ${parsed.data.lastName}`;
+      await dispatchNotification({
+        userId: authData.user.id,
+        type: 'ACCOUNT',
+        title: 'Welcome to PCYC Space! 🎉',
+        message: 'Your account is ready. Explore upcoming gatherings, camps, and merchandise.',
+        linkUrl: '/portal',
+        email: {
+          to: parsed.data.email,
+          subject: 'Welcome to PCYC Space!',
+          html: renderWelcomeEmail({
+            name: fullName,
+            designation: parsed.data.designation,
+            ecclesia: parsed.data.ecclesia,
+            email: parsed.data.email,
+          }),
+        },
+      });
     } catch (dbErr) {
       logger.error({ error: dbErr }, 'Failed to insert profile record after auth signup');
-      // If DB insert fails (e.g. dev offline database), user auth still exists
     }
   }
 
@@ -178,4 +201,3 @@ export async function signOutAction(): Promise<void> {
   revalidatePath('/', 'layout');
   redirect('/login');
 }
-

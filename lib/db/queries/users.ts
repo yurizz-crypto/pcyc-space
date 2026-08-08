@@ -2,7 +2,7 @@ import { cache } from 'react';
 import { db } from '@/lib/db';
 import { profiles, type Profile } from '@/lib/db/schema/users';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, or } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 
 /**
@@ -43,6 +43,34 @@ export const getCurrentUserProfile = cache(async function getCurrentUserProfile(
 });
 
 /**
+ * Fetches a user's profile by ID.
+ * Memoized per server request lifecycle.
+ */
+export const getUserProfileById = cache(async function getUserProfileById(
+  userId: string
+): Promise<Profile | null> {
+  try {
+    const userProfiles = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1);
+
+    return userProfiles[0] || null;
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, userId }, 'Failed to fetch user profile by ID');
+    return null;
+  }
+});
+
+/**
  * Verifies that the current user is authenticated and possesses one of the allowed roles.
  * Leverages cached getCurrentUserProfile() within the same request lifecycle.
  */
@@ -72,6 +100,29 @@ export const getAllMembers = cache(async function getAllMembers(): Promise<Profi
       throw error;
     }
     logger.error({ error: error?.message || error }, 'Failed to fetch all members for admin');
+    return [];
+  }
+});
+
+/**
+ * Fetches all platform administrators (ADMIN and SUPERADMIN).
+ * Memoized per server request lifecycle.
+ */
+export const getAdminProfiles = cache(async function getAdminProfiles(): Promise<Profile[]> {
+  try {
+    return await db
+      .select()
+      .from(profiles)
+      .where(or(eq(profiles.role, 'ADMIN'), eq(profiles.role, 'SUPERADMIN')));
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error }, 'Failed to fetch admin profiles');
     return [];
   }
 });

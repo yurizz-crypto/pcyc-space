@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { ToastProvider } from '@/components/ui/toast';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -59,35 +60,42 @@ export const metadata: Metadata = {
     'Christadelphian Philippines',
     'Youth Fellowship',
     'Bible Study Camp',
-    'PCYC Space',
+    'Christadelphian Ecclesias',
   ],
-  authors: [{ name: 'Philippine Christadelphian Youth Circle' }],
-  icons: {
-    icon: [
-      { url: '/images/logo/pcyc-logo.jpg' },
-      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
-    ],
-    shortcut: '/images/logo/pcyc-logo.jpg',
-    apple: [
-      { url: '/images/logo/pcyc-logo.jpg' },
-      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
-    ],
-  },
+  authors: [{ name: 'PCYC Space Committee' }],
+  creator: 'Philippine Christadelphian Youth Circle',
+  publisher: 'PCYC Space',
   openGraph: {
+    type: 'website',
+    locale: 'en_PH',
+    url: 'https://pcyc.ph',
+    siteName: 'PCYC Space',
     title: 'PCYC Space — Philippine Christadelphian Youth Circle',
     description:
-      'Community, fellowship, and updates for the Christadelphian youth in the Philippines.',
-    siteName: 'PCYC Space',
+      'The official home for the Philippine Christadelphian Youth Circle. Discover upcoming events, study circles, youth fellowship camps, and official PCYC merchandise.',
     images: [
       {
-        url: '/images/logo/pcyc-logo.jpg',
-        width: 800,
-        height: 800,
-        alt: 'PCYC Logo',
+        url: '/images/og/pcyc-og.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'PCYC Space — Fellowship and Study Across the Philippines',
       },
     ],
-    locale: 'en_PH',
-    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PCYC Space — Philippine Christadelphian Youth Circle',
+    description:
+      'The official home for the Philippine Christadelphian Youth Circle.',
+    images: ['/images/og/pcyc-og.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -113,9 +121,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-[#fefcf1] dark:bg-[#131710] text-[#2c3324] dark:text-[#fefcf1] antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324] transition-colors duration-200">
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1 flex flex-col">{children}</main>
-          <Footer />
+          <ToastProvider>
+            <Navbar />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <Footer />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -7,43 +7,68 @@ const apiKey = process.env.RESEND_API_KEY;
 
 export const resend = apiKey ? new Resend(apiKey) : null;
 
+export interface SendEmailOptions {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+  replyTo?: string;
+}
+
+export interface SendEmailResult {
+  success: boolean;
+  data?: { id: string } | null;
+  error?: string;
+  simulated?: boolean;
+}
+
 /**
- * Sends a transactional email via Resend with graceful logging.
+ * Sends a transactional email via Resend with graceful logging and fail-safe error handling.
  */
 export async function sendEmail({
   to,
   subject,
   html,
   text,
-}: {
-  to: string | string[];
-  subject: string;
-  html: string;
-  text?: string;
-}) {
-  if (!resend) {
-    log.warn(
-      { to, subject },
-      'RESEND_API_KEY is not configured. Email skipped (simulated delivery in dev mode).'
-    );
-    return { success: false, simulated: true };
+  replyTo,
+}: SendEmailOptions): Promise<SendEmailResult> {
+  const recipients = Array.isArray(to) ? to : [to];
+  const validRecipients = recipients.filter((r) => r && r.includes('@'));
+
+  if (validRecipients.length === 0) {
+    log.warn({ to, subject }, 'No valid email recipients provided. Skipping dispatch.');
+    return { success: false, error: 'No valid recipient email address' };
   }
 
-  const from = process.env.EMAIL_FROM || 'PCYC Space <notifications@pcyc.ph>';
+  if (!resend) {
+    log.warn(
+      { to: validRecipients, subject },
+      'RESEND_API_KEY is not configured. Email simulated in development mode.'
+    );
+    return { success: true, simulated: true };
+  }
+
+  const from = process.env.EMAIL_FROM || 'PCYC Space <onboarding@resend.dev>';
 
   try {
     const response = await resend.emails.send({
       from,
-      to,
+      to: validRecipients,
       subject,
       html,
-      text,
+      text: text || subject,
+      replyTo: replyTo || 'bumadillal@gmail.com',
     });
 
-    log.info({ to, subject, id: response.data?.id }, 'Transactional email dispatched');
+    if (response.error) {
+      log.error({ to: validRecipients, subject, error: response.error }, 'Resend API returned an error');
+      return { success: false, error: response.error.message };
+    }
+
+    log.info({ to: validRecipients, subject, id: response.data?.id }, 'Transactional email successfully dispatched');
     return { success: true, data: response.data };
-  } catch (error) {
-    log.error({ to, subject, error }, 'Failed to dispatch email');
-    throw error;
+  } catch (error: any) {
+    log.error({ to: validRecipients, subject, error: error?.message || error }, 'Failed to dispatch email');
+    return { success: false, error: error?.message || 'Failed to dispatch email' };
   }
 }

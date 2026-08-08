@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { EmptyState } from '@/components/molecules/empty-state';
 import { ReceiptCard } from '@/components/domain/orders/receipt-card';
+import { NotificationsPortalCard } from '@/components/domain/notifications/notifications-portal-card';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { getUserEventRegistrations } from '@/lib/db/queries/events';
 import { getUserOrders } from '@/lib/db/queries/orders';
+import { getCurrentUserNotifications, getUnreadNotificationCount } from '@/lib/db/queries/notifications';
 import { formatDate, formatPHP, formatEventSchedule } from '@/lib/utils';
 import { Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, QrCode, Building2 } from 'lucide-react';
 
@@ -32,9 +34,11 @@ export default async function PortalPage() {
     redirect('/admin');
   }
 
-  const [orders, registrations] = await Promise.all([
+  const [orders, registrations, notifications, unreadCount] = await Promise.all([
     getUserOrders(profile.id),
     getUserEventRegistrations(profile.id),
+    getCurrentUserNotifications(30),
+    getUnreadNotificationCount(profile.id),
   ]);
 
   const prefix =
@@ -52,25 +56,25 @@ export default async function PortalPage() {
         description="Manage your camp registrations, view merchandise order receipts, and connect with your ecclesia."
       />
 
-      <section className="py-12 sm:py-16 bg-[#fefcf1]">
+      <section className="py-12 sm:py-16 bg-[#fefcf1] dark:bg-[#131710]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           {/* Profile Summary Card */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#e6dfcb] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-[#2c3324] text-[#e0a861] border border-[#e0a861]/40 flex items-center justify-center font-serif font-bold text-2xl shadow-sm">
+              <div className="h-16 w-16 rounded-2xl bg-[#2c3324] dark:bg-[#252e1f] text-[#e0a861] border border-[#e0a861]/40 flex items-center justify-center font-serif font-bold text-2xl shadow-sm">
                 {profile.firstName.charAt(0)}
                 {profile.lastName.charAt(0)}
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="font-serif font-bold text-xl sm:text-2xl text-[#2c3324]">
+                  <h2 className="font-serif font-bold text-xl sm:text-2xl text-[#2c3324] dark:text-[#fefcf1]">
                     {prefix} {profile.firstName} {profile.lastName}
                   </h2>
                   <Badge variant={profile.designation === 'FRIEND' ? 'cream' : 'gold'} size="sm">
                     {profile.designation}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-[#707666]">
+                <div className="flex items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5 text-[#e0a861]" />
                     <span>{profile.ecclesia || 'Philippine Ecclesias'}</span>
@@ -91,14 +95,20 @@ export default async function PortalPage() {
             </div>
           </div>
 
+          {/* Activity & Notifications Feed */}
+          <NotificationsPortalCard
+            notifications={notifications}
+            unreadCount={unreadCount}
+          />
+
           {/* Grid of Sections: Active Registrations & Orders */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Event Registrations */}
-            <Card className="border-[#e6dfcb]">
+            <Card className="border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117]">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <div>
-                  <CardTitle className="text-xl">My Gathering Registrations</CardTitle>
-                  <CardDescription>Camps and fellowship gatherings you are registered for.</CardDescription>
+                  <CardTitle className="text-xl text-[#2c3324] dark:text-[#fefcf1]">My Gathering Registrations</CardTitle>
+                  <CardDescription className="text-[#707666] dark:text-[#a3ab98]">Upcoming youth conferences and fellowship camps.</CardDescription>
                 </div>
                 <Calendar className="h-5 w-5 text-[#e0a861]" />
               </CardHeader>
@@ -106,79 +116,61 @@ export default async function PortalPage() {
                 {registrations.length === 0 ? (
                   <EmptyState
                     icon={Calendar}
-                    title="No active registrations"
-                    description="You are not registered for any upcoming camp yet. Check out our scheduled gatherings!"
-                    actionLabel="Browse Gathering Schedules"
+                    title="No registrations yet"
+                    description="You haven't registered for any PCYC gatherings. View our upcoming camps across Luzon, Visayas, and Mindanao!"
+                    actionLabel="Browse Gatherings"
                     actionHref="/events"
                   />
                 ) : (
                   <div className="space-y-3">
-                    {registrations.map(({ registration: reg, event }) => {
-                      const isGcash = reg.paymentOption === 'GCASH';
-                      const isVenue = reg.paymentOption === 'VENUE_DESK';
-                      const isFree = reg.paymentOption === 'FREE';
+                    {registrations.map((item) => {
+                      const { registration: reg, event } = item;
+                      if (!event) return null;
 
                       return (
                         <div
                           key={reg.id}
-                          className="p-4 rounded-2xl bg-white border border-[#e6dfcb] shadow-xs space-y-3"
+                          className="p-4 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#20271c] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f] transition-colors space-y-3"
                         >
                           <div className="flex items-start justify-between gap-3">
-                            <div className="space-y-1">
+                            <div>
                               <Link
                                 href={`/events/${event.slug}`}
-                                className="font-serif font-bold text-base text-[#2c3324] hover:text-[#e0a861] transition-colors line-clamp-1"
+                                className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1] hover:text-[#ca914a] transition-colors"
                               >
                                 {event.title}
                               </Link>
-                              <div className="flex items-center gap-2 text-xs text-[#707666]">
-                                <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
-                                <span>
-                                  {formatEventSchedule(event.startDate, event.endDate)}
-                                </span>
-                              </div>
+                              <p className="text-xs text-[#707666] dark:text-[#a3ab98] flex items-center gap-1.5 mt-0.5">
+                                <Clock className="h-3.5 w-3.5 text-[#e0a861]" />
+                                <span>{formatEventSchedule(event.startDate, event.endDate)}</span>
+                              </p>
                             </div>
-
                             <Badge
                               variant={
-                                reg.status === 'CONFIRMED'
-                                  ? 'success'
-                                  : reg.status === 'VERIFICATION_QUEUED'
+                                reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
                                   ? 'gold'
-                                  : 'cream'
+                                  : reg.paymentStatus === 'VERIFICATION_QUEUED'
+                                  ? 'gold'
+                                  : 'destructive'
                               }
                               size="sm"
                             >
-                              {reg.status === 'VERIFICATION_QUEUED' ? 'Pending Review' : reg.status}
+                              {reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
+                                ? 'Confirmed'
+                                : reg.paymentStatus === 'VERIFICATION_QUEUED'
+                                ? 'GCash Queued'
+                                : 'Payment Due at Desk'}
                             </Badge>
                           </div>
 
-                          <div className="p-3 rounded-xl bg-[#f8f4e3] border border-[#e6dfcb] text-xs space-y-1.5 text-[#505748]">
-                            <div className="flex justify-between items-center">
-                              <span className="text-[#707666]">Payment Status:</span>
-                              <span className="font-semibold text-[#2c3324] flex items-center gap-1">
-                                {isGcash && <QrCode className="h-3.5 w-3.5 text-[#9a6423]" />}
-                                {isVenue && <Building2 className="h-3.5 w-3.5 text-[#9a6423]" />}
-                                {isFree
-                                  ? 'Free Admission'
-                                  : isGcash
-                                  ? 'GCash (Under Verification)'
-                                  : 'Pay at Venue Desk'}
-                              </span>
-                            </div>
-
-                            {reg.referenceNumber && (
-                              <div className="flex justify-between items-center border-t border-[#e6dfcb]/60 pt-1.5">
-                                <span className="text-[#707666]">GCash Ref #:</span>
-                                <span className="font-mono font-medium text-[#2c3324]">
-                                  {reg.referenceNumber}
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex justify-between items-center border-t border-[#e6dfcb]/60 pt-1.5">
-                              <span className="text-[#707666]">Registration Fee:</span>
-                              <span className="font-bold text-[#2c3324]">
+                          <div className="pt-2 border-t border-[#e6dfcb]/60 dark:border-[#323d2b] flex items-center justify-between text-xs">
+                            <span className="text-[#707666] dark:text-[#a3ab98] flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-[#e0a861]" />
+                              <span>{event.location}</span>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[#707666] dark:text-[#a3ab98]">Registration Fee:</span>
+                              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">
                                 {Number(reg.amountPaid || 0) === 0 ? 'Free' : formatPHP(Number(reg.amountPaid))}
                               </span>
                             </div>
@@ -192,11 +184,11 @@ export default async function PortalPage() {
             </Card>
 
             {/* Merchandise Orders & Receipts */}
-            <Card className="border-[#e6dfcb]">
+            <Card className="border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#1b2117]">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <div>
-                  <CardTitle className="text-xl">Merch Orders & Receipts</CardTitle>
-                  <CardDescription>Status of your fundraising apparel orders.</CardDescription>
+                  <CardTitle className="text-xl text-[#2c3324] dark:text-[#fefcf1]">Merch Orders & Receipts</CardTitle>
+                  <CardDescription className="text-[#707666] dark:text-[#a3ab98]">Status of your fundraising apparel orders.</CardDescription>
                 </div>
                 <ShoppingBag className="h-5 w-5 text-[#e0a861]" />
               </CardHeader>
