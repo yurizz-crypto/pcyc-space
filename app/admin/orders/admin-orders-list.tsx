@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { PriceTag } from '@/components/molecules/price-tag';
 import { Pagination } from '@/components/ui/pagination';
+import { AdminOrderDetailsModal } from '@/components/domain/orders/admin-order-details-modal';
 import { verifyReceiptAction } from '@/app/actions/orders';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import type { OrderWithDetails } from '@/lib/db/queries/orders';
@@ -41,6 +42,9 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
 
   // Selected Order for Receipt Lightbox Modal
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<OrderWithDetails | null>(null);
+  
+  // Selected Order for Full Details Modal
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<OrderWithDetails | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>('Reference number did not match GCash account transaction.');
   const [copiedRef, setCopiedRef] = useState(false);
 
@@ -267,6 +271,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                           <span>Placed on: {formatDate(ord.createdAt)}</span>
                           <span>•</span>
                           <PriceTag price={ord.totalAmount} />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 ml-2 text-[10px]"
+                            onClick={() => setSelectedOrderDetails(ord)}
+                          >
+                            View Full Details
+                          </Button>
                         </div>
                       </div>
 
@@ -660,6 +672,15 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
           </div>
         )}
       </Modal>
+
+      {/* ================================================================= */}
+      {/* Full Order Details Modal */}
+      {/* ================================================================= */}
+      <AdminOrderDetailsModal
+        isOpen={!!selectedOrderDetails}
+        onClose={() => setSelectedOrderDetails(null)}
+        order={selectedOrderDetails}
+      />
     </div>
   );
 }

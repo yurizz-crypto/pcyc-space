@@ -66,3 +66,64 @@ export async function updateYouthCountAction(formData: FormData): Promise<void> 
     logger.error({ error: err?.message || err }, 'Unhandled error in updateYouthCountAction');
   }
 }
+
+export type ThemeSettings = {
+  primary: string;
+  background: string;
+  surface: string;
+  text: string;
+  primaryDark?: string;
+  backgroundDark?: string;
+  surfaceDark?: string;
+  textDark?: string;
+};
+
+export async function updateThemeAction(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { profile } = await verifyCurrentUserRole(['ADMIN', 'SUPERADMIN']);
+    if (!profile) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const rawTheme = formData.get('themeConfig');
+    if (!rawTheme) return { success: false, error: 'No theme configuration provided' };
+
+    let themeConfig: ThemeSettings;
+    try {
+      themeConfig = JSON.parse(rawTheme.toString());
+    } catch (e) {
+      return { success: false, error: 'Invalid theme format' };
+    }
+
+    await db
+      .insert(siteSettings)
+      .values({
+        key: 'theme_config',
+        value: JSON.stringify(themeConfig),
+        description: 'Global Theme Configuration',
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: {
+          value: JSON.stringify(themeConfig),
+          updatedAt: new Date(),
+        },
+      });
+
+    invalidateCacheTag(CACHE_TAGS.settings);
+    revalidatePath('/', 'layout');
+    
+    return { success: true };
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error }, 'Failed to update theme config');
+    return { success: false, error: 'Failed to update theme settings' };
+  }
+}

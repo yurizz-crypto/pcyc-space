@@ -15,6 +15,7 @@ import {
   Shield,
   ArrowLeft,
   Church,
+  Settings,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -51,12 +52,13 @@ export default async function AdminLayout({
     { href: '/admin/events', label: 'Events & Camps', icon: Calendar },
     { href: '/admin/merch', label: 'Merch Inventory', icon: ShoppingBag },
     { href: '/admin/orders', label: 'Receipts & Orders', icon: Receipt },
+    { href: '/admin/settings/theme', label: 'Theme Settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-[85vh] bg-[#f8f4e3] dark:bg-[#131710] flex flex-col">
+    <div className="min-h-[85vh] bg-[#f8f4e3] dark:bg-[#131710] print:bg-transparent print:min-h-0 flex flex-col">
       {/* Admin Subheader Bar */}
-      <div className="bg-[#2c3324] dark:bg-[#0f130d] text-[#fefcf1] border-b border-[#3d4632] dark:border-[#222b1c] px-4 sm:px-6 lg:px-8 py-3">
+      <div className="bg-[#2c3324] dark:bg-[#0f130d] text-[#fefcf1] border-b border-[#3d4632] dark:border-[#222b1c] px-4 sm:px-6 lg:px-8 py-3 print:hidden">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-[#e0a861]/20 border border-[#e0a861]/40 flex items-center justify-center text-[#e0a861]">
@@ -96,7 +98,7 @@ export default async function AdminLayout({
       </div>
 
       {/* Admin Nav Tabs */}
-      <div className="bg-white dark:bg-[#1b2117] border-b border-[#e6dfcb] dark:border-[#323d2b] px-4 sm:px-6 lg:px-8 shadow-xs">
+      <div className="bg-white dark:bg-[#1b2117] border-b border-[#e6dfcb] dark:border-[#323d2b] px-4 sm:px-6 lg:px-8 shadow-xs print:hidden">
         <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto py-2">
           {adminNav.map((item) => {
             const Icon = item.icon;
@@ -115,7 +117,7 @@ export default async function AdminLayout({
       </div>
 
       {/* Admin Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 print:p-0 print:m-0 print:max-w-none">
         {children}
       </main>
     </div>

@@ -5,6 +5,10 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
+import { db } from '@/lib/db';
+import { siteSettings } from '@/lib/db/schema/settings';
+import { eq } from 'drizzle-orm';
+import type { ThemeSettings } from '@/app/actions/settings';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -105,11 +109,43 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let themeConfig: ThemeSettings | null = null;
+  try {
+    const settingsRows = await db
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, 'theme_config'))
+      .limit(1);
+
+    if (settingsRows.length > 0 && settingsRows[0].value) {
+      themeConfig = JSON.parse(settingsRows[0].value) as ThemeSettings;
+    }
+  } catch (e) {
+    // Silently fall back to default if parsing fails
+  }
+
+  const injectedStyles = themeConfig
+    ? `
+    :root {
+      --primary: ${themeConfig.primary};
+      --background: ${themeConfig.background};
+      --surface: ${themeConfig.surface};
+      --foreground: ${themeConfig.text};
+    }
+    .dark {
+      --primary: ${themeConfig.primaryDark || themeConfig.primary};
+      --background: ${themeConfig.backgroundDark || '#131710'};
+      --surface: ${themeConfig.surfaceDark || '#1b2117'};
+      --foreground: ${themeConfig.textDark || '#fefcf1'};
+    }
+  `
+    : '';
+
   return (
     <html
       lang="en"
@@ -118,6 +154,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {injectedStyles && <style dangerouslySetInnerHTML={{ __html: injectedStyles }} />}
       </head>
       <body className="min-h-screen flex flex-col bg-[#fefcf1] dark:bg-[#131710] text-[#2c3324] dark:text-[#fefcf1] antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324] transition-colors duration-200">
         <ThemeProvider>

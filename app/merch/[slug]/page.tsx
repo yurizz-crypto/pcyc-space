@@ -8,6 +8,8 @@ import { PriceTag } from '@/components/molecules/price-tag';
 import { getCachedProductBySlug } from '@/lib/db/queries/cached';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { ProductOrderForm } from '@/components/domain/merch/product-order-form';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { ArrowLeft, ShoppingBag, QrCode, Truck, ShieldCheck, Edit3, UserCheck, LogIn } from 'lucide-react';
 
 interface ProductDetailPageProps {
@@ -106,9 +108,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <PriceTag price={product.price} className="text-2xl" />
 
                 <div className="border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
-                  <p className="text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] leading-relaxed">
-                    {product.description}
-                  </p>
+                  <div className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-li:my-0 text-[#505748] dark:text-[#a3ab98]">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {product.description}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* Available Sizes List */}
