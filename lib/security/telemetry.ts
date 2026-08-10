@@ -1,7 +1,7 @@
 import { logger } from '@/lib/logger';
 
 export interface SecurityEvent {
-  eventType: 'RATE_LIMIT_EXCEEDED' | 'UNAUTHORIZED_ACCESS' | 'FORBIDDEN_ZONE' | 'AUTH_REDIRECT';
+  eventType: 'RATE_LIMIT_EXCEEDED' | 'UNAUTHORIZED_ACCESS' | 'FORBIDDEN_ZONE' | 'AUTH_REDIRECT' | 'SYSTEM_ERROR';
   clientIp: string;
   method: string;
   path: string;

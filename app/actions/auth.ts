@@ -34,11 +34,22 @@ export async function loginAction(
     };
   }
 
-  const supabase = await createServerSupabaseClient();
-  const { data: authData, error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
+  let authData, error;
+  try {
+    const supabase = await createServerSupabaseClient();
+    const result = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+    authData = result.data;
+    error = result.error;
+  } catch (err: any) {
+    logger.error({ email: parsed.data.email, error: err?.message || err }, 'Network error during login');
+    return {
+      success: false,
+      error: 'Unable to connect to authentication service. Please try again.',
+    };
+  }
 
   if (error) {
     logger.warn({ email: parsed.data.email, error: error.message }, 'Failed login attempt');
@@ -96,22 +107,33 @@ export async function registerAction(
     };
   }
 
-  const supabase = await createServerSupabaseClient();
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: {
-      data: {
-        first_name: parsed.data.firstName,
-        last_name: parsed.data.lastName,
-        designation: parsed.data.designation,
-        ecclesia: parsed.data.ecclesia,
+  let authData, authError;
+  try {
+    const supabase = await createServerSupabaseClient();
+    const result = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        data: {
+          first_name: parsed.data.firstName,
+          last_name: parsed.data.lastName,
+          designation: parsed.data.designation,
+          ecclesia: parsed.data.ecclesia,
+        },
       },
-    },
-  });
+    });
+    authData = result.data;
+    authError = result.error;
+  } catch (err: any) {
+    logger.error({ email: parsed.data.email, error: err?.message || err }, 'Network error during signup');
+    return {
+      success: false,
+      error: 'Unable to connect to authentication service. Please try again.',
+    };
+  }
 
   if (authError) {
-    logger.error({ error: authError.message }, 'Supabase auth signup error');
+    logger.warn({ email: parsed.data.email, error: authError.message }, 'Supabase auth signup error');
     return {
       success: false,
       error: authError.message,
@@ -178,16 +200,26 @@ export async function resetPasswordAction(
     };
   }
 
-  const supabase = await createServerSupabaseClient();
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.NODE_ENV === 'production'
-      ? 'https://pcyc-space.vercel.app'
-      : 'http://localhost:3000');
+  let error;
+  try {
+    const supabase = await createServerSupabaseClient();
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://pcyc-space.vercel.app'
+        : 'http://localhost:3000');
 
-  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${appUrl}/api/auth/callback?type=recovery`,
-  });
+    const result = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+      redirectTo: `${appUrl}/api/auth/callback?type=recovery`,
+    });
+    error = result.error;
+  } catch (err: any) {
+    logger.error({ email: parsed.data.email, error: err?.message || err }, 'Network error during password reset');
+    return {
+      success: false,
+      error: 'Unable to connect to authentication service. Please try again.',
+    };
+  }
 
   if (error) {
     logger.warn({ error: error.message }, 'Password reset request failed');
@@ -204,8 +236,13 @@ export async function resetPasswordAction(
 }
 
 export async function signOutAction(): Promise<void> {
-  const supabase = await createServerSupabaseClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.auth.signOut();
+  } catch (err: any) {
+    logger.error({ error: err?.message || err }, 'Network error during sign out');
+    // Continue with clearing local state even if server fails
+  }
   revalidatePath('/', 'layout');
   redirect('/login');
 }

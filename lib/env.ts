@@ -6,7 +6,8 @@ const serverSchema = z.object({
   DATABASE_URL: z.string().url().optional(),
   DIRECT_URL: z.string().url().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
-  RESEND_API_KEY: z.string().min(1).optional(),
+  SMTP_USER: z.string().min(1).optional(),
+  SMTP_PASSWORD: z.string().min(1).optional(),
   EMAIL_FROM: z.string().default('PCYC Space <notifications@pcyc.ph>'),
 });
 
@@ -22,8 +23,8 @@ const clientSchema = z.object({
       }
       return trimmed;
     }),
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
 });
 
 /**

@@ -1,7 +1,6 @@
-'use server';
-
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 /**
  * Supabase Auth Callback Handler
@@ -18,18 +17,25 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type'); // 'recovery', 'signup', 'magiclink', 'email_change'
 
   if (code) {
-    const supabase = await createServerSupabaseClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    try {
+      const supabase = await createServerSupabaseClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // For password recovery, redirect to the update-password page
-      if (type === 'recovery') {
-        const redirectUrl = new URL('/reset-password/update', origin);
+        // For password recovery, redirect to the update-password page
+        if (type === 'recovery') {
+          const redirectUrl = new URL('/reset-password/update', origin);
+          return NextResponse.redirect(redirectUrl);
+        }
+
+        // For all other flows (signup confirmation, magic link, email change)
+        const redirectUrl = new URL(next, origin);
         return NextResponse.redirect(redirectUrl);
       }
-
-      // For all other flows (signup confirmation, magic link, email change)
-      const redirectUrl = new URL(next, origin);
+    } catch (err: any) {
+      logger.error({ error: err?.message || err }, 'Network error during code exchange');
+      const redirectUrl = new URL('/login', origin);
+      redirectUrl.searchParams.set('error', 'auth_network_failure');
       return NextResponse.redirect(redirectUrl);
     }
   }

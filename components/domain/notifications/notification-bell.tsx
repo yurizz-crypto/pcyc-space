@@ -7,12 +7,15 @@ import type { Notification } from '@/lib/db/schema/notifications';
 import { markNotificationAsReadAction, markAllNotificationsAsReadAction } from '@/app/actions/notifications';
 import { formatTimeAgo } from '@/lib/utils';
 
+import { useRouter } from 'next/navigation';
+
 interface NotificationBellProps {
   initialNotifications: Notification[];
   initialUnreadCount: number;
 }
 
 export function NotificationBell({ initialNotifications, initialUnreadCount }: NotificationBellProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [unreadCount, setUnreadCount] = useState<number>(initialUnreadCount);
@@ -24,6 +27,17 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: N
     setNotifications(initialNotifications);
     setUnreadCount(initialUnreadCount);
   }, [initialNotifications, initialUnreadCount]);
+
+  // Polling for new notifications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      startTransition(() => {
+        router.refresh();
+      });
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   // Click outside listener to dismiss popover
   useEffect(() => {
