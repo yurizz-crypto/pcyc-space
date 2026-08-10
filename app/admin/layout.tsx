@@ -52,7 +52,6 @@ export default async function AdminLayout({
     { href: '/admin/events', label: 'Events & Camps', icon: Calendar },
     { href: '/admin/merch', label: 'Merch Inventory', icon: ShoppingBag },
     { href: '/admin/orders', label: 'Receipts & Orders', icon: Receipt },
-    { href: '/admin/settings/theme', label: 'Theme Settings', icon: Settings },
   ];
 
   return (
