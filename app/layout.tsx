@@ -5,6 +5,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -127,6 +128,7 @@ export default function RootLayout({
             <Footer />
           </ToastProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
