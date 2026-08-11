@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google';
+import { Outfit, EB_Garamond } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -7,13 +7,13 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
 
 
-const sansFont = Plus_Jakarta_Sans({
+const sansFont = Outfit({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const serifFont = Playfair_Display({
+const serifFont = EB_Garamond({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
