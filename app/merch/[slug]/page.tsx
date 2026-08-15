@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PriceTag } from '@/components/molecules/price-tag';
-import { getCachedProductBySlug } from '@/lib/db/queries/cached';
+import { getCachedProductBySlug, getCachedProductRatingSummary, getCachedProductReviews } from '@/lib/db/queries/cached';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { ProductOrderForm } from '@/components/domain/merch/product-order-form';
+import { ProductReviewsSection } from '@/components/domain/reviews/product-reviews-section';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ArrowLeft, Tote, QrCode, Truck, ShieldCheck, PencilSimple, UserCirclePlus, SignIn } from '@phosphor-icons/react/dist/ssr';
@@ -39,7 +40,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
-  const profile = await getCurrentUserProfile();
+  const [profile, ratingSummary, reviews] = await Promise.all([
+    getCurrentUserProfile(),
+    getCachedProductRatingSummary(product.id),
+    getCachedProductReviews(product.id),
+  ]);
 
   const primaryImage =
     product.imageUrls && product.imageUrls.length > 0
@@ -250,6 +255,15 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               </ScrollReveal>
             </div>
           </div>
+
+          {/* Product Ratings & Verified Customer Reviews Section */}
+          <ProductReviewsSection
+            productId={product.id}
+            productName={product.name}
+            ratingSummary={ratingSummary}
+            reviews={reviews}
+            isAuthenticated={!!profile}
+          />
         </div>
       </section>
     </div>

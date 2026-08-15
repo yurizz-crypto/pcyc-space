@@ -5,6 +5,7 @@ import { products } from './products';
 import { orders, orderItems, paymentReceipts } from './orders';
 import { notifications } from './notifications';
 import { auditLogs } from './audit-logs';
+import { productReviews } from './reviews';
 
 export * from './users';
 export * from './events';
@@ -14,6 +15,7 @@ export * from './ecclesias';
 export * from './settings';
 export * from './notifications';
 export * from './audit-logs';
+export * from './reviews';
 
 // ==========================================
 // DRIZZLE RELATIONS DEFINITIONS
@@ -26,6 +28,7 @@ export const profilesRelations = relations(profiles, ({ many }) => ({
   verifiedReceipts: many(paymentReceipts),
   notifications: many(notifications),
   auditLogs: many(auditLogs),
+  reviews: many(productReviews),
 }));
 
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
@@ -56,6 +59,7 @@ export const eventRegistrationsRelations = relations(eventRegistrations, ({ one 
 
 export const productsRelations = relations(products, ({ many }) => ({
   orderItems: many(orderItems),
+  reviews: many(productReviews),
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -68,6 +72,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.id],
     references: [paymentReceipts.orderId],
   }),
+  reviews: many(productReviews),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -89,6 +94,21 @@ export const paymentReceiptsRelations = relations(paymentReceipts, ({ one }) => 
   verifiedBy: one(profiles, {
     fields: [paymentReceipts.verifiedById],
     references: [profiles.id],
+  }),
+}));
+
+export const productReviewsRelations = relations(productReviews, ({ one }) => ({
+  product: one(products, {
+    fields: [productReviews.productId],
+    references: [products.id],
+  }),
+  user: one(profiles, {
+    fields: [productReviews.userId],
+    references: [profiles.id],
+  }),
+  order: one(orders, {
+    fields: [productReviews.orderId],
+    references: [orders.id],
   }),
 }));
 

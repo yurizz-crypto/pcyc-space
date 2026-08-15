@@ -112,7 +112,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: N
         onClick={() => setIsOpen(!isOpen)}
         aria-label="View notifications"
         aria-expanded={isOpen}
-        className="relative p-2 rounded-xl text-[#fefcf1]/90 hover:text-[#fefcf1] hover:bg-white/10 transition-colors focus:outline-none"
+        className="relative p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5 transition-colors focus:outline-none"
       >
         <Bell weight={unreadCount > 0 ? 'fill' : 'bold'} className="h-5 w-5" />
         {unreadCount > 0 && (

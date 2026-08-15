@@ -28,6 +28,8 @@ export const CACHE_TAGS = {
   users: 'users',
   user: (id: string) => `user:${id}`,
   auditLogs: 'audit_logs',
+  reviews: 'reviews',
+  productReviews: (productId: string) => `reviews:product:${productId}`,
 } as const;
 
 /**
@@ -199,6 +201,36 @@ export const getCachedAdminOverviewMetrics = safeCache(
     tags: [CACHE_TAGS.adminMetrics],
   }
 );
+
+/**
+ * Cached Product Rating Summary (Average rating, total reviews, star breakdown)
+ */
+export async function getCachedProductRatingSummary(productId: string) {
+  const { getProductRatingSummary } = await import('./reviews');
+  return safeCache(
+    async () => getProductRatingSummary(productId),
+    [`cached-product-rating-summary-${productId}`],
+    {
+      revalidate: 300,
+      tags: [CACHE_TAGS.reviews, CACHE_TAGS.productReviews(productId)],
+    }
+  )();
+}
+
+/**
+ * Cached Product Reviews List
+ */
+export async function getCachedProductReviews(productId: string) {
+  const { getProductReviews } = await import('./reviews');
+  return safeCache(
+    async () => getProductReviews(productId),
+    [`cached-product-reviews-${productId}`],
+    {
+      revalidate: 300,
+      tags: [CACHE_TAGS.reviews, CACHE_TAGS.productReviews(productId)],
+    }
+  )();
+}
 
 /**
  * Invalidate cache tag(s) immediately from Server Actions.

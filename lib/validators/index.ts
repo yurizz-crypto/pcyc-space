@@ -344,4 +344,43 @@ export const adminToggleStatusSchema = z.object({
   reason: z.string().optional(),
 });
 
+// ==========================================
+// PRODUCT REVIEWS & RATING SCHEMAS
+// ==========================================
+
+export const productReviewSchema = z.object({
+  productId: z.string().uuid('Invalid product ID'),
+  orderId: z.string().uuid('Invalid order ID'),
+  rating: z.coerce.number().int().min(1, 'Rating must be at least 1 star').max(5, 'Rating cannot exceed 5 stars'),
+  comment: z
+    .string()
+    .min(5, 'Review comment must be at least 5 characters')
+    .max(1000, 'Review comment cannot exceed 1000 characters')
+    .trim(),
+});
+
+export const updateProductReviewSchema = z.object({
+  reviewId: z.string().uuid('Invalid review ID'),
+  rating: z.coerce.number().int().min(1, 'Rating must be at least 1 star').max(5, 'Rating cannot exceed 5 stars'),
+  comment: z
+    .string()
+    .min(5, 'Review comment must be at least 5 characters')
+    .max(1000, 'Review comment cannot exceed 1000 characters')
+    .trim(),
+});
+
+export const bulkOrderStatusSchema = z.object({
+  orderIds: z.array(z.string().uuid('Invalid order ID')).min(1, 'Please select at least one order'),
+  targetStatus: z.enum([
+    'PENDING_PAYMENT',
+    'VERIFICATION_QUEUED',
+    'PAID',
+    'PREPARING',
+    'SHIPPED',
+    'COMPLETED',
+    'CANCELLED',
+  ]),
+  adminNotes: z.string().optional(),
+});
+
 

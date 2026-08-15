@@ -10,9 +10,10 @@ import { Modal } from '@/components/ui/modal';
 import { PriceTag } from '@/components/molecules/price-tag';
 import { Pagination } from '@/components/ui/pagination';
 import { AdminOrderDetailsModal } from '@/components/domain/orders/admin-order-details-modal';
-import { verifyReceiptAction } from '@/app/actions/orders';
+import { verifyReceiptAction, adminBulkUpdateOrderStatusAction } from '@/app/actions/orders';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import type { OrderWithDetails } from '@/lib/db/queries/orders';
+import type { OrderStatus } from '@/lib/db/schema/orders';
 import {
   Receipt,
   CheckCircle,
@@ -27,6 +28,9 @@ import {
   Copy,
   Check,
   AlertTriangle,
+  CheckSquare,
+  Square,
+  Sparkles,
 } from 'lucide-react';
 
 interface AdminOrdersListProps {
@@ -47,6 +51,11 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<OrderWithDetails | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>('Reference number did not match GCash account transaction.');
   const [copiedRef, setCopiedRef] = useState(false);
+
+  // Multi-Selection State for Bulk Operations
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null);
 
   // Compute counts
   const totalCount = orders.length;
@@ -101,6 +110,45 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
     navigator.clipboard.writeText(text);
     setCopiedRef(true);
     setTimeout(() => setCopiedRef(false), 2000);
+  };
+
+  const isAllOnPageSelected =
+    paginatedOrders.length > 0 &&
+    paginatedOrders.every((ord) => selectedOrderIds.includes(ord.id));
+
+  const toggleSelectAllOnPage = () => {
+    if (isAllOnPageSelected) {
+      // Unselect current page orders
+      const pageIds = new Set(paginatedOrders.map((o) => o.id));
+      setSelectedOrderIds((prev) => prev.filter((id) => !pageIds.has(id)));
+    } else {
+      // Add all current page orders
+      const newIds = new Set([...selectedOrderIds, ...paginatedOrders.map((o) => o.id)]);
+      setSelectedOrderIds(Array.from(newIds));
+    }
+  };
+
+  const toggleSelectOrder = (orderId: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
+    );
+  };
+
+  const handleBulkStatusChange = async (targetStatus: OrderStatus) => {
+    if (selectedOrderIds.length === 0) return;
+    setIsBulkProcessing(true);
+    setBulkMessage(null);
+
+    const result = await adminBulkUpdateOrderStatusAction(selectedOrderIds, targetStatus);
+    setIsBulkProcessing(false);
+
+    if (result.success) {
+      setBulkMessage(`Successfully updated ${result.count} order(s) to ${targetStatus.replace(/_/g, ' ')}!`);
+      setSelectedOrderIds([]);
+      setTimeout(() => setBulkMessage(null), 4000);
+    } else {
+      alert(result.error || 'Failed to perform bulk update.');
+    }
   };
 
   // Helper to format clean, professional fulfillment logistics
@@ -212,15 +260,117 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
         </div>
       </div>
 
+      {/* Bulk Operations Toolbar */}
+      {selectedOrderIds.length > 0 && (
+        <div className="sticky top-20 z-30 p-3 rounded-2xl bg-[#2c3324] dark:bg-[#1f271a] text-[#fefcf1] border border-[#e0a861]/40 shadow-lg flex flex-wrap items-center justify-between gap-3 animate-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="h-6 px-2.5 rounded-full bg-[#e0a861] text-[#131710] font-bold text-xs flex items-center justify-center">
+              {selectedOrderIds.length}
+            </span>
+            <span className="text-xs font-semibold">Orders Selected</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-[11px] text-[#e0a861] border-[#e0a861]/40 hover:bg-white/10"
+              onClick={() => setSelectedOrderIds([])}
+            >
+              Clear
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              className="h-8 text-xs bg-[#2e7d32] hover:bg-[#256629] text-white border-0"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkStatusChange('PAID')}
+            >
+              <Check className="h-3.5 w-3.5 mr-1" />
+              <span>Bulk Accept & Verify</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs bg-white/10 hover:bg-white/20 text-[#fefcf1] border-white/20"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkStatusChange('SHIPPED')}
+            >
+              <Truck className="h-3.5 w-3.5 mr-1 text-[#e0a861]" />
+              <span>Bulk In Transit</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs bg-white/10 hover:bg-white/20 text-[#fefcf1] border-white/20"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkStatusChange('COMPLETED')}
+            >
+              <CheckCircle className="h-3.5 w-3.5 mr-1 text-[#81c784]" />
+              <span>Bulk Complete</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs bg-red-900/40 hover:bg-red-900/60 text-red-300 border-red-800/50"
+              disabled={isBulkProcessing}
+              onClick={() => handleBulkStatusChange('CANCELLED')}
+            >
+              <XCircle className="h-3.5 w-3.5 mr-1" />
+              <span>Bulk Cancel</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {bulkMessage && (
+        <div className="p-3 rounded-xl bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/40 text-green-700 dark:text-green-300 text-xs flex items-center gap-2">
+          <Sparkles className="h-4 w-4 shrink-0 text-green-600" />
+          <span>{bulkMessage}</span>
+        </div>
+      )}
+
       {/* Orders List Card */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">
-            Merchandise Transactions ({filteredOrders.length})
-          </CardTitle>
-          <CardDescription>
-            Live database records of merchandise transactions, GCash payment verification, and fulfillment logistics.
-          </CardDescription>
+        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
+          <div>
+            <CardTitle className="text-lg">
+              Merchandise Transactions ({filteredOrders.length})
+            </CardTitle>
+            <CardDescription>
+              Live database records of merchandise transactions, GCash payment verification, and fulfillment logistics.
+            </CardDescription>
+          </div>
+
+          {filteredOrders.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 px-2.5 text-xs gap-1.5 shrink-0"
+              onClick={toggleSelectAllOnPage}
+            >
+              {isAllOnPageSelected ? (
+                <>
+                  <CheckSquare className="h-3.5 w-3.5 text-[#e0a861]" />
+                  <span>Deselect Page ({paginatedOrders.length})</span>
+                </>
+              ) : (
+                <>
+                  <Square className="h-3.5 w-3.5 text-[#8a9180]" />
+                  <span>Select Page ({paginatedOrders.length})</span>
+                </>
+              )}
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {filteredOrders.length === 0 ? (
@@ -239,15 +389,27 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                 {paginatedOrders.map((ord) => {
                   const receipt = ord.receipt;
                   const logistics = formatLogistics(ord);
+                  const isSelected = selectedOrderIds.includes(ord.id);
 
                   return (
                     <div
                       key={ord.id}
-                      className="p-5 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs space-y-4 hover:border-[#e0a861]/60 transition-colors"
+                      className={`p-5 rounded-2xl bg-white dark:bg-[#1b2117] border transition-colors shadow-xs space-y-4 ${
+                        isSelected
+                          ? 'border-[#e0a861] ring-2 ring-[#e0a861]/20 bg-[#faf7ec]/40 dark:bg-[#20271c]'
+                          : 'border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#e0a861]/60'
+                      }`}
                     >
                       {/* Order Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0ebd3] dark:border-[#323d2b] pb-3">
                         <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectOrder(ord.id)}
+                            className="h-4 w-4 rounded border-[#e6dfcb] text-[#2c3324] focus:ring-[#e0a861] cursor-pointer"
+                            aria-label={`Select order ${ord.orderNumber}`}
+                          />
                           <span className="font-mono text-sm font-bold text-[#2c3324] dark:text-[#fefcf1]">
                             {ord.orderNumber}
                           </span>

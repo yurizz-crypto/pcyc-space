@@ -5,13 +5,18 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { PriceTag } from '@/components/molecules/price-tag';
 import { ArrowRight } from '@phosphor-icons/react/dist/ssr';
+import { Star } from 'lucide-react';
 import type { Product } from '@/lib/db/schema/products';
 
 export interface ProductCardProps {
   product: Product;
+  rating?: {
+    averageRating: number;
+    totalReviews: number;
+  };
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, rating }: ProductCardProps) {
   const isOutOfStock = product.stockQuantity <= 0 && !product.isPreorder;
   const primaryImage = product.imageUrls?.[0] || '/images/logo/pcyc-transparent-logo.png';
 
@@ -55,6 +60,15 @@ export function ProductCard({ product }: ProductCardProps) {
         <CardTitle className="font-serif text-lg group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors line-clamp-1">
           {product.name}
         </CardTitle>
+        {rating && rating.totalReviews > 0 && (
+          <div className="flex items-center gap-1 text-[11px] text-[#707666] dark:text-[#a3ab98]">
+            <Star className="h-3.5 w-3.5 fill-[#e0a861] text-[#e0a861]" />
+            <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">
+              {rating.averageRating.toFixed(1)}
+            </span>
+            <span>({rating.totalReviews})</span>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-3 flex-1 pb-4">

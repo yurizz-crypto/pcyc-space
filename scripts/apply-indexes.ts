@@ -149,6 +149,24 @@ async function applyIndexes() {
       name: 'idx_audit_logs_created_at',
       sql: 'CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs (created_at DESC);',
     },
+
+    // 10. Product Reviews Table Indexes
+    {
+      name: 'idx_product_reviews_product_hidden',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_product_hidden ON product_reviews (product_id, is_hidden);',
+    },
+    {
+      name: 'idx_product_reviews_user_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_user_id ON product_reviews (user_id);',
+    },
+    {
+      name: 'idx_product_reviews_order_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_order_id ON product_reviews (order_id);',
+    },
+    {
+      name: 'idx_product_reviews_created_at',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_created_at ON product_reviews (created_at DESC);',
+    },
   ];
 
   console.log(`\n🚀 Applying ${indexStatements.length} PostgreSQL Performance Indexes...\n`);

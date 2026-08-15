@@ -148,6 +148,15 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
                 )}
 
                 <Link
+                  href="/orders"
+                  onClick={onClose}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5"
+                >
+                  <ShoppingBag className="h-4 w-4 text-[#e0a861]" />
+                  <span>My Orders & Reviews</span>
+                </Link>
+
+                <Link
                   href="/settings"
                   onClick={onClose}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5"

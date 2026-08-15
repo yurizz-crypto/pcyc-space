@@ -28,12 +28,20 @@ export default async function AdminMerchPage() {
           </p>
         </div>
 
-        <Link href="/admin/merch/new">
-          <Button variant="primary" size="md" className="gap-2 shadow-xs">
-            <Plus className="h-4 w-4" />
-            <span>Add Merchandise Item</span>
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link href="/admin/merch/reviews">
+            <Button variant="outline" size="md" className="gap-2">
+              <Plus className="h-4 w-4 text-[#e0a861]" />
+              <span>Customer Reviews</span>
+            </Button>
+          </Link>
+          <Link href="/admin/merch/new">
+            <Button variant="primary" size="md" className="gap-2 shadow-xs">
+              <Plus className="h-4 w-4" />
+              <span>Add Merchandise Item</span>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Inventory List with Search, Filters & Pagination */}
