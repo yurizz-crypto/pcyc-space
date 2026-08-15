@@ -86,7 +86,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   
                   {product.isPreorder && (
                     <div className="absolute top-6 right-6">
-                      <Badge variant="warning" size="lg" className="shadow-sm">
+                      <Badge variant="warning" size="md" className="shadow-sm">
                         Pre-Order
                       </Badge>
                     </div>

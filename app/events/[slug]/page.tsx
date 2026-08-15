@@ -64,7 +64,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-[#e0a861]/15 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ScrollReveal className="max-w-4xl space-y-8">
-            <Badge variant="gold" size="lg" className="rounded-full">
+            <Badge variant="gold" size="md" className="rounded-full">
               {event.status}
             </Badge>
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight text-[#fefcf1]">

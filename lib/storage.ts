@@ -14,6 +14,51 @@ export interface SaveImageResult {
 }
 
 /**
+ * Validates the file buffer's binary header (magic bytes) to ensure authentic image content.
+ * Prevents executable or malicious payload uploads disguising as image extensions.
+ */
+export function validateImageMagicBytes(buffer: Buffer): { valid: boolean; detectedType?: 'png' | 'jpeg' | 'webp' } {
+  if (!buffer || buffer.length < 12) {
+    return { valid: false };
+  }
+
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return { valid: true, detectedType: 'png' };
+  }
+
+  // JPEG / JPG: FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return { valid: true, detectedType: 'jpeg' };
+  }
+
+  // WebP: RIFF (bytes 0-3) ... WEBP (bytes 8-11)
+  if (
+    buffer[0] === 0x52 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x46 &&
+    buffer[8] === 0x57 &&
+    buffer[9] === 0x45 &&
+    buffer[10] === 0x42 &&
+    buffer[11] === 0x50
+  ) {
+    return { valid: true, detectedType: 'webp' };
+  }
+
+  return { valid: false };
+}
+
+/**
  * Validates and uploads an image to Supabase Storage (public bucket).
  * Falls back to local disk storage, and finally base64 Data URI on read-only serverless hosts.
  * 
@@ -39,7 +84,7 @@ export async function saveUploadedImage(
       };
     }
 
-    // 2. MIME Type / Extension Validation
+    // 2. MIME Type / Extension Pre-check
     const fileNameRaw = typeof file.name === 'string' ? file.name : 'image.jpg';
     const mimeType = (typeof file.type === 'string' ? file.type : 'image/jpeg').toLowerCase();
     const originalExt = path.extname(fileNameRaw).toLowerCase();
@@ -54,10 +99,6 @@ export async function saveUploadedImage(
       };
     }
 
-    const extension = isValidExt ? originalExt : mimeType === 'image/png' ? '.png' : '.jpg';
-    const cleanPrefix = (prefix || 'media').toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 40);
-    const fileName = `${cleanPrefix}-${Date.now()}${extension}`;
-
     let buffer: Buffer;
     if (typeof file.arrayBuffer === 'function') {
       const arrayBuffer = await file.arrayBuffer();
@@ -68,7 +109,30 @@ export async function saveUploadedImage(
       return { success: false, error: 'Could not parse uploaded file buffer.' };
     }
 
-    // 3. Primary: Upload to Supabase Storage (Public Cloud Bucket)
+    // 3. Binary Magic Byte Header Inspection (Deep Security Guard)
+    const magicByteCheck = validateImageMagicBytes(buffer);
+    if (!magicByteCheck.valid) {
+      logger.warn(
+        { fileName: fileNameRaw, mimeType, size: file.size },
+        'Security rejection: Uploaded file failed magic bytes signature verification'
+      );
+      return {
+        success: false,
+        error: 'Security Warning: The file content does not match a valid PNG, WebP, or JPEG image.',
+      };
+    }
+
+    const extension =
+      magicByteCheck.detectedType === 'png'
+        ? '.png'
+        : magicByteCheck.detectedType === 'webp'
+        ? '.webp'
+        : '.jpg';
+
+    const cleanPrefix = (prefix || 'media').toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 40);
+    const fileName = `${cleanPrefix}-${Date.now()}${extension}`;
+
+    // 4. Primary: Upload to Supabase Storage (Public Cloud Bucket)
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -100,7 +164,7 @@ export async function saveUploadedImage(
       }
     }
 
-    // 4. Secondary Fallback: Save to Local filesystem (public/uploads/[bucket]/[fileName])
+    // 5. Secondary Fallback: Save to Local filesystem (public/uploads/[bucket]/[fileName])
     try {
       const targetDir = path.join(process.cwd(), 'public', 'uploads', bucket);
       await fs.mkdir(targetDir, { recursive: true });
@@ -121,7 +185,7 @@ export async function saveUploadedImage(
       );
     }
 
-    // 5. Ultimate Serverless Fallback: Return Base64 Data URI
+    // 6. Ultimate Serverless Fallback: Return Base64 Data URI
     const base64Data = buffer.toString('base64');
     const finalMime = mimeType || (extension === '.png' ? 'image/png' : 'image/jpeg');
     const dataUri = `data:${finalMime};base64,${base64Data}`;

@@ -4,6 +4,7 @@ import { events, eventRegistrations } from './events';
 import { products } from './products';
 import { orders, orderItems, paymentReceipts } from './orders';
 import { notifications } from './notifications';
+import { auditLogs } from './audit-logs';
 
 export * from './users';
 export * from './events';
@@ -12,6 +13,7 @@ export * from './orders';
 export * from './ecclesias';
 export * from './settings';
 export * from './notifications';
+export * from './audit-logs';
 
 // ==========================================
 // DRIZZLE RELATIONS DEFINITIONS
@@ -23,6 +25,14 @@ export const profilesRelations = relations(profiles, ({ many }) => ({
   createdEvents: many(events),
   verifiedReceipts: many(paymentReceipts),
   notifications: many(notifications),
+  auditLogs: many(auditLogs),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  actor: one(profiles, {
+    fields: [auditLogs.actorId],
+    references: [profiles.id],
+  }),
 }));
 
 export const eventsRelations = relations(events, ({ one, many }) => ({

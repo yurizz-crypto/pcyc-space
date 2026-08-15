@@ -2,7 +2,7 @@ import { cache } from 'react';
 import { db } from '@/lib/db';
 import { profiles, type Profile } from '@/lib/db/schema/users';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { eq, desc, or } from 'drizzle-orm';
+import { eq, desc, or, and, sql } from 'drizzle-orm';
 import { logger } from '@/lib/logger';
 
 /**
@@ -126,3 +126,149 @@ export const getAdminProfiles = cache(async function getAdminProfiles(): Promise
     return [];
   }
 });
+
+export interface PaginatedUsersParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: string;
+  designation?: string;
+  ecclesia?: string;
+  status?: string;
+}
+
+export interface PaginatedUsersResult {
+  users: Profile[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+/**
+ * Enterprise Paginated & Filtered Member/User Query for the Admin Directory.
+ * Leverages indexed columns, SQL count(*), limit and offset.
+ */
+export const getPaginatedUsersForAdmin = cache(async function getPaginatedUsersForAdmin(
+  params: PaginatedUsersParams = {}
+): Promise<PaginatedUsersResult> {
+  const {
+    page = 1,
+    pageSize = 15,
+    search,
+    role,
+    designation,
+    ecclesia,
+    status,
+  } = params;
+
+  try {
+    const conditions = [];
+
+    // Filter by Role
+    if (role && role !== 'ALL') {
+      conditions.push(eq(profiles.role, role as any));
+    }
+
+    // Filter by Designation
+    if (designation && designation !== 'ALL') {
+      conditions.push(eq(profiles.designation, designation as any));
+    }
+
+    // Filter by Ecclesia
+    if (ecclesia && ecclesia !== 'ALL') {
+      conditions.push(eq(profiles.ecclesia, ecclesia));
+    }
+
+    // Filter by Account Status
+    if (status && status !== 'ALL') {
+      conditions.push(eq(profiles.status, status as any));
+    }
+
+    // Search by Name or Email
+    if (search && search.trim()) {
+      const term = `%${search.trim()}%`;
+      const searchCondition = or(
+        sql`concat(${profiles.firstName}, ' ', ${profiles.lastName}) ILIKE ${term}`,
+        sql`${profiles.email} ILIKE ${term}`,
+        sql`${profiles.ecclesia} ILIKE ${term}`
+      );
+      if (searchCondition) conditions.push(searchCondition);
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // 1. Get filtered total count
+    const countRes = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(profiles)
+      .where(whereClause);
+
+    const totalCount = countRes[0]?.count ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const validPage = Math.max(1, Math.min(page, totalPages));
+    const offset = (validPage - 1) * pageSize;
+
+    // 2. Fetch page items with order
+    const users = await db
+      .select()
+      .from(profiles)
+      .where(whereClause)
+      .orderBy(desc(profiles.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    return {
+      users,
+      totalCount,
+      page: validPage,
+      pageSize,
+      totalPages,
+    };
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, params }, 'Failed to fetch paginated users');
+    return {
+      users: [],
+      totalCount: 0,
+      page: 1,
+      pageSize,
+      totalPages: 1,
+    };
+  }
+});
+
+/**
+ * Fetch audit logs for a specific user.
+ */
+export const getUserAuditHistory = cache(async function getUserAuditHistory(
+  userId: string,
+  limit: number = 20
+) {
+  try {
+    const { auditLogs } = await import('@/lib/db/schema/audit-logs');
+    return await db
+      .select()
+      .from(auditLogs)
+      .where(or(eq(auditLogs.targetId, userId), eq(auditLogs.actorId, userId)))
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit);
+  } catch (error: any) {
+    if (
+      error?.digest === 'DYNAMIC_SERVER_USAGE' ||
+      error?.message?.includes('DYNAMIC_SERVER_USAGE') ||
+      error?.digest?.startsWith('NEXT_')
+    ) {
+      throw error;
+    }
+    logger.error({ error: error?.message || error, userId }, 'Failed to fetch user audit history');
+    return [];
+  }
+});
+

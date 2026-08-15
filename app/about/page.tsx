@@ -5,6 +5,7 @@ import { getCachedDisplayedEcclesias } from '@/lib/db/queries/cached';
 import { AboutEcclesiasDirectory } from '@/components/domain/ecclesias/about-ecclesias-directory';
 import { BookOpen, Heart, Users, ShieldCheck } from '@phosphor-icons/react/dist/ssr';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 
 export const metadata = {
   title: 'About PCYC & History',
@@ -40,7 +41,7 @@ export default async function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
             
-            <ScrollReveal className="lg:col-span-5 space-y-8 sticky top-24">
+            <ScrollReveal className="lg:col-span-5 space-y-8 lg:sticky lg:top-24">
               <h2 className="font-serif text-4xl sm:text-5xl font-bold text-[#2c3324] dark:text-[#fefcf1] leading-tight">
                 Who are the Christadelphians?
               </h2>
@@ -74,47 +75,53 @@ export default async function AboutPage() {
                 </StaggerItem>
 
                 {/* Doctrine 1 */}
-                <StaggerItem className="p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 hover:border-[#e0a861]/50 transition-colors">
-                  <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center">
-                    <BookOpen weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
-                  </div>
-                  <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
-                    The Authority of Scripture
-                  </h3>
-                  <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
-                    The 66 books of the Holy Bible are the solely inspired revelation from God,
-                    able to make us wise unto salvation through faith in Christ Jesus.
-                  </p>
+                <StaggerItem>
+                  <InteractiveCard className="h-full p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 hover:border-[#e0a861]/50 transition-colors shadow-sm">
+                    <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center">
+                      <BookOpen weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
+                    </div>
+                    <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
+                      The Authority of Scripture
+                    </h3>
+                    <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
+                      The 66 books of the Holy Bible are the solely inspired revelation from God,
+                      able to make us wise unto salvation through faith in Christ Jesus.
+                    </p>
+                  </InteractiveCard>
                 </StaggerItem>
 
                 {/* Doctrine 2 */}
-                <StaggerItem className="p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 hover:border-[#e0a861]/50 transition-colors">
-                  <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center">
-                    <ShieldCheck weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
-                  </div>
-                  <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
-                    The Hope of Israel
-                  </h3>
-                  <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
-                    God will fulfill His promises by sending Jesus Christ back to Earth to raise the
-                    dead, grant immortality, and rule from Jerusalem.
-                  </p>
+                <StaggerItem>
+                  <InteractiveCard className="h-full p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 hover:border-[#e0a861]/50 transition-colors shadow-sm">
+                    <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center">
+                      <ShieldCheck weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
+                    </div>
+                    <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
+                      The Hope of Israel
+                    </h3>
+                    <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
+                      God will fulfill His promises by sending Jesus Christ back to Earth to raise the
+                      dead, grant immortality, and rule from Jerusalem.
+                    </p>
+                  </InteractiveCard>
                 </StaggerItem>
 
                 {/* Doctrine 3 */}
-                <StaggerItem className="sm:col-span-2 p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 flex flex-col sm:flex-row gap-6 items-start">
-                  <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center shrink-0">
-                    <Heart weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
-                      Baptism & New Life
-                    </h3>
-                    <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed max-w-xl">
-                      Full immersion baptism upon sincere confession of the Gospel of the Kingdom and the
-                      name of Jesus Christ, uniting the believer with the seed of Abraham.
-                    </p>
-                  </div>
+                <StaggerItem className="sm:col-span-2">
+                  <InteractiveCard className="h-full p-8 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 flex flex-col sm:flex-row gap-6 items-start hover:border-[#e0a861]/50 transition-colors shadow-sm">
+                    <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] flex items-center justify-center shrink-0">
+                      <Heart weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#e0a861]" />
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
+                        Baptism & New Life
+                      </h3>
+                      <p className="text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed max-w-xl">
+                        Full immersion baptism upon sincere confession of the Gospel of the Kingdom and the
+                        name of Jesus Christ, uniting the believer with the seed of Abraham.
+                      </p>
+                    </div>
+                  </InteractiveCard>
                 </StaggerItem>
 
               </StaggerContainer>
@@ -139,7 +146,7 @@ export default async function AboutPage() {
 
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StaggerItem className="relative p-10 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden group">
-              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none z-0 group-hover:scale-110 transition-transform duration-500">01</div>
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none pointer-events-none z-0 group-hover:scale-110 transition-transform duration-500">01</div>
               <div className="relative z-10 space-y-4">
                 <h3 className="font-serif text-2xl font-bold text-[#2c3324] dark:text-[#fefcf1]">Annual Youth Camps</h3>
                 <p className="text-[#707666] dark:text-[#a3ab98] leading-relaxed">
@@ -150,7 +157,7 @@ export default async function AboutPage() {
             </StaggerItem>
 
             <StaggerItem className="relative p-10 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden group">
-              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none z-0 group-hover:scale-110 transition-transform duration-500">02</div>
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none pointer-events-none z-0 group-hover:scale-110 transition-transform duration-500">02</div>
               <div className="relative z-10 space-y-4">
                 <h3 className="font-serif text-2xl font-bold text-[#2c3324] dark:text-[#fefcf1]">Monthly Study Circles</h3>
                 <p className="text-[#707666] dark:text-[#a3ab98] leading-relaxed">
@@ -161,7 +168,7 @@ export default async function AboutPage() {
             </StaggerItem>
 
             <StaggerItem className="relative p-10 rounded-3xl bg-white dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden group">
-              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none z-0 group-hover:scale-110 transition-transform duration-500">03</div>
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 text-[120px] font-serif font-bold text-[#fbf1e2] dark:text-[#1b2117] select-none pointer-events-none z-0 group-hover:scale-110 transition-transform duration-500">03</div>
               <div className="relative z-10 space-y-4">
                 <h3 className="font-serif text-2xl font-bold text-[#2c3324] dark:text-[#fefcf1]">Brotherhood Support</h3>
                 <p className="text-[#707666] dark:text-[#a3ab98] leading-relaxed">
@@ -186,9 +193,7 @@ export default async function AboutPage() {
             </p>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.1}>
-            <AboutEcclesiasDirectory ecclesias={displayedEcclesias} />
-          </ScrollReveal>
+          <AboutEcclesiasDirectory ecclesias={displayedEcclesias} />
         </div>
       </section>
 

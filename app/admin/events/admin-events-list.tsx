@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,16 +12,18 @@ import type { Event } from '@/lib/db/schema/events';
 import {
   Calendar,
   MapPin,
-  Trash2,
-  ExternalLink,
-  Pencil,
+  Trash,
+  ArrowSquareOut,
+  PencilSimple,
   Archive,
-  ArchiveRestore,
+  ArrowCounterClockwise,
   Users,
-  Search,
-  AlertTriangle,
+  MagnifyingGlass,
+  Warning,
   X,
-} from 'lucide-react';
+  CircleNotch,
+} from '@phosphor-icons/react/dist/ssr';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AdminEventsListProps {
   events: Event[];
@@ -34,6 +36,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteEventTarget, setDeleteEventTarget] = useState<Event | null>(null);
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   // Compute counts
   const archivedCount = events.filter((e) => e.status === 'ARCHIVED').length;
@@ -75,6 +78,17 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
     setCurrentPage(1);
   };
 
+  const handleDeleteSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!deleteEventTarget) return;
+
+    const formData = new FormData(e.currentTarget);
+    startDeleteTransition(async () => {
+      await deleteEventAction(formData);
+      setDeleteEventTarget(null);
+    });
+  };
+
   return (
     <div className="space-y-4">
       {/* Tabs & Search Filter Bar */}
@@ -82,46 +96,70 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
         <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
             type="button"
-            onClick={() => setFilterTab('ALL')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            onClick={() => handleTabChange('ALL')}
+            className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap z-10 ${
               filterTab === 'ALL'
-                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
-                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
+                ? 'text-white dark:text-[#1b2117]'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
             }`}
           >
-            All Events ({allCount})
+            {filterTab === 'ALL' && (
+              <motion.div
+                layoutId="adminEventsTab"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-lg z-[-1] shadow-xs"
+              />
+            )}
+            <span>All Events ({allCount})</span>
           </button>
           <button
             type="button"
-            onClick={() => setFilterTab('ACTIVE')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            onClick={() => handleTabChange('ACTIVE')}
+            className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap z-10 ${
               filterTab === 'ACTIVE'
-                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
-                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
+                ? 'text-white dark:text-[#1b2117]'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
             }`}
           >
-            Active & Upcoming ({activeCount})
+            {filterTab === 'ACTIVE' && (
+              <motion.div
+                layoutId="adminEventsTab"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-lg z-[-1] shadow-xs"
+              />
+            )}
+            <span>Active & Upcoming ({activeCount})</span>
           </button>
           <button
             type="button"
-            onClick={() => setFilterTab('ARCHIVED')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+            onClick={() => handleTabChange('ARCHIVED')}
+            className={`relative px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap z-10 ${
               filterTab === 'ARCHIVED'
-                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] shadow-xs'
-                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] hover:bg-[#e6dfcb]/50 dark:hover:bg-[#323d2b]'
+                ? 'text-white dark:text-[#1b2117]'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
             }`}
           >
-            Archived ({archivedCount})
+            {filterTab === 'ARCHIVED' && (
+              <motion.div
+                layoutId="adminEventsTab"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-lg z-[-1] shadow-xs"
+              />
+            )}
+            <span>Archived ({archivedCount})</span>
           </button>
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
+          <MagnifyingGlass
+            weight="bold"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]"
+          />
           <input
             type="text"
             placeholder="Search events..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/50 dark:bg-[#131710] focus:bg-white dark:focus:bg-[#1b2117] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
           />
         </div>
@@ -132,8 +170,13 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">
-                {filterTab === 'ARCHIVED' ? 'Archived Events' : filterTab === 'ACTIVE' ? 'Active Events' : 'All Events'} ({filteredEvents.length})
+              <CardTitle className="text-lg font-serif">
+                {filterTab === 'ARCHIVED'
+                  ? 'Archived Events'
+                  : filterTab === 'ACTIVE'
+                  ? 'Active Events'
+                  : 'All Events'}{' '}
+                ({filteredEvents.length})
               </CardTitle>
               <CardDescription>
                 {filterTab === 'ARCHIVED'
@@ -146,7 +189,7 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
         <CardContent>
           {filteredEvents.length === 0 ? (
             <div className="text-center py-12 space-y-3">
-              <Calendar className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
+              <Calendar weight="duotone" className="h-10 w-10 text-[#8a9180] mx-auto opacity-70" />
               <p className="text-sm font-semibold text-[#2c3324] dark:text-[#fefcf1]">
                 {searchQuery ? 'No matching events found' : 'No events in this category'}
               </p>
@@ -157,204 +200,248 @@ export function AdminEventsList({ events }: AdminEventsListProps) {
           ) : (
             <div className="space-y-4">
               <div className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b]">
-                {paginatedEvents.map((evt) => {
-                  const isArchived = evt.status === 'ARCHIVED';
+                <AnimatePresence mode="popLayout">
+                  {paginatedEvents.map((evt) => {
+                    const isArchived = evt.status === 'ARCHIVED';
 
-                  return (
-                    <div
-                      key={evt.id}
-                      className={`py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors px-3 rounded-xl ${
-                        isArchived ? 'bg-slate-50/70 dark:bg-slate-900/40 opacity-80' : 'hover:bg-[#f8f4e3]/50 dark:hover:bg-[#252e1f]/50'
-                      }`}
-                    >
-                      <div className="space-y-1.5 min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1]">
-                            {evt.title}
-                          </span>
-                          <Badge variant={evt.isPublished ? 'success' : 'cream'} size="sm">
-                            {evt.isPublished ? 'Published' : 'Draft'}
-                          </Badge>
-                          <Badge
-                            variant={
-                              isArchived
-                                ? 'slate'
-                                : evt.status === 'COMPLETED'
-                                ? 'success'
-                                : evt.status === 'CANCELLED'
-                                ? 'destructive'
-                                : 'gold'
-                            }
-                            size="sm"
+                    return (
+                      <motion.div
+                        key={evt.id}
+                        layout
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        className={`py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-colors px-3 rounded-xl ${
+                          isArchived
+                            ? 'bg-slate-50/70 dark:bg-slate-900/40 opacity-80'
+                            : 'hover:bg-[#f8f4e3]/50 dark:hover:bg-[#252e1f]/50'
+                        }`}
+                      >
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-serif font-bold text-base text-[#2c3324] dark:text-[#fefcf1]">
+                              {evt.title}
+                            </span>
+                            <Badge variant={evt.isPublished ? 'success' : 'cream'} size="sm">
+                              {evt.isPublished ? 'Published' : 'Draft'}
+                            </Badge>
+                            <Badge
+                              variant={
+                                isArchived
+                                  ? 'slate'
+                                  : evt.status === 'COMPLETED'
+                                  ? 'success'
+                                  : evt.status === 'CANCELLED'
+                                  ? 'destructive'
+                                  : 'gold'
+                              }
+                              size="sm"
+                            >
+                              {evt.status}
+                            </Badge>
+                          </div>
+
+                          {evt.theme && (
+                            <p className="text-xs italic text-[#9a6423] dark:text-[#f0be7c] font-serif">
+                              &ldquo;{evt.theme}&rdquo;
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar weight="duotone" className="h-3.5 w-3.5 text-[#e0a861]" />
+                              <span>{formatEventSchedule(evt.startDate, evt.endDate)}</span>
+                            </span>
+                            <span>•</span>
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin weight="duotone" className="h-3.5 w-3.5 text-[#e0a861]" />
+                              <span>{evt.location}</span>
+                            </span>
+                            <span>•</span>
+                            <span className="text-[#9a6423] dark:text-[#f0be7c] font-mono">
+                              /events/{evt.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap items-center gap-1.5 self-end lg:self-center">
+                          <Link
+                            href={`/admin/events/${evt.id}/attendees`}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] bg-[#f8f4e3] dark:bg-[#252e1f] hover:bg-[#e0a861]/20 border border-[#e6dfcb] dark:border-[#323d2b] transition-all inline-flex items-center gap-1.5 shadow-2xs"
+                            title="View Registered Attendees"
                           >
-                            {evt.status}
-                          </Badge>
+                            <Users weight="duotone" className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />
+                            <span>Attendees</span>
+                          </Link>
+
+                          <Link
+                            href={`/admin/events/${evt.id}/edit`}
+                            className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
+                            title="Edit Event"
+                          >
+                            <PencilSimple weight="duotone" className="h-4 w-4" />
+                          </Link>
+
+                          <Link
+                            href={`/events/${evt.slug}`}
+                            target="_blank"
+                            className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
+                            title="Preview Public Page"
+                          >
+                            <ArrowSquareOut weight="bold" className="h-4 w-4" />
+                          </Link>
+
+                          {/* Quick Archive / Restore Action */}
+                          {isArchived ? (
+                            <form action={unarchiveEventAction}>
+                              <input type="hidden" name="eventId" value={evt.id} />
+                              <button
+                                type="submit"
+                                className="p-2 rounded-lg text-[#2e7d32] dark:text-[#66bb6a] hover:bg-green-50 dark:hover:bg-green-950/30 border border-transparent hover:border-green-200 dark:hover:border-green-800 transition-all"
+                                title="Restore Event"
+                              >
+                                <ArrowCounterClockwise weight="bold" className="h-4 w-4" />
+                              </button>
+                            </form>
+                          ) : (
+                            <form action={archiveEventAction}>
+                              <input type="hidden" name="eventId" value={evt.id} />
+                              <button
+                                type="submit"
+                                className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all"
+                                title="Archive Event"
+                              >
+                                <Archive weight="duotone" className="h-4 w-4" />
+                              </button>
+                            </form>
+                          )}
+
+                          {/* Delete Modal Trigger */}
+                          <button
+                            type="button"
+                            onClick={() => setDeleteEventTarget(evt)}
+                            className="p-2 rounded-lg text-[#c0392b] dark:text-[#ef5350] hover:bg-red-50 dark:hover:bg-red-950/30 border border-transparent hover:border-red-200 dark:hover:border-red-800 transition-all"
+                            title="Delete Event & Attendees"
+                          >
+                            <Trash weight="duotone" className="h-4 w-4" />
+                          </button>
                         </div>
-
-                        {evt.theme && (
-                          <p className="text-xs italic text-[#9a6423] dark:text-[#f0be7c] font-serif">
-                            &ldquo;{evt.theme}&rdquo;
-                          </p>
-                        )}
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#707666] dark:text-[#a3ab98]">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5 text-[#e0a861]" />
-                            <span>{formatEventSchedule(evt.startDate, evt.endDate)}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3.5 w-3.5 text-[#e0a861]" />
-                            <span>{evt.location}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="text-[#9a6423] dark:text-[#f0be7c] font-mono">/events/{evt.slug}</span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap items-center gap-1.5 self-end lg:self-center">
-                        <Link
-                          href={`/admin/events/${evt.id}/attendees`}
-                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] bg-[#f8f4e3] dark:bg-[#252e1f] hover:bg-[#e0a861]/20 border border-[#e6dfcb] dark:border-[#323d2b] transition-all inline-flex items-center gap-1.5 shadow-2xs"
-                          title="View Registered Attendees"
-                        >
-                          <Users className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />
-                          <span>Attendees</span>
-                        </Link>
-
-                        <Link
-                          href={`/admin/events/${evt.id}/edit`}
-                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
-                          title="Edit Event"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-
-                        <Link
-                          href={`/events/${evt.slug}`}
-                          target="_blank"
-                          className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-white dark:hover:bg-[#1b2117] hover:text-[#2c3324] dark:hover:text-[#fefcf1] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all"
-                          title="Preview Public Page"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-
-                        {/* Archive / Restore Action */}
-                        {isArchived ? (
-                          <form action={unarchiveEventAction}>
-                            <input type="hidden" name="eventId" value={evt.id} />
-                            <button
-                              type="submit"
-                              className="p-2 rounded-lg text-[#2e7d32] hover:bg-[#e8f5e9] dark:hover:bg-[#1f3a23] border border-transparent hover:border-[#c8e6c9] dark:hover:border-[#2e7d32]/40 transition-all cursor-pointer"
-                              title="Restore / Unarchive Event"
-                            >
-                              <ArchiveRestore className="h-4 w-4" />
-                            </button>
-                          </form>
-                        ) : (
-                          <form action={archiveEventAction}>
-                            <input type="hidden" name="eventId" value={evt.id} />
-                            <button
-                              type="submit"
-                              className="p-2 rounded-lg text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f] border border-transparent hover:border-[#e6dfcb] dark:hover:border-[#323d2b] transition-all cursor-pointer"
-                              title="Archive Event"
-                            >
-                              <Archive className="h-4 w-4" />
-                            </button>
-                          </form>
-                        )}
-
-                        {/* Delete Modal Trigger */}
-                        <button
-                          type="button"
-                          onClick={() => setDeleteEventTarget(evt)}
-                          className="p-2 rounded-lg text-[#c0392b] dark:text-[#ef5350] hover:bg-[#fdf2f2] dark:hover:bg-[#2d1815] border border-transparent hover:border-[#f5c6cb] dark:hover:border-[#4d201b] transition-all cursor-pointer"
-                          title="Delete Event & Attendees"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
 
-              {/* Universal Pagination */}
-              <Pagination
-                currentPage={activePage}
-                totalPages={totalPages}
-                onPageChange={(page) => setCurrentPage(page)}
-                totalItems={filteredEvents.length}
-                pageSize={PAGE_SIZE}
-                showCount={true}
-              />
+              {totalPages > 1 && (
+                <div className="pt-2">
+                  <Pagination
+                    currentPage={activePage}
+                    totalPages={totalPages}
+                    onPageChange={(p) => setCurrentPage(p)}
+                  />
+                </div>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Confirmation Modal for Permanent Event Deletion */}
-      {deleteEventTarget && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-[#fefcf1] dark:bg-[#1b2117] border-2 border-[#c0392b]/30 dark:border-[#c0392b]/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scaleUp">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-full bg-[#fdf2f2] dark:bg-[#2d1815] text-[#c0392b] dark:text-[#ef5350] border border-[#f5c6cb] dark:border-[#4d201b]">
-                  <AlertTriangle className="h-6 w-6" />
+      {/* Confirmation Modal with Framer Motion and Active Deletion Spinner */}
+      <AnimatePresence>
+        {deleteEventTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isDeleting && setDeleteEventTarget(null)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative z-10 bg-[#fefcf1] dark:bg-[#1b2117] border-2 border-[#c0392b]/30 dark:border-[#c0392b]/50 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] text-[#c0392b] dark:text-[#ef5350] border border-[#f5c6cb] dark:border-[#4d201b] shadow-xs">
+                    <Warning weight="fill" className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
+                      Delete Event & Attendees?
+                    </h3>
+                    <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                      Permanent destructive action
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
-                    Delete Event & Attendees?
-                  </h3>
-                  <p className="text-xs text-[#707666] dark:text-[#a3ab98]">Permanent destructive action</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDeleteEventTarget(null)}
-                className="text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] p-1 rounded-lg"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-white dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-2">
-              <p>
-                You are about to permanently delete{' '}
-                <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">{deleteEventTarget.title}</strong>.
-              </p>
-              <p className="text-[#c0392b] dark:text-[#ef5350] font-medium bg-[#fdf2f2] dark:bg-[#2d1815] p-2 rounded-lg border border-[#f5c6cb] dark:border-[#4d201b]">
-                ⚠️ This will also remove ALL registered attendees and receipts for this gathering. This action cannot be undone.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteEventTarget(null)}
-              >
-                Cancel
-              </Button>
-
-              <form action={deleteEventAction} onSubmit={() => setDeleteEventTarget(null)}>
-                <input type="hidden" name="eventId" value={deleteEventTarget.id} />
-                <Button
-                  type="submit"
-                  variant="destructive"
-                  size="sm"
-                  className="gap-1.5 shadow-xs"
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteEventTarget(null)}
+                  className="text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
                 >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Confirm Delete</span>
+                  <X weight="bold" className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-3">
+                <p>
+                  You are about to permanently delete{' '}
+                  <strong className="text-[#2c3324] dark:text-[#fefcf1] font-bold">
+                    {deleteEventTarget.title}
+                  </strong>
+                  .
+                </p>
+                <p className="text-[#c0392b] dark:text-[#ef5350] font-semibold bg-[#fdf2f2] dark:bg-[#2d1815] p-3 rounded-xl border border-[#f5c6cb] dark:border-[#4d201b] leading-relaxed">
+                  ⚠️ This will permanently remove ALL registered attendees, check-ins, and data for this gathering. This action cannot be undone.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteEventTarget(null)}
+                  className="rounded-xl px-4"
+                >
+                  Cancel
                 </Button>
-              </form>
-            </div>
+
+                <form onSubmit={handleDeleteSubmit}>
+                  <input type="hidden" name="eventId" value={deleteEventTarget.id} />
+                  <Button
+                    type="submit"
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeleting}
+                    className="gap-2 rounded-xl px-5 shadow-sm"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
+                        <span>Deleting Event...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash weight="bold" className="h-4 w-4" />
+                        <span>Confirm Delete</span>
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }

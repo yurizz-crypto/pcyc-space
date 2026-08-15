@@ -55,6 +55,13 @@ export const metadata: Metadata = {
   },
   description:
     'The official home for the Philippine Christadelphian Youth Circle. Discover upcoming events, study circles, youth fellowship camps, and official PCYC merchandise.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
+    ],
+    apple: '/images/logo/pcyc-logo.jpg',
+  },
   keywords: [
     'PCYC',
     'Philippine Christadelphian Youth Circle',
@@ -93,10 +100,6 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-  },
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
   },
 };
 

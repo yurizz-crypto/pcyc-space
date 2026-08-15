@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { EventGrid } from '@/components/domain/events/event-grid';
 import { ProductGrid } from '@/components/domain/merch/product-grid';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 import {
   getCachedPublishedEvents,
   getCachedAvailableProducts,
@@ -159,51 +160,57 @@ export default async function HomePage() {
 
           <StaggerContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Pillar 1 (Hero Cell) */}
-            <StaggerItem className="lg:col-span-8 rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] p-10 flex flex-col justify-between shadow-sm">
-              <div className="h-14 w-14 rounded-2xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-8">
-                <BookOpen weight="duotone" className="h-7 w-7 text-[#9a6423] dark:text-[#f0be7c]" />
-              </div>
-              <div>
-                <h3 className="font-serif text-3xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-4">
-                  Faithful Bible Study
-                </h3>
-                <p className="text-lg text-[#5a634e] dark:text-[#a3ab98] leading-relaxed max-w-xl">
-                  We believe the Holy Scriptures are the inspired Word of God. Our camps
-                  and monthly circles focus on deep, practical study of Biblical truth and
-                  the Gospel of the Kingdom.
-                </p>
-              </div>
+            <StaggerItem className="lg:col-span-8">
+              <InteractiveCard className="h-full rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] p-10 flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-[#e0a861]/40 transition-all duration-300">
+                <div className="h-14 w-14 rounded-2xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-8">
+                  <BookOpen weight="duotone" className="h-7 w-7 text-[#9a6423] dark:text-[#f0be7c]" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-3xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-4">
+                    Faithful Bible Study
+                  </h3>
+                  <p className="text-lg text-[#5a634e] dark:text-[#a3ab98] leading-relaxed max-w-xl">
+                    We believe the Holy Scriptures are the inspired Word of God. Our camps
+                    and monthly circles focus on deep, practical study of Biblical truth and
+                    the Gospel of the Kingdom.
+                  </p>
+                </div>
+              </InteractiveCard>
             </StaggerItem>
 
             <div className="lg:col-span-4 flex flex-col gap-6">
               {/* Pillar 2 */}
-              <StaggerItem className="flex-1 rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#e0a861]/10 dark:bg-[#e0a861]/5 p-8 flex flex-col justify-between shadow-sm">
-                <div className="h-12 w-12 rounded-xl bg-white/50 dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-6">
-                  <Users weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-3">
-                    Island-Wide Fellowship
-                  </h3>
-                  <p className="text-base text-[#5a634e] dark:text-[#a3ab98] leading-relaxed">
-                    Uniting young believers across Luzon, Visayas, and Mindanao for mutual encouragement.
-                  </p>
-                </div>
+              <StaggerItem className="flex-1">
+                <InteractiveCard className="h-full rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#e0a861]/10 dark:bg-[#e0a861]/5 p-8 flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-[#e0a861]/40 transition-all duration-300">
+                  <div className="h-12 w-12 rounded-xl bg-white/50 dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-6">
+                    <Users weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-3">
+                      Island-Wide Fellowship
+                    </h3>
+                    <p className="text-base text-[#5a634e] dark:text-[#a3ab98] leading-relaxed">
+                      Uniting young believers across Luzon, Visayas, and Mindanao for mutual encouragement.
+                    </p>
+                  </div>
+                </InteractiveCard>
               </StaggerItem>
 
               {/* Pillar 3 */}
-              <StaggerItem className="flex-1 rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] p-8 flex flex-col justify-between shadow-sm">
-                <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-6">
-                  <Sparkle weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-3">
-                    Ministry & Service
-                  </h3>
-                  <p className="text-base text-[#5a634e] dark:text-[#a3ab98] leading-relaxed">
-                    Empowering the next generation to serve in local ecclesias and preach the Gospel.
-                  </p>
-                </div>
+              <StaggerItem className="flex-1">
+                <InteractiveCard className="h-full rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] p-8 flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-[#e0a861]/40 transition-all duration-300">
+                  <div className="h-12 w-12 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center mb-6">
+                    <Sparkle weight="duotone" className="h-6 w-6 text-[#9a6423] dark:text-[#f0be7c]" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-xl font-semibold text-[#2c3324] dark:text-[#fefcf1] mb-3">
+                      Ministry & Service
+                    </h3>
+                    <p className="text-base text-[#5a634e] dark:text-[#a3ab98] leading-relaxed">
+                      Empowering the next generation to serve in local ecclesias and preach the Gospel.
+                    </p>
+                  </div>
+                </InteractiveCard>
               </StaggerItem>
             </div>
           </StaggerContainer>

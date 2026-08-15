@@ -278,6 +278,26 @@ async function applyRLSPolicies() {
         ON public.notifications FOR INSERT
         TO authenticated
         WITH CHECK (true);
+
+      -- AUDIT LOGS POLICIES
+      ALTER TABLE IF EXISTS public.audit_logs ENABLE ROW LEVEL SECURITY;
+      DROP POLICY IF EXISTS "Allow admins to view audit logs" ON public.audit_logs;
+      DROP POLICY IF EXISTS "Allow system/admins to insert audit logs" ON public.audit_logs;
+
+      CREATE POLICY "Allow admins to view audit logs"
+        ON public.audit_logs FOR SELECT
+        TO authenticated
+        USING (
+          EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = auth.uid() AND profiles.role IN ('ADMIN', 'SUPERADMIN')
+          )
+        );
+
+      CREATE POLICY "Allow system/admins to insert audit logs"
+        ON public.audit_logs FOR INSERT
+        TO authenticated
+        WITH CHECK (true);
     `);
     console.log('   ✅ All RLS security policies successfully created.');
 
@@ -287,7 +307,7 @@ async function applyRLSPolicies() {
       SELECT tablename, rowsecurity 
       FROM pg_tables 
       WHERE schemaname = 'public' 
-        AND tablename IN ('profiles', 'events', 'products', 'orders', 'order_items', 'payment_receipts', 'event_registrations', 'ecclesias', 'site_settings', 'notifications');
+        AND tablename IN ('profiles', 'events', 'products', 'orders', 'order_items', 'payment_receipts', 'event_registrations', 'ecclesias', 'site_settings', 'notifications', 'audit_logs');
     `;
 
     console.table(rlsStatus);

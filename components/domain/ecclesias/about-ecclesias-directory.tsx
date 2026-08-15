@@ -4,7 +4,17 @@ import React, { useState, useMemo } from 'react';
 import type { Ecclesia } from '@/lib/db/schema/ecclesias';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, UserCheck, Search, Compass, Map, Building2 } from 'lucide-react';
+import {
+  Compass,
+  MagnifyingGlass,
+  MapTrifold,
+  Buildings,
+  MapPin,
+  Clock,
+  UserCheck,
+  X,
+} from '@phosphor-icons/react/dist/ssr';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AboutEcclesiasDirectoryProps {
   ecclesias: Ecclesia[];
@@ -12,7 +22,13 @@ interface AboutEcclesiasDirectoryProps {
 
 type RegionKey = 'ALL' | 'Luzon' | 'Visayas' | 'Mindanao';
 
-const REGIONS: { key: 'Luzon' | 'Visayas' | 'Mindanao'; title: string; subtitle: string; description: string; badgeVariant: 'forest' | 'gold' | 'outline' }[] = [
+const REGIONS: {
+  key: 'Luzon' | 'Visayas' | 'Mindanao';
+  title: string;
+  subtitle: string;
+  description: string;
+  badgeVariant: 'forest' | 'gold' | 'outline';
+}[] = [
   {
     key: 'Luzon',
     title: 'Luzon Ecclesias',
@@ -60,7 +76,12 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
       const city = (ecc.city || '').toLowerCase();
       const address = (ecc.address || '').toLowerCase();
       const contact = (ecc.contactPerson || '').toLowerCase();
-      return name.includes(filterQuery) || city.includes(filterQuery) || address.includes(filterQuery) || contact.includes(filterQuery);
+      return (
+        name.includes(filterQuery) ||
+        city.includes(filterQuery) ||
+        address.includes(filterQuery) ||
+        contact.includes(filterQuery)
+      );
     };
 
     const sortFn = (a: Ecclesia, b: Ecclesia) => {
@@ -87,23 +108,36 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
   }, [selectedRegion]);
 
   return (
-    <div className="space-y-10">
-      {/* Search & Filter Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs">
-        {/* Region Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+    <div className="space-y-12">
+      {/* Search & Dynamic Filter Controls */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 sm:p-4 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-sm">
+        {/* Region Filter Tabs with spring sliding pill */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#131710] rounded-2xl w-full md:w-auto">
           <button
             type="button"
             onClick={() => setSelectedRegion('ALL')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+            className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-200 flex items-center gap-2 z-10 ${
               selectedRegion === 'ALL'
-                ? 'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#131710] shadow-xs'
-                : 'bg-[#f8f4e3] dark:bg-[#252e1f] text-[#505748] dark:text-[#a3ab98] hover:bg-[#ede7d1] dark:hover:bg-[#2a3324]'
+                ? 'text-[#fefcf1] dark:text-[#131710]'
+                : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
             }`}
           >
-            <Compass className="h-3.5 w-3.5" />
+            {selectedRegion === 'ALL' && (
+              <motion.div
+                layoutId="activeEcclesiaTab"
+                transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-xl z-[-1] shadow-sm"
+              />
+            )}
+            <Compass weight="duotone" className="h-4 w-4 shrink-0" />
             <span>All Regions</span>
-            <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-white/20">
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                selectedRegion === 'ALL'
+                  ? 'bg-white/20 dark:bg-black/20'
+                  : 'bg-black/5 dark:bg-white/10'
+              }`}
+            >
               {counts.ALL}
             </span>
           </button>
@@ -113,16 +147,25 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
               key={reg.key}
               type="button"
               onClick={() => setSelectedRegion(reg.key)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 ${
+              className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-200 flex items-center gap-2 z-10 ${
                 selectedRegion === reg.key
-                  ? 'bg-[#2c3324] dark:bg-[#e0a861] text-[#fefcf1] dark:text-[#131710] shadow-xs'
-                  : 'bg-[#f8f4e3] dark:bg-[#252e1f] text-[#505748] dark:text-[#a3ab98] hover:bg-[#ede7d1] dark:hover:bg-[#2a3324]'
+                  ? 'text-[#fefcf1] dark:text-[#131710]'
+                  : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
               }`}
             >
+              {selectedRegion === reg.key && (
+                <motion.div
+                  layoutId="activeEcclesiaTab"
+                  transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                  className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-xl z-[-1] shadow-sm"
+                />
+              )}
               <span>{reg.key}</span>
               <span
-                className={`ml-1 text-[10px] px-1.5 py-0.2 rounded-full ${
-                  selectedRegion === reg.key ? 'bg-white/20' : 'bg-black/10'
+                className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                  selectedRegion === reg.key
+                    ? 'bg-white/20 dark:bg-black/20'
+                    : 'bg-black/5 dark:bg-white/10'
                 }`}
               >
                 {counts[reg.key]}
@@ -132,22 +175,26 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
         </div>
 
         {/* Live Search Input */}
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666] dark:text-[#a3ab98]" />
+        <div className="relative w-full md:w-80">
+          <MagnifyingGlass
+            weight="bold"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#707666] dark:text-[#a3ab98]"
+          />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by city, name, or area..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-[#fefcf1] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] rounded-xl text-[#2c3324] dark:text-[#fefcf1] placeholder-[#707666] dark:placeholder-[#8a9180] focus:outline-none focus:border-[#e0a861] focus:ring-1 focus:ring-[#e0a861]"
+            placeholder="Search city, name, or area..."
+            className="w-full pl-10 pr-9 py-2.5 text-xs bg-[#fefcf1] dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] rounded-2xl text-[#2c3324] dark:text-[#fefcf1] placeholder-[#707666] dark:placeholder-[#8a9180] focus:outline-none focus:border-[#e0a861] focus:ring-2 focus:ring-[#e0a861]/20 transition-all"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              title="Clear Search"
             >
-              Clear
+              <X weight="bold" className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
@@ -155,19 +202,27 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
       {/* No Results Fallback */}
       {totalFilteredCount === 0 && (
-        <div className="p-12 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-3 shadow-xs">
-          <Building2 className="h-10 w-10 text-[#e0a861] mx-auto" />
-          <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">No Ecclesias Found</h3>
-          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] max-w-md mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-12 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-4 shadow-sm"
+        >
+          <div className="h-14 w-14 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] flex items-center justify-center mx-auto text-[#9a6423] dark:text-[#e0a861]">
+            <Buildings weight="duotone" className="h-7 w-7" />
+          </div>
+          <h3 className="font-serif font-bold text-2xl text-[#2c3324] dark:text-[#fefcf1]">
+            No Ecclesias Found
+          </h3>
+          <p className="text-sm text-[#707666] dark:text-[#a3ab98] max-w-md mx-auto leading-relaxed">
             {searchQuery
-              ? `No ecclesias match "${searchQuery}". Please check the spelling or select a different region.`
-              : 'There are currently no ecclesias listed in this category.'}
+              ? `No ecclesias match "${searchQuery}". Please check the spelling or select a different island region.`
+              : 'There are currently no published ecclesias listed in this category.'}
           </p>
-        </div>
+        </motion.div>
       )}
 
       {/* Structured Island Group Sections */}
-      <div className="space-y-14">
+      <div className="space-y-16">
         {activeRegions.map((region) => {
           const list = groupedEcclesias[region.key];
           if (list.length === 0 && searchQuery) return null;
@@ -176,24 +231,24 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
             <section
               key={region.key}
               id={`region-${region.key.toLowerCase()}`}
-              className="space-y-6 scroll-mt-24"
+              className="space-y-8 scroll-mt-24"
             >
               {/* Region Section Header */}
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-4 border-b border-[#e6dfcb] dark:border-[#323d2b]">
-                <div className="space-y-1">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-4 border-b border-[#e6dfcb] dark:border-[#323d2b]">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <Map className="h-4 w-4 text-[#e0a861]" />
-                    <span className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] uppercase tracking-wider">
+                    <MapTrifold weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861]" />
+                    <span className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] uppercase tracking-widest">
                       {region.subtitle}
                     </span>
                   </div>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                  <h3 className="font-serif text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
                     {region.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">{region.description}</p>
+                  <p className="text-sm text-[#707666] dark:text-[#a3ab98] max-w-2xl">{region.description}</p>
                 </div>
                 <div className="shrink-0">
-                  <Badge variant={region.badgeVariant} size="sm">
+                  <Badge variant={region.badgeVariant} size="md" className="rounded-full">
                     {list.length} {list.length === 1 ? 'Ecclesia' : 'Ecclesias'}
                   </Badge>
                 </div>
@@ -201,62 +256,74 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
 
               {/* Ecclesias Grid */}
               {list.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-white/60 dark:bg-[#1b2117]/60 border border-dashed border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-2">
-                  <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                <div className="p-10 rounded-3xl bg-white/60 dark:bg-[#1b2117]/60 border border-dashed border-[#e6dfcb] dark:border-[#323d2b] text-center space-y-2">
+                  <p className="text-sm text-[#707666] dark:text-[#a3ab98]">
                     No verified ecclesias are listed in {region.key} yet. New meeting circles will be published as verified.
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {list.map((ecc) => (
-                    <Card
-                      key={ecc.id}
-                      className="group flex flex-col justify-between hover:shadow-md hover:border-[#e0a861] transition-all duration-200 bg-white dark:bg-[#1b2117]"
-                    >
-                      <CardHeader className="space-y-2 pb-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#f8f4e3] dark:bg-[#252e1f] text-[#9a6423] dark:text-[#f0be7c] border border-[#e6dfcb] dark:border-[#323d2b]">
-                            {ecc.city || ecc.region}
-                          </span>
-                          <span className="text-[10px] text-[#707666] dark:text-[#a3ab98] font-medium">
-                            {ecc.region}
-                          </span>
-                        </div>
-                        <CardTitle className="font-serif text-xl text-[#2c3324] dark:text-[#fefcf1] leading-snug group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors">
-                          {ecc.name}
-                        </CardTitle>
-                      </CardHeader>
+                  <AnimatePresence mode="popLayout">
+                    {list.map((ecc) => (
+                      <motion.div
+                        key={ecc.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                        className="h-full"
+                      >
+                        <Card className="group h-full flex flex-col justify-between hover:shadow-xl hover:border-[#e0a861]/60 transition-all duration-300 bg-white dark:bg-[#1b2117] rounded-3xl border-[#e6dfcb] dark:border-[#323d2b]">
+                          <CardHeader className="space-y-3 pb-4">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-[#f8f4e3] dark:bg-[#252e1f] text-[#9a6423] dark:text-[#f0be7c] border border-[#e6dfcb] dark:border-[#323d2b]">
+                                {ecc.city || ecc.region}
+                              </span>
+                              <span className="text-[11px] text-[#707666] dark:text-[#a3ab98] font-semibold">
+                                {ecc.region}
+                              </span>
+                            </div>
+                            <CardTitle className="font-serif text-2xl text-[#2c3324] dark:text-[#fefcf1] leading-snug group-hover:text-[#9a6423] dark:group-hover:text-[#e0a861] transition-colors">
+                              {ecc.name}
+                            </CardTitle>
+                          </CardHeader>
 
-                      <CardContent className="space-y-3 text-xs text-[#505748] dark:text-[#a3ab98] pt-0">
-                        {/* Address */}
-                        <div className="flex items-start gap-2.5">
-                          <MapPin className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
-                          <span className="leading-relaxed">{ecc.address}</span>
-                        </div>
+                          <CardContent className="space-y-4 text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] pt-0">
+                            {/* Address */}
+                            <div className="flex items-start gap-3">
+                              <MapPin weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
+                              <span className="leading-relaxed">{ecc.address}</span>
+                            </div>
 
-                        {/* Meeting Schedule */}
-                        <div className="flex items-start gap-2.5">
-                          <Clock className="h-4 w-4 text-[#e0a861] shrink-0 mt-0.5" />
-                          <div className="space-y-0.5">
-                            <span className="font-medium text-[#2c3324] dark:text-[#fefcf1] block">
-                              Meeting Schedule:
-                            </span>
-                            <span className="leading-relaxed">{ecc.meetingSchedule}</span>
-                          </div>
-                        </div>
+                            {/* Meeting Schedule */}
+                            <div className="flex items-start gap-3">
+                              <Clock weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
+                              <div className="space-y-0.5">
+                                <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1] block">
+                                  Meeting Schedule:
+                                </span>
+                                <span className="leading-relaxed text-xs">{ecc.meetingSchedule}</span>
+                              </div>
+                            </div>
 
-                        {/* Contact Person */}
-                        {ecc.contactPerson && (
-                          <div className="flex items-start gap-2.5 pt-1 border-t border-[#f4efe0] dark:border-[#323d2b]">
-                            <UserCheck className="h-4 w-4 text-[#707666] dark:text-[#a3ab98] shrink-0 mt-0.5" />
-                            <span className="text-[#707666] dark:text-[#a3ab98]">
-                              Contact / Coordinator: <strong className="text-[#2c3324] dark:text-[#fefcf1] font-medium">{ecc.contactPerson}</strong>
-                            </span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                            {/* Contact Person */}
+                            {ecc.contactPerson && (
+                              <div className="flex items-start gap-3 pt-3 border-t border-[#f4efe0] dark:border-[#323d2b]">
+                                <UserCheck weight="duotone" className="h-4 w-4 text-[#707666] dark:text-[#a3ab98] shrink-0 mt-0.5" />
+                                <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                                  Contact / Coordinator:{' '}
+                                  <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">
+                                    {ecc.contactPerson}
+                                  </strong>
+                                </span>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
             </section>
