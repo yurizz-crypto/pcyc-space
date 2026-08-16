@@ -64,6 +64,7 @@
 - **Order Hub** — Dedicated orders page with full lifecycle tracking and receipt management
 - **Receipt Upload** — Submit GCash/Maya/PalawanPay payment screenshots for admin verification
 - **Product Reviews** — Verified buyers can rate and review purchased products
+- **Account Settings** — Profile editor, password management, and appearance theme selector (Light / Dark / System)
 - **In-App Notifications** — Real-time updates on event registrations, order status, and payment verification
 
 ### 🛡️ Admin Dashboard
@@ -135,8 +136,8 @@ PCYC Space uses a custom design system built on Tailwind CSS v4 with brand-align
 │   🟡 Warm Gold     #e0a861  ← Accent / Interactive  │
 │   ⬜ Cream         #fefcf1  ← Background / Light    │
 │                                                     │
-│   Typography:  Plus Jakarta Sans (body)             │
-│                Playfair Display (headings)           │
+│   Typography:  Outfit (body)                        │
+│                EB Garamond (headings)                │
 │                                                     │
 │   Effects:     Glassmorphism panels                  │
 │                Radial hero glow                      │
