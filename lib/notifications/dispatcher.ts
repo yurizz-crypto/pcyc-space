@@ -1,7 +1,9 @@
 import { db } from '@/lib/db';
 import { notifications, type NotificationType } from '@/lib/db/schema/notifications';
 import { getAdminProfiles } from '@/lib/db/queries/users';
-import { sendEmail } from '@/lib/email/resend';
+import { profiles } from '@/lib/db/schema/users';
+import { eq } from 'drizzle-orm';
+import { sendEmail } from '@/lib/email/mailer';
 import { createModuleLogger } from '@/lib/logger';
 
 const log = createModuleLogger('notifications:dispatcher');
@@ -57,24 +59,36 @@ export async function dispatchNotification({
     const tasks: Promise<unknown>[] = [];
 
     // 1. In-App User Notification Write
-    const userInAppPromise = db
-      .insert(notifications)
-      .values({
-        userId,
-        type,
-        title,
-        message,
-        linkUrl: linkUrl || null,
-        metadata: metadata || null,
-      })
-      .returning({ id: notifications.id })
-      .then((inserted) => {
-        result.inAppNotificationId = inserted[0]?.id;
-        log.info({ userId, type, title, notificationId: result.inAppNotificationId }, 'In-app notification created');
-      })
-      .catch((err) => {
-        log.error({ userId, type, title, error: err?.message || err }, 'Failed to insert in-app notification');
-      });
+    const userInAppPromise = (async () => {
+      // Guard: Ensure user exists before inserting to prevent FK constraint failure
+      const userExists = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(eq(profiles.id, userId))
+        .limit(1);
+
+      if (userExists.length === 0) {
+        log.warn({ userId, type, title }, 'Skipped in-app notification: User profile not found');
+        return;
+      }
+
+      const inserted = await db
+        .insert(notifications)
+        .values({
+          userId,
+          type,
+          title,
+          message,
+          linkUrl: linkUrl || null,
+          metadata: metadata || null,
+        })
+        .returning({ id: notifications.id });
+        
+      result.inAppNotificationId = inserted[0]?.id;
+      log.info({ userId, type, title, notificationId: result.inAppNotificationId }, 'In-app notification created');
+    })().catch((err) => {
+      log.error({ userId, type, title, error: err }, 'Failed to insert in-app notification');
+    });
 
     tasks.push(userInAppPromise);
 
@@ -93,7 +107,7 @@ export async function dispatchNotification({
           }
         })
         .catch((err) => {
-          log.error({ to: email.to, subject: email.subject, error: err?.message || err }, 'User email dispatch error');
+          log.error({ to: email.to, subject: email.subject, error: err }, 'User email dispatch error');
         });
 
       tasks.push(userEmailPromise);
@@ -144,8 +158,18 @@ export async function dispatchNotification({
 
     // Await all tasks concurrently with zero unhandled rejections
     await Promise.allSettled(tasks);
+    
+    log.info(
+      { 
+        userId, 
+        inAppCreated: !!result.inAppNotificationId, 
+        emailDispatched: result.emailDispatched, 
+        adminAlerts: result.adminAlertsDispatched || 0 
+      }, 
+      'Dispatch complete'
+    );
   } catch (error: any) {
-    log.error({ userId, type, title, error: error?.message || error }, 'Unhandled error in dispatchNotification');
+    log.error({ userId, type, title, error }, 'Unhandled error in dispatchNotification');
   }
 
   return result;

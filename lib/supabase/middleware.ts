@@ -74,8 +74,26 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   supabaseResponse.headers.set('X-RateLimit-Remaining', String(rateLimit.remaining));
   supabaseResponse.headers.set('X-RateLimit-Reset', String(rateLimit.resetTimeMs));
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    logSecurityEventNonBlocking({
+      eventType: 'SYSTEM_ERROR',
+      clientIp,
+      method,
+      path: pathname,
+      statusCode: 500,
+      reason: 'Missing Supabase environment variables',
+    });
+    return new NextResponse(
+      JSON.stringify({
+        error: 'Configuration Error',
+        message: 'Authentication service is not configured properly.',
+      }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {

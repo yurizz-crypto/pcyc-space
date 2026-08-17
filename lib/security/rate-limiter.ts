@@ -25,6 +25,7 @@ const ROUTE_POLICIES: Record<string, RateLimitConfig> = {
   '/login': { maxRequests: 10, windowMs: 60 * 1000 }, // 10 attempts per minute to prevent brute-force
   '/register': { maxRequests: 6, windowMs: 60 * 1000 }, // 6 attempts per minute
   '/reset-password': { maxRequests: 4, windowMs: 60 * 1000 }, // 4 attempts per minute
+  '/admin/users': { maxRequests: 40, windowMs: 60 * 1000 }, // 40 requests per minute
   '/api/': { maxRequests: 60, windowMs: 60 * 1000 }, // 60 API calls per minute
   default: { maxRequests: 120, windowMs: 60 * 1000 }, // 120 page views per minute
 };
@@ -41,7 +42,7 @@ class MemoryRateLimiter {
   /**
    * Evaluates incoming request against rate limit policy in O(1) time.
    */
-  public check(identifier: string, path: string): RateLimitResult {
+  public check(identifier: string, path: string, customConfig?: RateLimitConfig): RateLimitResult {
     const now = Date.now();
 
     // Trigger non-blocking periodic memory sweep if interval reached
@@ -49,7 +50,7 @@ class MemoryRateLimiter {
       this.evictExpired(now);
     }
 
-    const policy = this.resolvePolicy(path);
+    const policy = customConfig || this.resolvePolicy(path);
     const key = `${identifier}:${this.resolvePolicyKey(path)}`;
     let bucket = this.store.get(key);
 
@@ -142,4 +143,16 @@ export function evaluateRateLimit(request: NextRequest): RateLimitResult {
   const clientIp = getClientIp(request);
   const path = request.nextUrl.pathname;
   return globalRateLimiter.check(clientIp, path);
+}
+
+/**
+ * Action-level rate limiter for server actions (e.g., checkout, login attempts, user creation).
+ */
+export function enforceActionRateLimit(
+  identifier: string,
+  actionKey: string,
+  maxRequests: number = 10,
+  windowMs: number = 60 * 1000
+): RateLimitResult {
+  return globalRateLimiter.check(identifier, actionKey, { maxRequests, windowMs });
 }

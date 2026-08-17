@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getCachedAdminOverviewMetrics } from '@/lib/db/queries/cached';
+import { getCachedDisplayedEcclesias } from '@/lib/db/queries/cached';
 import { getAllEvents } from '@/lib/db/queries/events';
-import { getAllProducts } from '@/lib/db/queries/products';
-import { getAllOrdersWithReceipts } from '@/lib/db/queries/orders';
-import { getAllMembers } from '@/lib/db/queries/users';
-import { getAllEcclesias } from '@/lib/db/queries/ecclesias';
-import { getYouthAndFriendsCount } from '@/lib/db/queries/settings';
 import { updateYouthCountAction } from '@/app/actions/settings';
-import { Calendar, ShoppingBag, Receipt, Users, Plus, Church, Sparkles, SlidersHorizontal } from 'lucide-react';
+import {
+  Calendar,
+  ShoppingBag,
+  Receipt,
+  Users,
+  Plus,
+  Church,
+  Sparkles,
+  SlidersHorizontal,
+  UserCheck,
+  ShieldAlert,
+} from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const [eventsList, productsList, ordersList, membersList, ecclesiasList, youthCount] =
-    await Promise.all([
-      getAllEvents(),
-      getAllProducts(),
-      getAllOrdersWithReceipts(),
-      getAllMembers(),
-      getAllEcclesias(),
-      getYouthAndFriendsCount(),
-    ]);
-
-  const pendingOrders = ordersList.filter(
-    (o) => o.status === 'PENDING_PAYMENT' || (o.receipt && o.receipt.verificationStatus === 'PENDING')
-  );
+  const [metrics, ecclesiasList, eventsList] = await Promise.all([
+    getCachedAdminOverviewMetrics(),
+    getCachedDisplayedEcclesias(),
+    getAllEvents(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -37,19 +40,25 @@ export default async function AdminDashboardPage() {
             Administration Overview
           </h1>
           <p className="text-sm text-[#707666] dark:text-[#a3ab98]">
-            Manage live events, merchandise inventory, ecclesia directory, and platform metrics.
+            Command center for managing members, live events, merchandise inventory, and platform metrics.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Link href="/admin/events/new">
+          <Link href="/admin/users/new">
             <Button variant="primary" size="md" className="gap-2 shadow-xs">
+              <Plus className="h-4 w-4" />
+              <span>Add Member</span>
+            </Button>
+          </Link>
+          <Link href="/admin/events/new">
+            <Button variant="outline" size="md" className="gap-2 shadow-xs bg-white dark:bg-[#1b2117]">
               <Plus className="h-4 w-4" />
               <span>Add Event</span>
             </Button>
           </Link>
           <Link href="/admin/merch/new">
-            <Button variant="outline" size="md" className="gap-2 shadow-xs">
+            <Button variant="outline" size="md" className="gap-2 shadow-xs bg-white dark:bg-[#1b2117]">
               <Plus className="h-4 w-4" />
               <span>Add Merch</span>
             </Button>
@@ -63,82 +72,94 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row (Fast Aggregates) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
-              Ecclesias
-            </span>
-            <Church className="h-4 w-4 text-[#e0a861]" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
-              {ecclesiasList.length}
-            </div>
-            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Active fellowships in PH</p>
-          </CardContent>
-        </Card>
+        <Link href="/admin/users" className="block transition-transform hover:-translate-y-0.5">
+          <Card className="hover:border-[#e0a861]/60 transition-colors h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
+                Directory
+              </span>
+              <Users className="h-4 w-4 text-[#2e7d32]" />
+            </CardHeader>
+            <CardContent>
+              <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
+                {metrics.totalMembers}
+              </div>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">
+                {metrics.totalAdmins} Admins &bull; Manage Users &rarr;
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
-              Events
-            </span>
-            <Calendar className="h-4 w-4 text-[#e0a861]" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
-              {eventsList.length}
-            </div>
-            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Live camps in database</p>
-          </CardContent>
-        </Card>
+        <Link href="/admin/orders" className="block transition-transform hover:-translate-y-0.5">
+          <Card className="hover:border-[#e0a861]/60 transition-colors h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
+                Pending Receipts
+              </span>
+              <Receipt className="h-4 w-4 text-[#ca914a]" />
+            </CardHeader>
+            <CardContent>
+              <div className="font-serif font-bold text-3xl text-[#9a6423] dark:text-[#f0be7c]">
+                {metrics.pendingOrdersCount}
+              </div>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">GCash receipts queue</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
-              Merchandise
-            </span>
-            <ShoppingBag className="h-4 w-4 text-[#e0a861]" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
-              {productsList.length}
-            </div>
-            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Active store catalog items</p>
-          </CardContent>
-        </Card>
+        <Link href="/admin/events" className="block transition-transform hover:-translate-y-0.5">
+          <Card className="hover:border-[#e0a861]/60 transition-colors h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
+                Events & Camps
+              </span>
+              <Calendar className="h-4 w-4 text-[#e0a861]" />
+            </CardHeader>
+            <CardContent>
+              <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
+                {metrics.totalEvents}
+              </div>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Live camps in database</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
-              Pending Receipts
-            </span>
-            <Receipt className="h-4 w-4 text-[#ca914a]" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-serif font-bold text-3xl text-[#9a6423] dark:text-[#f0be7c]">
-              {pendingOrders.length}
-            </div>
-            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">GCash receipts queue</p>
-          </CardContent>
-        </Card>
+        <Link href="/admin/merch" className="block transition-transform hover:-translate-y-0.5">
+          <Card className="hover:border-[#e0a861]/60 transition-colors h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
+                Merchandise
+              </span>
+              <ShoppingBag className="h-4 w-4 text-[#e0a861]" />
+            </CardHeader>
+            <CardContent>
+              <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
+                {metrics.totalProducts}
+              </div>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Active store catalog items</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
-              Members
-            </span>
-            <Users className="h-4 w-4 text-[#2e7d32]" />
-          </CardHeader>
-          <CardContent>
-            <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
-              {membersList.length}
-            </div>
-            <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Registered Brethren</p>
-          </CardContent>
-        </Card>
+        <Link href="/admin/ecclesias" className="block transition-transform hover:-translate-y-0.5">
+          <Card className="hover:border-[#e0a861]/60 transition-colors h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <span className="text-xs font-semibold text-[#707666] dark:text-[#a3ab98] uppercase tracking-wider">
+                Ecclesias
+              </span>
+              <Church className="h-4 w-4 text-[#e0a861]" />
+            </CardHeader>
+            <CardContent>
+              <div className="font-serif font-bold text-3xl text-[#2c3324] dark:text-[#fefcf1]">
+                {metrics.totalEcclesias}
+              </div>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">Active fellowships in PH</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Dynamic Site Metric Setting: Youth & Friends */}
@@ -149,7 +170,7 @@ export default async function AdminDashboardPage() {
             <CardTitle className="text-lg font-serif">Platform Metric: Youth & Friends Count</CardTitle>
           </div>
           <CardDescription>
-            Configure the live counter displayed in the Home page Hero banner (e.g. {youthCount}+). Must be at least 1.
+            Configure the live counter displayed in the Home page Hero banner (e.g. {metrics.youthCount}+). Must be at least 1.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -159,7 +180,7 @@ export default async function AdminDashboardPage() {
                 name="count"
                 type="number"
                 min="1"
-                defaultValue={youthCount}
+                defaultValue={metrics.youthCount}
                 required
                 className="bg-white dark:bg-[#131710] font-mono font-bold text-base"
               />
@@ -179,7 +200,7 @@ export default async function AdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
               <CardTitle className="text-xl">Philippine Ecclesia Directory</CardTitle>
-              <CardDescription>Fellowship locations in database ({ecclesiasList.length} total).</CardDescription>
+              <CardDescription>Fellowship locations in database ({metrics.totalEcclesias} total).</CardDescription>
             </div>
             <Link href="/admin/ecclesias" className="text-xs font-semibold text-[#9a6423] dark:text-[#f0be7c] hover:underline">
               Manage All &rarr;
@@ -214,7 +235,7 @@ export default async function AdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
               <CardTitle className="text-xl">PCYC Events & Gatherings</CardTitle>
-              <CardDescription>Live database events published on the site.</CardDescription>
+              <CardDescription>Live database events published on the site ({metrics.totalEvents} total).</CardDescription>
             </div>
             <Link href="/admin/events" className="text-xs font-semibold text-[#9a6423] dark:text-[#f0be7c] hover:underline">
               View All &rarr;

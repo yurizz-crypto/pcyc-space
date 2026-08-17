@@ -3,6 +3,7 @@ import { getPublishedEvents, getEventBySlug } from './events';
 import { getAvailableProducts, getProductBySlug } from './products';
 import { getDisplayedEcclesias, getEcclesiaCount } from './ecclesias';
 import { getSiteSetting, getYouthAndFriendsCount } from './settings';
+import { getAdminOverviewMetrics, type AdminOverviewMetrics } from './admin-metrics';
 import type { Event } from '@/lib/db/schema/events';
 import type { Product } from '@/lib/db/schema/products';
 import type { Ecclesia } from '@/lib/db/schema/ecclesias';
@@ -23,6 +24,12 @@ export const CACHE_TAGS = {
   settings: 'settings',
   settingsKey: (key: string) => `settings:${key}`,
   youthCount: 'settings:youth_count',
+  adminMetrics: 'admin:metrics',
+  users: 'users',
+  user: (id: string) => `user:${id}`,
+  auditLogs: 'audit_logs',
+  reviews: 'reviews',
+  productReviews: (productId: string) => `reviews:product:${productId}`,
 } as const;
 
 /**
@@ -181,6 +188,51 @@ export function getCachedSiteSetting(key: string, defaultValue: string = ''): Pr
 }
 
 /**
+ * Cached Admin Overview Metrics
+ * Revalidated every 60s or on-demand when any admin resource is mutated.
+ */
+export const getCachedAdminOverviewMetrics = safeCache(
+  async (): Promise<AdminOverviewMetrics> => {
+    return getAdminOverviewMetrics();
+  },
+  ['cached-admin-overview-metrics'],
+  {
+    revalidate: 60,
+    tags: [CACHE_TAGS.adminMetrics],
+  }
+);
+
+/**
+ * Cached Product Rating Summary (Average rating, total reviews, star breakdown)
+ */
+export async function getCachedProductRatingSummary(productId: string) {
+  const { getProductRatingSummary } = await import('./reviews');
+  return safeCache(
+    async () => getProductRatingSummary(productId),
+    [`cached-product-rating-summary-${productId}`],
+    {
+      revalidate: 300,
+      tags: [CACHE_TAGS.reviews, CACHE_TAGS.productReviews(productId)],
+    }
+  )();
+}
+
+/**
+ * Cached Product Reviews List
+ */
+export async function getCachedProductReviews(productId: string) {
+  const { getProductReviews } = await import('./reviews');
+  return safeCache(
+    async () => getProductReviews(productId),
+    [`cached-product-reviews-${productId}`],
+    {
+      revalidate: 300,
+      tags: [CACHE_TAGS.reviews, CACHE_TAGS.productReviews(productId)],
+    }
+  )();
+}
+
+/**
  * Invalidate cache tag(s) immediately from Server Actions.
  * Utilizes Next.js 16 updateTag API with revalidateTag fallback.
  */
@@ -198,4 +250,5 @@ export function invalidateCacheTag(...tags: string[]): void {
     }
   }
 }
+
 

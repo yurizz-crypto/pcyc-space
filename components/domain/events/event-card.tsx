@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { DateBadge } from '@/components/molecules/date-badge';
 import { formatDate } from '@/lib/utils';
-import { MapPin, Users, ArrowRight } from 'lucide-react';
+import { MapPin, Users, ArrowRight } from '@phosphor-icons/react/dist/ssr';
 import type { Event } from '@/lib/db/schema/events';
 
 export interface EventCardProps {
@@ -23,7 +23,7 @@ export function EventCard({ event, showStatusBadge = true }: EventCardProps) {
   } as const;
 
   return (
-    <Card className="flex flex-col h-full border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#2c3324] dark:hover:border-[#e0a861] hover:shadow-md transition-all group overflow-hidden">
+    <Card className="flex flex-col h-full rounded-3xl border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#e0a861]/60 hover:shadow-xl transition-all duration-300 group overflow-hidden bg-white dark:bg-[#1b2117]">
       {/* Banner / Cover */}
       {event.bannerUrl ? (
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#2c3324]/5">
@@ -31,12 +31,12 @@ export function EventCard({ event, showStatusBadge = true }: EventCardProps) {
             src={event.bannerUrl}
             alt={event.title}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {showStatusBadge && (
             <div className="absolute top-3 right-3">
-              <Badge variant={statusVariant[event.status] || 'cream'} size="sm">
+              <Badge variant={statusVariant[event.status] || 'cream'} size="sm" className="rounded-full shadow-sm">
                 {event.status}
               </Badge>
             </div>
@@ -55,7 +55,7 @@ export function EventCard({ event, showStatusBadge = true }: EventCardProps) {
                 {event.theme}
               </span>
             )}
-            <CardTitle className="text-lg group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors line-clamp-2">
+            <CardTitle className="font-serif text-xl group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] transition-colors line-clamp-2">
               {event.title}
             </CardTitle>
           </div>
@@ -69,28 +69,28 @@ export function EventCard({ event, showStatusBadge = true }: EventCardProps) {
 
         <div className="space-y-1.5 pt-1 text-xs text-[#707666] dark:text-[#a3ab98]">
           <div className="flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-[#e0a861] shrink-0" />
+            <MapPin weight="duotone" className="h-3.5 w-3.5 text-[#e0a861] shrink-0" />
             <span className="truncate">{event.location}</span>
           </div>
           {event.maxAttendees && (
             <div className="flex items-center gap-2">
-              <Users className="h-3.5 w-3.5 text-[#e0a861] shrink-0" />
+              <Users weight="duotone" className="h-3.5 w-3.5 text-[#e0a861] shrink-0" />
               <span>Capacity: {event.maxAttendees} attendees</span>
             </div>
           )}
         </div>
       </CardContent>
 
-      <CardFooter className="pt-2 border-t border-[#e6dfcb]/50 dark:border-[#323d2b]/50 flex items-center justify-between text-xs font-semibold">
+      <CardFooter className="pt-3 border-t border-[#e6dfcb]/50 dark:border-[#323d2b]/50 flex items-center justify-between text-xs font-semibold">
         <span className="text-[#8a9180] dark:text-[#8a9180]">
           {formatDate(event.startDate)}
         </span>
         <Link
           href={`/events/${event.slug}`}
-          className="text-[#2c3324] dark:text-[#fefcf1] group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] flex items-center gap-1 transition-colors"
+          className="text-[#2c3324] dark:text-[#fefcf1] group-hover:text-[#9a6423] dark:group-hover:text-[#f0be7c] flex items-center gap-1 transition-colors font-bold"
         >
-          <span>View Details</span>
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+          <span>View Gathering</span>
+          <ArrowRight weight="bold" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
         </Link>
       </CardFooter>
     </Card>

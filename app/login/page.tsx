@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { loginAction, ActionState } from '@/app/actions/auth';
-import { LogIn, AlertCircle } from 'lucide-react';
+import { SignIn, WarningCircle, CircleNotch } from '@phosphor-icons/react/dist/ssr';
+import { motion } from 'motion/react';
 
 const initialState: ActionState = {
   success: false,
@@ -21,19 +22,23 @@ function LoginForm() {
   const redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect') || '';
 
   return (
-    <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-lg">
+    <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-xl rounded-3xl bg-white dark:bg-[#1b2117]">
       <form action={formAction}>
         {redirectTo && <input type="hidden" name="redirectTo" value={redirectTo} />}
 
-        <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="text-xl">Sign In</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
+        <CardHeader className="space-y-1.5 pb-4">
+          <CardTitle className="font-serif text-2xl text-[#2c3324] dark:text-[#fefcf1]">
+            Sign In
+          </CardTitle>
+          <CardDescription className="text-xs text-[#707666] dark:text-[#a3ab98]">
+            Enter your credentials to access your PCYC account.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2.5 shadow-xs">
+              <WarningCircle weight="fill" className="h-4 w-4 shrink-0" />
               <span>{state.error}</span>
             </div>
           )}
@@ -68,23 +73,32 @@ function LoginForm() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3 pt-2">
+        <CardFooter className="flex flex-col gap-4 pt-2">
           <Button
             type="submit"
             variant="primary"
             size="lg"
-            className="w-full gap-2 shadow-sm"
-            isLoading={isPending}
+            className="w-full gap-2 rounded-2xl shadow-md bg-[#2c3324] text-[#fefcf1] hover:bg-[#3d4632] dark:bg-[#e0a861] dark:text-[#131710] dark:hover:bg-[#ca914a]"
+            disabled={isPending}
           >
-            <LogIn className="h-4 w-4" />
-            <span>Sign In to PCYC Space</span>
+            {isPending ? (
+              <>
+                <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <>
+                <SignIn weight="bold" className="h-4 w-4" />
+                <span>Sign In to PCYC Space</span>
+              </>
+            )}
           </Button>
 
-          <div className="text-center text-xs text-[#707666] dark:text-[#a3ab98] pt-2">
+          <div className="text-center text-xs text-[#707666] dark:text-[#a3ab98] pt-1">
             Don&apos;t have an account yet?{' '}
             <Link
               href="/register"
-              className="text-[#9a6423] dark:text-[#f0be7c] font-semibold hover:underline"
+              className="text-[#9a6423] dark:text-[#f0be7c] font-bold hover:underline"
             >
               Join PCYC here
             </Link>
@@ -97,33 +111,40 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#fefcf1] dark:bg-[#131710]">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-[#fefcf1] dark:bg-[#131710]">
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md space-y-6"
+      >
         {/* Brand Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
           <Link href="/" className="inline-flex items-center justify-center">
-            <div className="h-14 w-14 rounded-2xl bg-[#2c3324] p-2 flex items-center justify-center shadow-md">
+            <div className="h-16 w-16 rounded-2xl bg-[#2c3324] p-2 flex items-center justify-center shadow-lg border border-[#3d4632]">
               <Image
                 src="/images/logo/pcyc-transparent-logo.png"
                 alt="PCYC Logo"
-                width={44}
-                height={44}
+                width={48}
+                height={48}
                 className="object-contain"
               />
             </div>
           </Link>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
-            Welcome to PCYC Space
-          </h1>
-          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
-            Sign in to manage event registrations, orders, and ecclesia profile.
-          </p>
+          <div className="space-y-1">
+            <h1 className="font-serif text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
+              Welcome to PCYC Space
+            </h1>
+            <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
+              Sign in to manage event registrations, orders, and ecclesia profile.
+            </p>
+          </div>
         </div>
 
         <Suspense fallback={<div className="h-64 rounded-3xl bg-white dark:bg-[#1b2117] animate-pulse" />}>
           <LoginForm />
         </Suspense>
-      </div>
+      </motion.div>
     </div>
   );
 }

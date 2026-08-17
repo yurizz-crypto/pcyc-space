@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google';
+import { Outfit, EB_Garamond } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -7,13 +7,14 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-const sansFont = Plus_Jakarta_Sans({
+
+const sansFont = Outfit({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const serifFont = Playfair_Display({
+const serifFont = EB_Garamond({
   subsets: ['latin'],
   variable: '--font-serif',
   display: 'swap',
@@ -55,6 +56,13 @@ export const metadata: Metadata = {
   },
   description:
     'The official home for the Philippine Christadelphian Youth Circle. Discover upcoming events, study circles, youth fellowship camps, and official PCYC merchandise.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/images/logo/pcyc-transparent-logo.png', type: 'image/png' },
+    ],
+    apple: '/images/logo/pcyc-logo.jpg',
+  },
   keywords: [
     'PCYC',
     'Philippine Christadelphian Youth Circle',
@@ -94,10 +102,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
 };
 
 export const viewport: Viewport = {
@@ -106,7 +110,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;

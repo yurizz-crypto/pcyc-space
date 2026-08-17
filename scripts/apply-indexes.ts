@@ -106,6 +106,10 @@ async function applyIndexes() {
       sql: 'CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles (role);',
     },
     {
+      name: 'idx_profiles_status',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_profiles_status ON profiles (status);',
+    },
+    {
       name: 'idx_profiles_ecclesia',
       sql: 'CREATE INDEX IF NOT EXISTS idx_profiles_ecclesia ON profiles (ecclesia);',
     },
@@ -126,6 +130,42 @@ async function applyIndexes() {
     {
       name: 'idx_ecclesias_order_index',
       sql: 'CREATE INDEX IF NOT EXISTS idx_ecclesias_order_index ON ecclesias (order_index);',
+    },
+
+    // 9. Audit Logs Table Indexes
+    {
+      name: 'idx_audit_logs_actor_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_audit_logs_actor_id ON audit_logs (actor_id);',
+    },
+    {
+      name: 'idx_audit_logs_target_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_audit_logs_target_id ON audit_logs (target_id);',
+    },
+    {
+      name: 'idx_audit_logs_action',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs (action);',
+    },
+    {
+      name: 'idx_audit_logs_created_at',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs (created_at DESC);',
+    },
+
+    // 10. Product Reviews Table Indexes
+    {
+      name: 'idx_product_reviews_product_hidden',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_product_hidden ON product_reviews (product_id, is_hidden);',
+    },
+    {
+      name: 'idx_product_reviews_user_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_user_id ON product_reviews (user_id);',
+    },
+    {
+      name: 'idx_product_reviews_order_id',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_order_id ON product_reviews (order_id);',
+    },
+    {
+      name: 'idx_product_reviews_created_at',
+      sql: 'CREATE INDEX IF NOT EXISTS idx_product_reviews_created_at ON product_reviews (created_at DESC);',
     },
   ];
 

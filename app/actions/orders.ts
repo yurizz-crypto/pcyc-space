@@ -1,15 +1,16 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { orders, orderItems, paymentReceipts, type PaymentMethod } from '@/lib/db/schema/orders';
+import { orders, orderItems, paymentReceipts, type PaymentMethod, type OrderStatus } from '@/lib/db/schema/orders';
 import { products } from '@/lib/db/schema/products';
 import { profiles } from '@/lib/db/schema/users';
-import { getCurrentUserProfile, getUserProfileById } from '@/lib/db/queries/users';
+import { getCurrentUserProfile, getUserProfileById, verifyCurrentUserRole } from '@/lib/db/queries/users';
 import { orderSchema, isSizeAvailable } from '@/lib/validators';
 import { saveUploadedImage } from '@/lib/storage';
 import { logger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
 import { eq, and } from 'drizzle-orm';
+import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
 import {
   renderOrderConfirmationEmail,
@@ -582,6 +583,7 @@ export async function verifyReceiptAction(formData: FormData): Promise<void> {
         revalidatePath('/admin/orders');
         revalidatePath('/admin');
         revalidatePath('/portal');
+        revalidatePath('/orders');
       } catch (cacheErr: any) {
         logger.warn({ error: cacheErr?.message }, 'Cache revalidation warning');
       }
@@ -592,3 +594,166 @@ export async function verifyReceiptAction(formData: FormData): Promise<void> {
     logger.error({ error: err?.message || err }, 'Unhandled error in verifyReceiptAction');
   }
 }
+
+/**
+ * Server Action for Members to cancel an unpaid order (in PENDING_PAYMENT status).
+ */
+export async function cancelOrderAction(formData: FormData): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const profile = await getCurrentUserProfile();
+    if (!profile) {
+      return { success: false, error: 'You must be logged in to manage orders.' };
+    }
+
+    const orderId = formData.get('orderId') as string;
+    if (!orderId) {
+      return { success: false, error: 'Invalid order identifier.' };
+    }
+
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(and(eq(orders.id, orderId), eq(orders.userId, profile.id)))
+      .limit(1);
+
+    if (!order) {
+      return { success: false, error: 'Order not found or access denied.' };
+    }
+
+    if (order.status !== 'PENDING_PAYMENT') {
+      return {
+        success: false,
+        error: 'Only unpaid orders (Pending Payment) can be cancelled directly. Please contact an admin for assistance.',
+      };
+    }
+
+    await db
+      .update(orders)
+      .set({
+        status: 'CANCELLED',
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    logger.info({ orderId, userId: profile.id }, 'Order cancelled by member');
+
+    // Notify user of cancellation confirmation
+    await dispatchNotification({
+      userId: profile.id,
+      type: 'ORDER_STATUS',
+      title: `Order #${order.orderNumber} Cancelled`,
+      message: `Your merchandise order #${order.orderNumber} has been cancelled per your request.`,
+      linkUrl: '/orders',
+      metadata: { orderId: order.id, orderNumber: order.orderNumber, status: 'CANCELLED' },
+    });
+
+    invalidateCacheTag(CACHE_TAGS.adminMetrics);
+    revalidatePath('/orders');
+    revalidatePath('/portal');
+    revalidatePath('/admin/orders');
+
+    return { success: true, message: `Order #${order.orderNumber} was successfully cancelled.` };
+  } catch (error: any) {
+    logger.error({ error: error?.message }, 'Failed to cancel order');
+    return { success: false, error: error?.message || 'Failed to cancel order.' };
+  }
+}
+
+/**
+ * Server Action for Administrators to perform bulk order status transitions.
+ * Supports bulk payment acceptance, bulk in-transit/shipped updates, and bulk completion.
+ */
+export async function adminBulkUpdateOrderStatusAction(
+  orderIds: string[],
+  targetStatus: OrderStatus,
+  adminNotes?: string
+): Promise<{ success: boolean; count?: number; error?: string }> {
+  try {
+    const auth = await verifyCurrentUserRole(['ADMIN', 'SUPERADMIN']);
+    if (!auth.authorized || !auth.profile) {
+      return { success: false, error: 'Unauthorized. Admin access required.' };
+    }
+    const admin = auth.profile;
+
+    if (!orderIds || orderIds.length === 0) {
+      return { success: false, error: 'No orders selected for bulk operation.' };
+    }
+
+    let processedCount = 0;
+
+    for (const orderId of orderIds) {
+      // 1. Update Order status
+      const [order] = await db
+        .update(orders)
+        .set({
+          status: targetStatus,
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, orderId))
+        .returning();
+
+      if (!order) continue;
+      processedCount++;
+
+      // 2. If target is PAID, auto-approve any pending payment receipt
+      if (targetStatus === 'PAID') {
+        await db
+          .update(paymentReceipts)
+          .set({
+            verificationStatus: 'APPROVED',
+            verifiedById: admin.id,
+            verifiedAt: new Date(),
+            verificationNotes: adminNotes || 'Bulk payment verification by admin',
+          })
+          .where(eq(paymentReceipts.orderId, orderId));
+      }
+
+      // 3. Dispatch Notification to buyer
+      const buyer = await getUserProfileById(order.userId);
+      if (buyer) {
+        let statusTitle = `Order #${order.orderNumber} Status Update`;
+        let statusMessage = `Your order #${order.orderNumber} is now ${targetStatus.replace(/_/g, ' ')}.`;
+
+        if (targetStatus === 'PAID') {
+          statusTitle = `Payment Approved for #${order.orderNumber}! 💳`;
+          statusMessage = `Your payment of ₱${order.totalAmount} has been verified. We are preparing your items.`;
+        } else if (targetStatus === 'SHIPPED') {
+          statusTitle = `Order #${order.orderNumber} is In Transit / Shipped! 🚚`;
+          statusMessage = `Your order is on the way or prepared for camp distribution.`;
+        } else if (targetStatus === 'COMPLETED') {
+          statusTitle = `Order #${order.orderNumber} Completed! 🎉`;
+          statusMessage = `Your merchandise has been delivered/received. You can now leave a review!`;
+        }
+
+        await dispatchNotification({
+          userId: buyer.id,
+          type: 'ORDER_STATUS',
+          title: statusTitle,
+          message: statusMessage,
+          linkUrl: '/orders',
+          metadata: { orderId: order.id, orderNumber: order.orderNumber, status: targetStatus },
+        });
+      }
+    }
+
+    logger.info(
+      { adminId: admin.id, targetStatus, processedCount, totalSelected: orderIds.length },
+      'Admin bulk order status update completed'
+    );
+
+    invalidateCacheTag(CACHE_TAGS.adminMetrics);
+    revalidatePath('/admin/orders');
+    revalidatePath('/admin');
+    revalidatePath('/orders');
+    revalidatePath('/portal');
+
+    return {
+      success: true,
+      count: processedCount,
+    };
+  } catch (error: any) {
+    logger.error({ error: error?.message }, 'Failed in adminBulkUpdateOrderStatusAction');
+    return { success: false, error: error?.message || 'Bulk order update failed.' };
+  }
+}
+

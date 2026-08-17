@@ -180,15 +180,20 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
           </div>
 
           {/* 4. Description */}
-          <Textarea
-            label="Product Description & Material Specs"
-            name="description"
-            defaultValue={product.description}
-            placeholder="Describe the fabric quality, sizing details, inspiration..."
-            required
-            rows={4}
-            error={state?.fieldErrors?.description?.[0]}
-          />
+          <div className="space-y-1.5">
+            <Textarea
+              label="Product Description & Material Specs"
+              name="description"
+              defaultValue={product.description}
+              placeholder="Describe the fabric quality, sizing details, inspiration..."
+              required
+              rows={5}
+              error={state?.fieldErrors?.description?.[0]}
+            />
+            <p className="text-[10px] text-[#707666] dark:text-[#a3ab98]">
+              Markdown is supported. Use <strong>- bullet</strong> for lists, <strong>**bold**</strong> for emphasis, and double line breaks for paragraphs.
+            </p>
+          </div>
 
           {/* 5. Available Sizes */}
           <SizeSelector initialSizes={product.availableSizes || ['XS', 'S', 'M', 'L', 'XL', '2XL']} />

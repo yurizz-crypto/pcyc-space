@@ -29,7 +29,7 @@
 
 ## 📖 About
 
-**PCYC Space** is the canonical digital platform for the **Philippine Christadelphian Youth Circle**. It serves as the central hub where members across ecclesias in Manila, Cebu, Bukidnon, and beyond can connect, register for fellowship events, browse and order fundraising merchandise, and stay rooted in their shared faith.
+**PCYC Space** is the canonical digital platform for the **Philippine Christadelphian Youth Circle** — the only Christadelphian youth circle in the Philippines. It serves as the central hub where members across ecclesias in Manila, Cebu, Bukidnon, and beyond can connect, register for fellowship events, browse and order fundraising merchandise, and stay rooted in their shared faith.
 
 > *"Success means the site is the first place members check for PCYC updates and the first thing a curious visitor finds when looking for Christadelphian youth community in the Philippines."*
 
@@ -50,26 +50,39 @@
 - **About & History** — PCYC's story, mission statement, leadership team, and statement of faith
 - **Events Showcase** — Browse upcoming camps and gatherings with dates, locations, and registration details
 - **Merch Catalog** — Browse branded products with multi-image galleries, size variants, and live stock availability
+- **Product Reviews** — Verified buyer reviews with star ratings displayed on product detail pages
 
 ### 🔐 Authentication & Membership
 - **Supabase Auth** — Secure email/password authentication with session management
 - **Identity Designations** — Register as *Brother*, *Sister*, or *Friend* with optional baptism date and ecclesia affiliation
 - **Role-Based Access Control** — Granular permissions for Member, Admin, and Superadmin roles
 - **Protected Route Zones** — Middleware-enforced access control with zero-database JWT validation
+- **User Status Management** — Active, Suspended, and Anonymized account states
 
 ### 👤 Member Portal
 - **Personal Dashboard** — View profile, upcoming registrations, and notification feed
-- **Order History** — Track merchandise orders through the full lifecycle
+- **Order Hub** — Dedicated orders page with full lifecycle tracking and receipt management
 - **Receipt Upload** — Submit GCash/Maya/PalawanPay payment screenshots for admin verification
+- **Product Reviews** — Verified buyers can rate and review purchased products
+- **Account Settings** — Profile editor, password management, and appearance theme selector (Light / Dark / System)
 - **In-App Notifications** — Real-time updates on event registrations, order status, and payment verification
 
 ### 🛡️ Admin Dashboard
 - **Overview & Analytics** — Live metric cards for ecclesias, events, merch, pending receipts, and member count
+- **User Management** — Full CRUD for member accounts: search, edit, role assignment, status changes, and admin creation
 - **Events CRUD** — Create, edit, publish events with banner uploads and registration management
 - **Merch Management** — Full product lifecycle with size variants, stock tracking, and availability toggles
+- **Review Moderation** — Admin panel to review, approve, and hide product reviews
 - **Order Verification Queue** — Review uploaded payment receipts, approve/reject with notes, update shipping status
-- **Member Management** — View, search, and manage member roles and profiles
 - **Ecclesia Directory** — Maintain the Philippine ecclesia directory by region (Luzon, Visayas, Mindanao)
+- **Theme Settings** — Manage site-wide theme and display configuration
+
+### 🔒 Security & Privacy
+- **PII Masking** — Email and phone number masking with role-based reveal permissions
+- **Audit Logging** — Enterprise-grade audit trail tracking all admin actions (role changes, status updates, PII reveals, data mutations)
+- **Rate Limiting** — O(1) sliding-window rate limiter at the middleware level
+- **User Anonymization** — GDPR-aligned account anonymization for data privacy compliance
+- **Row Level Security** — Supabase RLS policies enforced at the database layer
 
 ### 💳 Zero-Fee Payment Flow
 ```
@@ -80,11 +93,13 @@ Buyer places order → Sends payment via GCash/Maya/PalawanPay
 > No payment gateway fees. Every peso goes to the community.
 
 ### 📧 Transactional Email
+- Powered by **Nodemailer** with Gmail SMTP (replaced Resend for unlimited sends)
 - Order confirmations with payment instructions
 - Receipt verification notifications (approved/rejected)
 - Event registration confirmations
 - Welcome emails for new members
 - Custom Supabase auth templates (verification, password reset)
+- Development simulation mode when SMTP credentials are absent
 
 ---
 
@@ -95,11 +110,14 @@ Buyer places order → Sends payment via GCash/Maya/PalawanPay
 | **Framework** | [Next.js 16.3](https://nextjs.org/) | App Router, Server Components, Server Actions |
 | **UI** | [React 19](https://react.dev/) | Component architecture with latest concurrent features |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Custom `@theme` design tokens with glassmorphism |
+| **Typography** | [@tailwindcss/typography](https://tailwindcss.com/docs/typography-plugin) | Rich prose styling for markdown content |
+| **Animation** | [Motion](https://motion.dev/) | Scroll reveals, interactive cards, and micro-interactions |
 | **Database** | [PostgreSQL](https://www.postgresql.org/) + [Drizzle ORM](https://orm.drizzle.team/) | Type-safe schema, relational queries, migrations |
 | **Auth & Storage** | [Supabase](https://supabase.com/) | Authentication, file storage, Row Level Security |
-| **Email** | [Resend](https://resend.com/) | Transactional email delivery with HTML templates |
+| **Email** | [Nodemailer](https://nodemailer.com/) + Gmail SMTP | Transactional email delivery with HTML templates |
+| **Markdown** | [react-markdown](https://github.com/remarkjs/react-markdown) + [remark-gfm](https://github.com/remarkjs/remark-gfm) | Rich text rendering with GitHub Flavored Markdown |
 | **Validation** | [Zod 4](https://zod.dev/) | Runtime schema validation for forms and environment |
-| **Icons** | [Lucide React](https://lucide.dev/) | Beautiful, consistent icon library |
+| **Icons** | [Lucide React](https://lucide.dev/) + [Phosphor Icons](https://phosphoricons.com/) | Beautiful, consistent dual icon libraries |
 | **Logging** | [Pino](https://getpino.io/) | Structured JSON logging with pretty-print dev mode |
 | **Testing** | [Playwright](https://playwright.dev/) + Node Test Runner | E2E, visual, and unit/integration tests |
 | **CI/CD** | [GitHub Actions](https://github.com/features/actions) | Automated typecheck and build verification |
@@ -118,12 +136,13 @@ PCYC Space uses a custom design system built on Tailwind CSS v4 with brand-align
 │   🟡 Warm Gold     #e0a861  ← Accent / Interactive  │
 │   ⬜ Cream         #fefcf1  ← Background / Light    │
 │                                                     │
-│   Typography:  Plus Jakarta Sans (body)             │
-│                Playfair Display (headings)           │
+│   Typography:  Outfit (body)                        │
+│                EB Garamond (headings)                │
 │                                                     │
 │   Effects:     Glassmorphism panels                  │
 │                Radial hero glow                      │
-│                Smooth card hover animations          │
+│                Motion-powered scroll reveals         │
+│                Interactive card hover animations     │
 │                Custom styled scrollbars              │
 │                                                     │
 └─────────────────────────────────────────────────────┘
@@ -143,36 +162,64 @@ pcyc-space/
 │   ├── 📂 about/                    # About PCYC & faith statement
 │   ├── 📂 events/                   # Event listing & [slug] detail pages
 │   ├── 📂 merch/                    # Merch catalog & [slug] product pages
+│   ├── 📂 orders/                   # Member order hub & receipt management
 │   ├── 📂 login/                    # Authentication
 │   ├── 📂 register/                 # Member registration
 │   ├── 📂 reset-password/           # Password recovery
-│   ├── 📂 portal/                   # Member dashboard & orders
-│   ├── 📂 admin/                    # Admin CMS (events, merch, orders, ecclesias)
-│   ├── 📂 actions/                  # Server Actions
+│   ├── 📂 portal/                   # Member dashboard
+│   ├── 📂 settings/                 # User settings
+│   ├── 📂 admin/                    # Admin CMS
+│   │   ├── 📂 ecclesias/            # Ecclesia directory management
+│   │   ├── 📂 events/               # Event CRUD & registrations
+│   │   ├── 📂 merch/                # Product management & reviews moderation
+│   │   ├── 📂 orders/               # Order verification queue
+│   │   ├── 📂 users/                # User management, creation, role editing
+│   │   └── 📂 settings/             # Site-wide settings
+│   ├── 📂 actions/                  # Server Actions (auth, events, merch, orders, reviews, admin-users)
 │   └── 📂 api/                      # API routes (uploads, webhooks, callbacks)
 │
 ├── 📂 components/
-│   ├── 📂 ui/                       # Primitives (Button, Card, Modal, Input, Badge…)
+│   ├── 📂 ui/                       # Primitives (Button, Card, Modal, Input, Badge, InteractiveCard, ScrollReveal…)
 │   ├── 📂 layout/                   # Navbar, Footer, MobileNav, PageHeader
 │   ├── 📂 molecules/                # Date badges, empty states, avatars, price tags
-│   ├── 📂 domain/                   # Feature components (auth, events, merch, orders…)
+│   ├── 📂 domain/                   # Feature components
+│   │   ├── 📂 auth/                 # Registration & login forms
+│   │   ├── 📂 ecclesias/            # Ecclesia directory display
+│   │   ├── 📂 events/               # Event cards & detail views
+│   │   ├── 📂 merch/                # Product cards & galleries
+│   │   ├── 📂 orders/               # Order cards & admin order details modal
+│   │   ├── 📂 reviews/              # Product review section & review modal
+│   │   ├── 📂 notifications/        # Notification bell & feed
+│   │   └── 📂 settings/             # User settings forms
 │   └── 📂 providers/                # Theme & Toast context providers
 │
 ├── 📂 lib/
 │   ├── 📂 db/                       # Drizzle schema, migrations, & query layer
-│   │   ├── 📂 schema/               # Tables: profiles, events, products, orders, ecclesias…
-│   │   └── 📂 queries/              # Type-safe data access functions
+│   │   ├── 📂 schema/               # Tables: profiles, events, products, orders, ecclesias,
+│   │   │                            #         reviews, audit_logs, notifications, settings
+│   │   └── 📂 queries/              # Type-safe data access (admin-metrics, cached, reviews, users…)
 │   ├── 📂 supabase/                 # Client factories (browser, server, middleware)
-│   ├── 📂 email/                    # Resend client & HTML email templates
-│   ├── 📂 security/                 # Rate limiter, zone classifier, auth guards
+│   ├── 📂 email/                    # Nodemailer SMTP client & HTML email templates
+│   ├── 📂 security/                 # Rate limiter, zone classifier, privacy (PII masking), auth guards
 │   ├── 📂 validators/               # Zod schemas for all domain entities
 │   ├── 📂 constants/                # App-wide constants
 │   ├── 📂 logger/                   # Pino structured logging
-│   ├── 📂 notifications/            # In-app notification system
+│   ├── 📂 notifications/            # In-app notification dispatcher
 │   └── 📄 storage.ts                # Supabase Storage helpers
 │
-├── 📂 scripts/                      # CLI utilities (seed, admin setup, diagnostics)
+├── 📂 scripts/                      # CLI utilities (26 scripts)
+│   ├── 📄 seed.ts                   # Populate DB with sample data
+│   ├── 📄 populate-1000-users.ts    # Generate 1,000 realistic test users
+│   ├── 📄 create-admin.ts           # Promote a user to admin role
+│   ├── 📄 migrate-reviews-and-normalization.ts  # Reviews migration
+│   ├── 📄 migrate-user-privacy-and-audit.ts     # Privacy & audit migration
+│   └── 📄 ...                       # RLS policies, indexes, diagnostics, verification suites
+│
 ├── 📂 tests/                        # Unit, integration & Playwright visual tests
+│   ├── 📄 admin-users-security.test.ts    # Admin user management security tests
+│   ├── 📄 reviews-and-bulk-orders.test.ts # Review system & bulk order tests
+│   └── 📄 ...                       # Auth, events, orders, notifications tests
+│
 ├── 📂 public/                       # Static assets
 ├── 📄 middleware.ts                  # Auth + rate limiting + zone routing
 ├── 📄 drizzle.config.ts             # Drizzle ORM configuration
@@ -189,7 +236,7 @@ pcyc-space/
 - **Node.js** ≥ 20
 - **npm** (included with Node)
 - A **Supabase** project ([create one free](https://supabase.com/dashboard))
-- A **Resend** API key ([get one free](https://resend.com/api-keys))
+- A **Gmail account** with [App Password](https://myaccount.google.com/apppasswords) for SMTP email
 
 ### 1. Clone & Install
 
@@ -208,6 +255,9 @@ cp .env.example .env.local
 Edit `.env.local` with your credentials:
 
 ```env
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
@@ -215,10 +265,13 @@ SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
 # Database (from Supabase → Settings → Database)
 DATABASE_URL="postgresql://postgres.[ref]:[pass]@...pooler.supabase.com:6543/postgres"
+DIRECT_URL="postgresql://postgres.[ref]:[pass]@...pooler.supabase.com:5432/postgres"
 
-# Email
-RESEND_API_KEY="re_your_api_key"
-EMAIL_FROM="PCYC Space <notifications@pcyc.ph>"
+# Email (Gmail SMTP)
+SMTP_USER="your.email@gmail.com"
+SMTP_PASSWORD="your-16-char-app-password"
+EMAIL_FROM="PCYC Space <notifications@yourdomain.com>"
+EMAIL_REPLY_TO="admin@yourdomain.com"
 ```
 
 ### 3. Set Up Database
@@ -260,7 +313,7 @@ PCYC Space is designed for **zero-cost deployment** on free tiers:
 |---|---|---|
 | **Vercel** | Hobby (Free) | Next.js hosting with edge functions |
 | **Supabase** | Free | Auth, PostgreSQL database, file storage |
-| **Resend** | Free (100/day) | Transactional email delivery |
+| **Gmail SMTP** | Free | Transactional email delivery via Nodemailer |
 
 ### Deploy to Vercel
 
@@ -283,6 +336,17 @@ npx playwright install    # First time only
 npx playwright test
 ```
 
+### Test Coverage
+
+| Suite | Scope |
+|---|---|
+| `admin-users-security.test.ts` | Admin user management & authorization |
+| `reviews-and-bulk-orders.test.ts` | Product review system & bulk order processing |
+| `auth-password.test.ts` | Password validation & hashing |
+| `events.test.ts` | Event queries & date calculations |
+| `notifications-emails.test.ts` | Notification dispatch & email templates |
+| `orders.test.ts` | Order totals, status transitions, receipt matching |
+
 ### CI Pipeline
 
 Every push and pull request to `main` triggers:
@@ -298,6 +362,7 @@ graph TB
     subgraph Client["🌐 Browser"]
         UI[React 19 Components]
         TW[Tailwind CSS v4]
+        MO[Motion Animations]
     end
 
     subgraph NextJS["⚡ Next.js 16.3 (Vercel)"]
@@ -311,7 +376,13 @@ graph TB
         SB_AUTH[Supabase Auth<br/>JWT Sessions]
         SB_STORAGE[Supabase Storage<br/>Receipts & Images]
         DB[(PostgreSQL<br/>Drizzle ORM)]
-        RESEND[Resend<br/>Email Service]
+        SMTP[Nodemailer<br/>Gmail SMTP]
+    end
+
+    subgraph Security["🔒 Security Layer"]
+        AUDIT[Audit Logs]
+        PII[PII Masking]
+        RLS[Row Level Security]
     end
 
     UI --> MW
@@ -320,17 +391,22 @@ graph TB
     SC --> DB
     SA --> DB
     SA --> SB_STORAGE
-    SA --> RESEND
+    SA --> SMTP
+    SA --> AUDIT
     API --> SB_AUTH
     UI -.->|Auth| SB_AUTH
+    DB --> RLS
+    SA --> PII
 
     classDef client fill:#fefcf1,stroke:#2c3324,color:#2c3324
     classDef server fill:#e0a861,stroke:#2c3324,color:#2c3324
     classDef backend fill:#2c3324,stroke:#e0a861,color:#fefcf1
+    classDef security fill:#3d4a32,stroke:#e0a861,color:#fefcf1
 
-    class UI,TW client
+    class UI,TW,MO client
     class MW,SC,SA,API server
-    class SB_AUTH,SB_STORAGE,DB,RESEND backend
+    class SB_AUTH,SB_STORAGE,DB,SMTP backend
+    class AUDIT,PII,RLS security
 ```
 
 ---
@@ -352,20 +428,27 @@ erDiagram
     profiles ||--o{ event_registrations : registers
     profiles ||--o{ orders : places
     profiles ||--o{ notifications : receives
+    profiles ||--o{ product_reviews : writes
+    profiles ||--o{ audit_logs : triggers
     events ||--o{ event_registrations : has
     products ||--o{ order_items : contains
+    products ||--o{ product_reviews : receives
     orders ||--o{ order_items : includes
     orders ||--o{ payment_receipts : has
+    orders ||--o{ product_reviews : enables
 
     profiles {
         uuid id PK
         string email
         string firstName
+        string middleName
         string lastName
         enum designation "BROTHER | SISTER | FRIEND"
         enum role "MEMBER | ADMIN | SUPERADMIN"
+        enum status "ACTIVE | SUSPENDED | ANONYMIZED"
         string ecclesia
         date baptismDate
+        boolean isAnonymized
     }
 
     events {
@@ -402,6 +485,25 @@ erDiagram
         string imageUrl
         enum method "GCASH | MAYA | PALAWAN_PAY"
         enum status "PENDING | APPROVED | REJECTED"
+    }
+
+    product_reviews {
+        uuid id PK
+        int rating "1 to 5 stars"
+        text comment
+        boolean isHidden
+        uuid orderId FK
+        uuid productId FK
+        uuid userId FK
+    }
+
+    audit_logs {
+        uuid id PK
+        uuid actorId FK
+        string action
+        string targetType
+        jsonb details
+        string ipAddress
     }
 ```
 

@@ -115,12 +115,12 @@ export function NavbarClient({
               )}
 
               <Link
-                href="/merch"
+                href="/orders"
                 className="relative p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#2c3324]/5 dark:hover:bg-white/5 transition-colors"
-                title="PCYC Merch Catalog"
+                title="My Orders & Purchases"
               >
                 <ShoppingBag className="h-5 w-5" />
-                <span className="sr-only">Merchandise</span>
+                <span className="sr-only">My Orders</span>
               </Link>
 
               <div className="h-5 w-px bg-[#e6dfcb] dark:bg-[#323d2b]" />
@@ -156,7 +156,7 @@ export function NavbarClient({
                   initialUnreadCount={initialUnreadCount}
                 />
               )}
-              <Link href="/merch" className="p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1]">
+              <Link href="/orders" className="p-2 rounded-xl text-[#2c3324] dark:text-[#fefcf1]" title="My Orders">
                 <ShoppingBag className="h-5 w-5" />
               </Link>
               <button

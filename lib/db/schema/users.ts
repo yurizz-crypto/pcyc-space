@@ -1,7 +1,8 @@
-import { pgTable, uuid, text, timestamp, date, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, date, pgEnum, index, boolean } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['MEMBER', 'ADMIN', 'SUPERADMIN']);
 export const userDesignationEnum = pgEnum('user_designation', ['BROTHER', 'SISTER', 'FRIEND']);
+export const userStatusEnum = pgEnum('user_status', ['ACTIVE', 'SUSPENDED', 'ANONYMIZED']);
 
 /**
  * User Profiles Table
@@ -21,16 +22,25 @@ export const profiles = pgTable(
     phoneNumber: text('phone_number'),
     avatarUrl: text('avatar_url'),
     role: userRoleEnum('role').notNull().default('MEMBER'),
+    status: userStatusEnum('status').notNull().default('ACTIVE'),
+    isAnonymized: boolean('is_anonymized').notNull().default(false),
+    lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index('idx_profiles_role').on(table.role),
+    index('idx_profiles_status').on(table.status),
     index('idx_profiles_ecclesia').on(table.ecclesia),
     index('idx_profiles_email').on(table.email),
     index('idx_profiles_designation').on(table.designation),
+    index('idx_profiles_created_at').on(table.createdAt),
   ]
 );
 
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
+export type UserRole = (typeof userRoleEnum.enumValues)[number];
+export type UserDesignation = (typeof userDesignationEnum.enumValues)[number];
+export type UserStatus = (typeof userStatusEnum.enumValues)[number];
+

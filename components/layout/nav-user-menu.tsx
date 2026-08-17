@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { UserAvatar } from '@/components/molecules/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { signOutAction } from '@/app/actions/auth';
-import { Shield, LayoutDashboard, LogOut, ChevronDown, User, Settings } from 'lucide-react';
+import { Shield, LayoutDashboard, LogOut, ChevronDown, User, Settings, ShoppingBag } from 'lucide-react';
 import type { Profile } from '@/lib/db/schema/users';
 
 export interface NavUserMenuProps {
@@ -114,6 +114,15 @@ export function NavUserMenu({ profile }: NavUserMenuProps) {
                 <span>Member Space & Portal</span>
               </Link>
             )}
+
+            <Link
+              href="/orders"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#2c3324] dark:text-[#fefcf1] hover:bg-[#f8f4e3] dark:hover:bg-[#242c1e] transition-colors"
+            >
+              <ShoppingBag className="h-4 w-4 text-[#e0a861]" />
+              <span>My Orders & Reviews</span>
+            </Link>
 
             <Link
               href="/settings"

@@ -279,3 +279,108 @@ export const youthCountSettingSchema = z.object({
     .min(1, 'Youth & Friends count cannot be less than 1'),
 });
 
+// ==========================================
+// ADMIN USER ACCESS & MANAGEMENT VALIDATORS
+// ==========================================
+
+export const adminCreateUserSchema = z
+  .object({
+    email: z.string().email('Please enter a valid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    firstName: z.string().min(1, 'First name is required'),
+    middleName: z.string().optional(),
+    lastName: z.string().min(1, 'Last name is required'),
+    designation: z.enum(['BROTHER', 'SISTER', 'FRIEND']),
+    ecclesia: z.string().optional(),
+    baptismDate: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    role: z.enum(['MEMBER', 'ADMIN', 'SUPERADMIN']).default('MEMBER'),
+  })
+  .refine(
+    (data) => {
+      if ((data.designation === 'BROTHER' || data.designation === 'SISTER') && !data.baptismDate) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Baptism date is required for Brothers and Sisters',
+      path: ['baptismDate'],
+    }
+  );
+
+export const adminUpdateUserSchema = z
+  .object({
+    userId: z.string().uuid('Invalid user ID'),
+    firstName: z.string().min(1, 'First name is required'),
+    middleName: z.string().optional(),
+    lastName: z.string().min(1, 'Last name is required'),
+    designation: z.enum(['BROTHER', 'SISTER', 'FRIEND']),
+    ecclesia: z.string().optional(),
+    baptismDate: z.string().optional(),
+    phoneNumber: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if ((data.designation === 'BROTHER' || data.designation === 'SISTER') && !data.baptismDate) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Baptism date is required for Brothers and Sisters',
+      path: ['baptismDate'],
+    }
+  );
+
+export const adminChangeRoleSchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  role: z.enum(['MEMBER', 'ADMIN', 'SUPERADMIN']),
+});
+
+export const adminToggleStatusSchema = z.object({
+  userId: z.string().uuid('Invalid user ID'),
+  status: z.enum(['ACTIVE', 'SUSPENDED', 'ANONYMIZED']),
+  reason: z.string().optional(),
+});
+
+// ==========================================
+// PRODUCT REVIEWS & RATING SCHEMAS
+// ==========================================
+
+export const productReviewSchema = z.object({
+  productId: z.string().uuid('Invalid product ID'),
+  orderId: z.string().uuid('Invalid order ID'),
+  rating: z.coerce.number().int().min(1, 'Rating must be at least 1 star').max(5, 'Rating cannot exceed 5 stars'),
+  comment: z
+    .string()
+    .min(5, 'Review comment must be at least 5 characters')
+    .max(1000, 'Review comment cannot exceed 1000 characters')
+    .trim(),
+});
+
+export const updateProductReviewSchema = z.object({
+  reviewId: z.string().uuid('Invalid review ID'),
+  rating: z.coerce.number().int().min(1, 'Rating must be at least 1 star').max(5, 'Rating cannot exceed 5 stars'),
+  comment: z
+    .string()
+    .min(5, 'Review comment must be at least 5 characters')
+    .max(1000, 'Review comment cannot exceed 1000 characters')
+    .trim(),
+});
+
+export const bulkOrderStatusSchema = z.object({
+  orderIds: z.array(z.string().uuid('Invalid order ID')).min(1, 'Please select at least one order'),
+  targetStatus: z.enum([
+    'PENDING_PAYMENT',
+    'VERIFICATION_QUEUED',
+    'PAID',
+    'PREPARING',
+    'SHIPPED',
+    'COMPLETED',
+    'CANCELLED',
+  ]),
+  adminNotes: z.string().optional(),
+});
+
+
