@@ -21,7 +21,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer active:scale-[0.98] select-none';
+      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 active:transition-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer active:scale-[0.97] select-none';
 
     const variants = {
       primary:
@@ -39,9 +39,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizes = {
-      sm: 'text-xs px-3.5 py-1.5 gap-1.5',
-      md: 'text-sm px-5 py-2.5 gap-2',
-      lg: 'text-base px-6 py-3.5 gap-2.5 font-semibold',
+      sm: 'text-xs px-3.5 py-1.5 gap-1.5 tracking-normal',
+      md: 'text-sm px-5 py-2.5 gap-2 tracking-tight',
+      lg: 'text-base px-6 py-3.5 gap-2.5 font-semibold tracking-tight',
       icon: 'p-2.5 rounded-xl aspect-square',
     };
 

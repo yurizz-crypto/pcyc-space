@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { motion, HTMLMotionProps } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { springs } from '@/lib/motion';
 
 interface InteractiveCardProps extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
@@ -40,8 +41,8 @@ export function InteractiveCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -4, transition: { duration: 0.2, ease: 'easeOut' } }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={{ y: -4, transition: springs.default }}
+      whileTap={{ scale: 0.98, transition: springs.tap.transition }}
       className={cn(
         'relative overflow-hidden rounded-3xl transition-shadow duration-300',
         className

@@ -22,63 +22,33 @@ const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
  * and guarantee rapid uploads over mobile or low-bandwidth connections.
  */
 async function compressImageClientSide(file: File, maxDimension = 1600, quality = 0.88): Promise<File> {
-  // If file is already small (< 500KB) and not huge, skip recompression
-  if (file.size <= 500 * 1024) {
+  if (file.size <= 500 * 1024) return file;
+
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = url;
+    });
+
+    const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    const type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, type, quality));
+    return blob && blob.size < file.size ? new File([blob], file.name, { type, lastModified: Date.now() }) : file;
+  } catch {
     return file;
+  } finally {
+    URL.revokeObjectURL(url);
   }
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        let { width, height } = img;
-
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(file); // Fallback to original
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        canvas.toBlob(
-          (blob) => {
-            if (blob && blob.size < file.size) {
-              const compressedFile = new File([blob], file.name, {
-                type: outputType,
-                lastModified: Date.now(),
-              });
-              resolve(compressedFile);
-            } else {
-              resolve(file);
-            }
-          },
-          outputType,
-          quality
-        );
-      };
-      img.onerror = () => resolve(file);
-      img.src = event.target?.result as string;
-    };
-    reader.onerror = () => resolve(file);
-    reader.readAsDataURL(file);
-  });
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({

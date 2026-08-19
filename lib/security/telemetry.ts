@@ -13,29 +13,10 @@ export interface SecurityEvent {
 }
 
 /**
- * Non-blocking, asynchronous security logger.
- * Dispatches structured telemetry logs out-of-band so request-response latency is 0ms.
+ * Dispatches structured security telemetry logs.
  */
 export function logSecurityEventNonBlocking(event: SecurityEvent): void {
-  // Use queueMicrotask / Promise.resolve to detach from current execution loop
-  queueMicrotask(() => {
-    try {
-      const payload = {
-        timestamp: new Date().toISOString(),
-        security: true,
-        ...event,
-      };
-
-      if (event.statusCode === 429) {
-        logger.warn(payload, `[SECURITY 429] Rate limit triggered for IP ${event.clientIp} on ${event.path}`);
-      } else if (event.statusCode === 401 || event.statusCode === 403) {
-        logger.warn(payload, `[SECURITY ${event.statusCode}] ${event.eventType} on ${event.path}`);
-      } else {
-        logger.info(payload, `[SECURITY] ${event.eventType} on ${event.path}`);
-      }
-    } catch (err) {
-      // Telemetry failure must NEVER crash or block request handling
-      console.error('[TELEMETRY_ERROR]', err);
-    }
-  });
+  const level = event.statusCode === 429 || event.statusCode === 401 || event.statusCode === 403 ? 'warn' : 'info';
+  logger[level]({ security: true, ...event }, `[SECURITY ${event.statusCode}] ${event.eventType} on ${event.path}`);
 }
+

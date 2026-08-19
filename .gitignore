@@ -46,7 +46,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# impeccable skill (third-party design tooling — install per-developer)
-.agents/skills/impeccable/
-.github/skills/
-.impeccable/
+.agents/
+agent/
+.claude/
+.github/
+.codex/

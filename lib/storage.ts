@@ -18,43 +18,10 @@ export interface SaveImageResult {
  * Prevents executable or malicious payload uploads disguising as image extensions.
  */
 export function validateImageMagicBytes(buffer: Buffer): { valid: boolean; detectedType?: 'png' | 'jpeg' | 'webp' } {
-  if (!buffer || buffer.length < 12) {
-    return { valid: false };
-  }
-
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (
-    buffer[0] === 0x89 &&
-    buffer[1] === 0x50 &&
-    buffer[2] === 0x4e &&
-    buffer[3] === 0x47 &&
-    buffer[4] === 0x0d &&
-    buffer[5] === 0x0a &&
-    buffer[6] === 0x1a &&
-    buffer[7] === 0x0a
-  ) {
-    return { valid: true, detectedType: 'png' };
-  }
-
-  // JPEG / JPG: FF D8 FF
-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-    return { valid: true, detectedType: 'jpeg' };
-  }
-
-  // WebP: RIFF (bytes 0-3) ... WEBP (bytes 8-11)
-  if (
-    buffer[0] === 0x52 &&
-    buffer[1] === 0x49 &&
-    buffer[2] === 0x46 &&
-    buffer[3] === 0x46 &&
-    buffer[8] === 0x57 &&
-    buffer[9] === 0x45 &&
-    buffer[10] === 0x42 &&
-    buffer[11] === 0x50
-  ) {
-    return { valid: true, detectedType: 'webp' };
-  }
-
+  if (!buffer || buffer.length < 12) return { valid: false };
+  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return { valid: true, detectedType: 'png' };
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return { valid: true, detectedType: 'jpeg' };
+  if (buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP') return { valid: true, detectedType: 'webp' };
   return { valid: false };
 }
 

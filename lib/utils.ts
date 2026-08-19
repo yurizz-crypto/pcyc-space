@@ -79,29 +79,16 @@ export function formatEventSchedule(startDate: Date | string, endDate: Date | st
  * Helper for HTML date inputs (YYYY-MM-DD)
  */
 export function formatDateForDateInput(d: Date | string): string {
-  try {
-    const dateObj = typeof d === 'string' ? new Date(d) : d;
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  } catch {
-    return '';
-  }
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-CA');
 }
 
 /**
  * Helper for HTML time inputs (HH:mm)
  */
 export function formatTimeForTimeInput(d: Date | string): string {
-  try {
-    const dateObj = typeof d === 'string' ? new Date(d) : d;
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-  } catch {
-    return '08:00';
-  }
+  const date = typeof d === 'string' ? new Date(d) : d;
+  return isNaN(date.getTime()) ? '08:00' : date.toTimeString().slice(0, 5);
 }
 
 /**
@@ -109,24 +96,11 @@ export function formatTimeForTimeInput(d: Date | string): string {
  */
 export function formatTimeAgo(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return 'just now';
-  }
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`;
-  }
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
-  }
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return `${diffInDays}d ago`;
-  }
+  const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (sec < 60) return 'just now';
+  if (sec < 3600) return `${Math.floor(sec / 60)}m ago`;
+  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`;
+  if (sec < 2592000) return `${Math.floor(sec / 86400)}d ago`;
   return formatDateOnly(d);
 }
 

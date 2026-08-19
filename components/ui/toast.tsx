@@ -1,7 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence, PanInfo } from 'motion/react';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { toastVariants } from '@/lib/motion';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -71,9 +73,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         aria-live="polite"
         className="fixed bottom-5 right-5 z-[9999] flex max-w-sm w-full flex-col gap-2.5 pointer-events-none p-4"
       >
-        {toasts.map((toast) => (
-          <ToastCard key={toast.id} toast={toast} onDismiss={() => removeToast(toast.id)} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast) => (
+            <ToastCard key={toast.id} toast={toast} onDismiss={() => removeToast(toast.id)} />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );
@@ -86,6 +90,13 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
     }, toast.duration || 5000);
     return () => clearTimeout(timer);
   }, [toast.duration, onDismiss]);
+
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    // Swipe to dismiss if dragged far right or with high velocity
+    if (info.offset.x > 80 || info.velocity.x > 400) {
+      onDismiss();
+    }
+  };
 
   const getIcon = () => {
     switch (toast.type) {
@@ -114,14 +125,23 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
   };
 
   return (
-    <div
+    <motion.div
+      layout
+      variants={toastVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      drag="x"
+      dragConstraints={{ left: 0, right: 200 }}
+      dragElastic={0.4}
+      onDragEnd={handleDragEnd}
       role="alert"
-      className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 ${getBorderColor()}`}
+      className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl backdrop-blur-md cursor-grab active:cursor-grabbing select-none ${getBorderColor()}`}
     >
       {getIcon()}
       <div className="flex-1 min-w-0">
         {toast.title && (
-          <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+          <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-tight tracking-tight">
             {toast.title}
           </h4>
         )}
@@ -137,6 +157,6 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
       >
         <X className="h-4 w-4" />
       </button>
-    </div>
+    </motion.div>
   );
 }
