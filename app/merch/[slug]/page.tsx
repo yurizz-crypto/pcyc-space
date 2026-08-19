@@ -46,6 +46,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     getCachedProductReviews(product.id),
   ]);
 
+  const isAdmin = profile?.role === 'ADMIN' || profile?.role === 'SUPERADMIN';
+  if (!product.isAvailable && !isAdmin) {
+    notFound();
+  }
+
   const primaryImage =
     product.imageUrls && product.imageUrls.length > 0
       ? product.imageUrls[0]

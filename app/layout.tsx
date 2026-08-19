@@ -5,7 +5,6 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 
 
 const sansFont = Outfit({
@@ -132,7 +131,6 @@ export default async function RootLayout({
             <Footer />
           </ToastProvider>
         </ThemeProvider>
-        <SpeedInsights />
       </body>
     </html>
   );

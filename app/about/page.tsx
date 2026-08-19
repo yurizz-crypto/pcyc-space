@@ -7,6 +7,8 @@ import { BookOpen, Heart, Users, ShieldCheck } from '@phosphor-icons/react/dist/
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal';
 import { InteractiveCard } from '@/components/ui/interactive-card';
 
+import { HeroGlow } from '@/components/ui/hero-glow';
+
 export const metadata = {
   title: 'About PCYC & History',
   description:
@@ -20,7 +22,7 @@ export default async function AboutPage() {
     <div className="flex flex-col w-full">
       {/* 1. CUSTOM EDITORIAL HERO */}
       <section className="relative overflow-hidden bg-[#2c3324] text-[#fefcf1] py-24 sm:py-32 lg:py-40">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#e0a861]/15 via-transparent to-transparent pointer-events-none" />
+        <HeroGlow />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ScrollReveal className="max-w-4xl space-y-8">
             <span className="font-bold text-[#e0a861] uppercase tracking-widest text-sm sm:text-base border-b border-[#e0a861]/30 pb-2">

@@ -4,6 +4,8 @@ import { getCachedAvailableProducts } from '@/lib/db/queries/cached';
 import { QrCode, Sparkle, WarningCircle, Clock } from '@phosphor-icons/react/dist/ssr';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
+import { HeroGlow } from '@/components/ui/hero-glow';
+
 export const metadata = {
   title: 'PCYC Merchandise & Apparel',
   description:
@@ -33,8 +35,9 @@ export default async function MerchPage() {
       </div>
 
       {/* Boutique E-Commerce Header */}
-      <section className="bg-[#f8f4e3] dark:bg-[#1b2117] py-24 sm:py-32 border-b border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-[#f8f4e3] dark:bg-[#1b2117] py-24 sm:py-32 border-b border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden">
+        <HeroGlow />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <ScrollReveal className="space-y-6">
               <span className="font-bold text-[#e0a861] uppercase tracking-widest text-sm sm:text-base">

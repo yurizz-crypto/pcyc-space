@@ -127,10 +127,10 @@ export async function createOrderAction(
       };
     }
 
-    if (!targetProduct.isAvailable && !targetProduct.isPreorder) {
+    if (!targetProduct.isAvailable) {
       return {
         success: false,
-        error: 'This item is currently unavailable.',
+        error: 'This item is currently unavailable or hidden from the store.',
       };
     }
 

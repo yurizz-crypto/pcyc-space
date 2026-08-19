@@ -4,6 +4,8 @@ import { getCachedPublishedEvents } from '@/lib/db/queries/cached';
 import { WarningCircle, Clock } from '@phosphor-icons/react/dist/ssr';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
+import { HeroGlow } from '@/components/ui/hero-glow';
+
 export const metadata = {
   title: 'PCYC Events & Youth Gatherings',
   description:
@@ -34,7 +36,7 @@ export default async function EventsPage() {
 
       {/* Bold Invitation Header */}
       <section className="bg-[#2c3324] text-[#fefcf1] py-24 sm:py-32 border-b border-[#3d4632] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-[#e0a861]/20 via-transparent to-transparent pointer-events-none" />
+        <HeroGlow />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ScrollReveal className="max-w-3xl space-y-6">
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">

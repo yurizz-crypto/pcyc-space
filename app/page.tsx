@@ -24,6 +24,9 @@ import {
   getCachedYouthAndFriendsCount,
 } from '@/lib/db/queries/cached';
 
+import { HeroGlow } from '@/components/ui/hero-glow';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+
 export const metadata = {
   title: 'PCYC Space — Philippine Christadelphian Youth Circle',
   description:
@@ -44,7 +47,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col w-full">
       {/* TESTING PHASE ANNOUNCEMENT BANNER */}
-      <div className="w-full bg-[#fbf1e2] dark:bg-[#2b2315] border-b border-[#e0a861]/40 text-[#422e1b] dark:text-[#f0be7c] py-3.5 px-4 sm:px-6 lg:px-8">
+      <div className="w-full bg-[#fbf1e2] dark:bg-[#2b2315] border-b border-[#e0a861]/40 text-[#422e1b] dark:text-[#f0be7c] py-3.5 px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-[#e0a861]/20 dark:bg-[#e0a861]/15 flex items-center justify-center shrink-0 text-[#9a6423] dark:text-[#f0be7c]">
@@ -69,13 +72,19 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* 1. HERO SECTION (Asymmetric Split) */}
+      {/* 1. HERO SECTION (Asymmetric Split with Dynamic Atmospheric Glow) */}
       <section className="relative overflow-hidden bg-[#fefcf1] dark:bg-[#131710] py-20 sm:py-28 lg:py-36">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <HeroGlow />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
             {/* Left Content */}
             <div className="lg:col-span-6 space-y-8 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e0a861]/15 border border-[#e0a861]/30 text-xs font-bold text-[#9a6423] dark:text-[#f0be7c]">
+                <Sparkle weight="fill" className="h-3.5 w-3.5" />
+                <span>Philippine Christadelphian Youth Ministry</span>
+              </div>
+
               <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-[#2c3324] dark:text-[#fefcf1] leading-[1.05]">
                 United in Faith.<br />
                 <span className="text-[#e0a861] italic">Growing</span> in Christ.
@@ -87,7 +96,7 @@ export default async function HomePage() {
 
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <Link href="/events" className="w-full sm:w-auto">
-                  <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 bg-[#2c3324] hover:bg-[#3d4632] text-white dark:bg-[#e0a861] dark:hover:bg-[#ca914a] dark:text-[#131710]">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 bg-[#2c3324] hover:bg-[#3d4632] text-white dark:bg-[#e0a861] dark:hover:bg-[#ca914a] dark:text-[#131710] shadow-md hover:shadow-lg transition-all">
                     <Calendar weight="bold" className="h-5 w-5" />
                     <span>Explore Youth Camps</span>
                   </Button>
@@ -107,10 +116,10 @@ export default async function HomePage() {
 
             {/* Right Hero Visual Showcase */}
             <div className="lg:col-span-6 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-lg aspect-[4/5] rounded-3xl overflow-hidden bg-[#2c3324] p-8 flex flex-col items-center justify-center text-center group shadow-2xl">
+              <div className="relative w-full max-w-lg aspect-[4/5] rounded-3xl overflow-hidden bg-radial from-[#38432e] to-[#20271b] border border-[#445037] p-8 flex flex-col items-center justify-center text-center group shadow-2xl">
                 {/* Background Atmospheric Lighting */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#e0a861]/20 via-transparent to-transparent pointer-events-none" />
-                <div className="relative h-64 w-64 transition-transform duration-700 ease-out group-hover:scale-105">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#e0a861]/25 via-transparent to-transparent pointer-events-none" />
+                <div className="relative h-64 w-64 transition-transform duration-700 ease-out group-hover:scale-108">
                   <Image
                     src="/images/logo/pcyc-transparent-logo.png"
                     alt="PCYC Emblem"
@@ -125,24 +134,26 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* STATS SECTION (Moved out of hero) */}
-      <section className="bg-[#2c3324] text-[#fefcf1] py-10 border-y border-[#3d4632]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* STATS SECTION (Animated Counter Numbers) */}
+      <section className="bg-[#2c3324] text-[#fefcf1] py-12 border-y border-[#3d4632] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-[#3d4632]">
             <StaggerItem className="pt-8 md:pt-0">
-              <div className="font-serif font-semibold text-4xl text-[#e0a861] mb-2">
-                {ecclesiaCount > 0 ? `${ecclesiaCount}+` : '0'}
+              <div className="font-serif font-semibold text-4xl sm:text-5xl text-[#e0a861] mb-2">
+                <AnimatedCounter value={ecclesiaCount} suffix="+" />
               </div>
               <div className="text-sm font-medium tracking-wide text-[#f8f4e3]/70 uppercase">Philippine Ecclesias</div>
             </StaggerItem>
             <StaggerItem className="pt-8 md:pt-0">
-              <div className="font-serif font-semibold text-4xl text-[#e0a861] mb-2">
-                {youthCount}+
+              <div className="font-serif font-semibold text-4xl sm:text-5xl text-[#e0a861] mb-2">
+                <AnimatedCounter value={youthCount} suffix="+" />
               </div>
               <div className="text-sm font-medium tracking-wide text-[#f8f4e3]/70 uppercase">Youth & Friends</div>
             </StaggerItem>
             <StaggerItem className="pt-8 md:pt-0">
-              <div className="font-serif font-semibold text-4xl text-[#e0a861] mb-2">100%</div>
+              <div className="font-serif font-semibold text-4xl sm:text-5xl text-[#e0a861] mb-2">
+                <AnimatedCounter value={100} suffix="%" />
+              </div>
               <div className="text-sm font-medium tracking-wide text-[#f8f4e3]/70 uppercase">Scripture-Rooted</div>
             </StaggerItem>
           </StaggerContainer>

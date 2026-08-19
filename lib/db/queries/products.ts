@@ -11,7 +11,7 @@ import { logger } from '@/lib/logger';
  */
 export const getAvailableProducts = cache(async function getAvailableProducts(category?: string): Promise<Product[]> {
   try {
-    const isStoreVisible = or(eq(products.isAvailable, true), eq(products.isPreorder, true));
+    const isStoreVisible = eq(products.isAvailable, true);
 
     if (category && category !== 'All') {
       return await db

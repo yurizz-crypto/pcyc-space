@@ -15,16 +15,27 @@ interface PrintAttendeesViewProps {
 
 export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps) {
   const [filterMode, setFilterMode] = useState<'ALL' | 'PAID' | 'UNPAID'>('ALL');
+  const [selectedEcclesia, setSelectedEcclesia] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   const feeNum = Number(event.registrationFee || 0);
 
-  // Filter list
+  // Extract unique sorted ecclesias from attendees
+  const distinctEcclesias = Array.from(
+    new Set(attendees.map((a) => (a.profile.ecclesia || 'Unspecified').trim()).filter(Boolean))
+  ).sort();
+
+  // Filter list by Payment Status, Ecclesia, and Search Query
   const filteredAttendees = attendees.filter(({ registration: reg, profile }) => {
     const isPaid = reg.status === 'CONFIRMED' || reg.paymentOption === 'FREE';
 
     if (filterMode === 'PAID' && !isPaid) return false;
     if (filterMode === 'UNPAID' && isPaid) return false;
+
+    if (selectedEcclesia !== 'ALL') {
+      const userEcc = (profile.ecclesia || 'Unspecified').trim();
+      if (userEcc !== selectedEcclesia) return false;
+    }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -38,12 +49,13 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
     return true;
   });
 
-  // Calculate statistics
+  // Calculate statistics based on current active ecclesia filter
   const totalCount = attendees.length;
-  const paidCount = attendees.filter(
+  const filteredTotalCount = filteredAttendees.length;
+  const paidCount = filteredAttendees.filter(
     (a) => a.registration.status === 'CONFIRMED' || a.registration.paymentOption === 'FREE'
   ).length;
-  const unpaidCount = totalCount - paidCount;
+  const unpaidCount = filteredTotalCount - paidCount;
 
   const totalCollected = paidCount * feeNum;
   const totalToCollect = unpaidCount * feeNum;
@@ -140,9 +152,9 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
           </div>
         </div>
 
-        {/* Filter Pills & Search */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
+        {/* Filter Pills, Ecclesia Dropdown & Search */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setFilterMode('ALL')}
@@ -152,7 +164,7 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                   : 'bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f]'
               }`}
             >
-              📋 All Registered Attendees ({totalCount})
+              📋 All ({filteredTotalCount})
             </button>
 
             <button
@@ -164,7 +176,7 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                   : 'bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f]'
               }`}
             >
-              💳 Verified Paid / Free ({paidCount})
+              💳 Paid Online / Free ({paidCount})
             </button>
 
             <button
@@ -176,19 +188,45 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                   : 'bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#252e1f]'
               }`}
             >
-              🏢 Venue Desk Collection / Unpaid ({unpaidCount})
+              🏢 Venue Collection ({unpaidCount})
             </button>
           </div>
 
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
-            <input
-              type="text"
-              placeholder="Filter by name or ecclesia..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
-            />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {/* Ecclesia Filter Dropdown */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="ecclesia-filter" className="text-xs font-semibold text-[#505748] dark:text-[#a3ab98] whitespace-nowrap">
+                Ecclesia:
+              </label>
+              <select
+                id="ecclesia-filter"
+                value={selectedEcclesia}
+                onChange={(e) => setSelectedEcclesia(e.target.value)}
+                className="text-xs py-1.5 px-3 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] dark:text-[#fefcf1] font-semibold focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861] cursor-pointer"
+              >
+                <option value="ALL">All Ecclesias ({totalCount})</option>
+                {distinctEcclesias.map((ecc) => {
+                  const count = attendees.filter((a) => (a.profile.ecclesia || 'Unspecified').trim() === ecc).length;
+                  return (
+                    <option key={ecc} value={ecc}>
+                      {ecc} ({count})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Name/Email Search */}
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#707666] dark:text-[#a3ab98]" />
+              <input
+                type="text"
+                placeholder="Search name, ref..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] dark:text-[#fefcf1] focus:outline-none focus:ring-1 focus:ring-[#2c3324] dark:focus:ring-[#e0a861]"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -214,6 +252,11 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
             <div className="text-right text-xs text-[#707666] dark:text-[#a3ab98] print:text-black font-mono">
               <span className="block font-bold text-[#2c3324] dark:text-[#fefcf1] print:text-black">REGISTRATION DESK MANIFEST</span>
               <span>Generated: {new Date().toLocaleDateString('en-PH', { dateStyle: 'medium' })}</span>
+              {selectedEcclesia !== 'ALL' && (
+                <span className="block font-bold text-[#9a6423] print:text-black uppercase text-[10px] mt-0.5">
+                  Filter: {selectedEcclesia}
+                </span>
+              )}
             </div>
           </div>
 
@@ -232,15 +275,23 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
               <span>
                 Standard Fee: <strong>{feeNum === 0 ? 'Free Admission' : formatPHP(feeNum)}</strong>
               </span>
+              {selectedEcclesia !== 'ALL' && (
+                <>
+                  <span>&bull;</span>
+                  <span className="font-bold text-[#2c3324] dark:text-[#e0a861] print:text-black uppercase">
+                    Ecclesia: {selectedEcclesia}
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Quick Metrics Bar */}
             <div className="flex items-center gap-3 font-semibold text-xs">
               <span className="px-2 py-0.5 rounded bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#fefcf1] print:bg-gray-100 print:text-black print:border-black">
-                Total: <strong>{filteredAttendees.length}</strong>
+                Attendees: <strong>{filteredAttendees.length}</strong>
               </span>
               <span className="px-2 py-0.5 rounded bg-[#e8f5e9] dark:bg-[#1f3a23] border border-[#c8e6c9] dark:border-[#2e7d32]/40 text-[#2e7d32] dark:text-[#81c784] print:bg-gray-100 print:text-black print:border-black">
-                Paid/Verified: <strong>{paidCount}</strong> ({formatCurrency(totalCollected)})
+                Paid: <strong>{paidCount}</strong> ({formatCurrency(totalCollected)})
               </span>
               {unpaidCount > 0 && (
                 <span className="px-2 py-0.5 rounded bg-[#fff8e1] dark:bg-[#3d2e08] border border-[#ffe082] dark:border-[#b78103]/40 text-[#b78103] dark:text-[#ffd54f] print:bg-gray-100 print:text-black print:border-black">
@@ -265,8 +316,8 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                 <th className="py-2 px-2 border-r border-gray-200 print:border-black">Attendee Name & Designation</th>
                 <th className="py-2 px-2 border-r border-gray-200 print:border-black">Ecclesia & Contact</th>
                 <th className="py-2 px-2 border-r border-gray-200 print:border-black">Payment Option</th>
-                <th className="py-2 px-2 text-center border-r border-gray-200 print:border-black">Status</th>
-                <th className="py-2 px-2 text-right border-r border-gray-200 print:border-black">Fee</th>
+                <th className="py-2 px-2 text-center border-r border-gray-200 print:border-black">Payment Status</th>
+                <th className="py-2 px-2 text-right border-r border-gray-200 print:border-black">Fee Due</th>
                 <th className="py-2 px-2">Dietary / Notes</th>
               </tr>
             </thead>
@@ -321,22 +372,32 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                         {isFree ? 'FREE' : isGcash ? 'GCash' : 'Venue Desk'}
                       </div>
                       {reg.referenceNumber && (
-                        <div className="text-[9px] text-[#2e7d32] dark:text-[#81c784] print:text-black font-bold">
+                        <div className="text-[9px] text-[#2e7d32] dark:text-[#81c784] print:text-black font-bold truncate max-w-[100px]">
                           Ref: {reg.referenceNumber}
                         </div>
                       )}
                     </td>
 
-                    {/* Payment Status */}
+                    {/* Payment Status / Checkbox on Print */}
                     <td className="py-2.5 px-2 text-center align-middle whitespace-nowrap border-r border-gray-100 print:border-gray-300">
                       {isPaid ? (
                         <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#e8f5e9] dark:bg-[#1f3a23] text-[#2e7d32] dark:text-[#81c784] border border-[#c8e6c9] dark:border-[#2e7d32]/40 print:border-black print:text-black print:bg-transparent">
                           ✓ PAID
                         </span>
                       ) : (
-                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#fff8e1] dark:bg-[#3d2e08] text-[#b78103] dark:text-[#ffd54f] border border-[#ffe082] dark:border-[#b78103]/40 print:border-black print:text-black print:bg-transparent">
-                          ⚠ COLLECT
-                        </span>
+                        <div>
+                          {/* Screen UI Badge */}
+                          <span className="print:hidden inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#fff8e1] dark:bg-[#3d2e08] text-[#b78103] dark:text-[#ffd54f] border border-[#ffe082] dark:border-[#b78103]/40">
+                            ⚠ Pay in Venue (Unpaid)
+                          </span>
+                          {/* Print Checkbox for On-Site Check-in */}
+                          <div className="hidden print:flex items-center justify-center gap-1.5 text-black">
+                            <span className="h-3.5 w-3.5 border-2 border-black inline-block rounded-xs shrink-0" />
+                            <span className="text-[8.5px] font-bold font-mono">
+                              [ ] COLLECT {feeNum > 0 ? formatPHP(feeNum) : ''}
+                            </span>
+                          </div>
+                        </div>
                       )}
                     </td>
 
