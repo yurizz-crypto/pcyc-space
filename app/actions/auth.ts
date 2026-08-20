@@ -110,10 +110,17 @@ export async function registerAction(
   let authData, authError;
   try {
     const supabase = await createServerSupabaseClient();
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://pcyc-space.vercel.app'
+        : 'http://localhost:3000');
+
     const result = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
+        emailRedirectTo: `${appUrl}/api/auth/callback?type=signup`,
         data: {
           first_name: parsed.data.firstName,
           last_name: parsed.data.lastName,
