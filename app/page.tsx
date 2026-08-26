@@ -293,8 +293,8 @@ export default async function HomePage() {
                     <span className="text-xs text-[#e0a861] font-bold block pt-1">— 1 Timothy 4:12</span>
                   </div>
                 </div>
-                <Link href="/about" className="shrink-0">
-                  <Button variant="outline" size="sm" className="rounded-full border-white/30 text-[#fefcf1] hover:bg-white/10 hover:text-white px-5">
+                <Link href="/about" className="shrink-0 w-full sm:w-auto flex justify-center sm:justify-end pt-2 sm:pt-0">
+                  <Button variant="outline" size="sm" className="rounded-full border-white/30 text-[#fefcf1] hover:bg-white/10 hover:text-white px-6 py-2">
                     <span>Learn About Our Faith</span>
                   </Button>
                 </Link>
