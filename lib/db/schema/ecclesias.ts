@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, integer, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, integer, index, unique } from 'drizzle-orm/pg-core';
 
 /**
  * Philippine Ecclesias Table
@@ -22,6 +22,7 @@ export const ecclesias = pgTable(
   (table) => [
     index('idx_ecclesias_display_region').on(table.isDisplayed, table.region),
     index('idx_ecclesias_order_index').on(table.orderIndex),
+    unique('uq_ecclesia_name_region').on(table.name, table.region),
   ]
 );
 
