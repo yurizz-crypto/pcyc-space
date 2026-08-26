@@ -13,8 +13,12 @@ import {
   Clock,
   UserCheck,
   X,
+  Copy,
+  Check,
+  ArrowSquareOut,
 } from '@phosphor-icons/react/dist/ssr';
 import { motion, AnimatePresence } from 'motion/react';
+import { InteractiveCard } from '@/components/ui/interactive-card';
 
 interface AboutEcclesiasDirectoryProps {
   ecclesias: Ecclesia[];
@@ -55,6 +59,13 @@ const REGIONS: {
 export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryProps) {
   const [selectedRegion, setSelectedRegion] = useState<RegionKey>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   // Calculate counts per region
   const counts = useMemo(() => {
@@ -184,7 +195,7 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search city, name, or area..."
+            placeholder="Search city, name, or address..."
             className="w-full pl-10 pr-9 py-2.5 text-xs bg-[#fefcf1] dark:bg-[#131710] border border-[#e6dfcb] dark:border-[#323d2b] rounded-2xl text-[#2c3324] dark:text-[#fefcf1] placeholder-[#707666] dark:placeholder-[#8a9180] focus:outline-none focus:border-[#e0a861] focus:ring-2 focus:ring-[#e0a861]/20 transition-all"
           />
           {searchQuery && (
@@ -271,11 +282,10 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
                         initial={{ opacity: 0, scale: 0.96 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.96 }}
-                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
                         className="h-full"
                       >
-                        <Card className="group h-full flex flex-col justify-between hover:shadow-xl hover:border-[#e0a861]/60 transition-all duration-300 bg-white dark:bg-[#1b2117] rounded-3xl border-[#e6dfcb] dark:border-[#323d2b]">
-                          <CardHeader className="space-y-3 pb-4">
+                        <InteractiveCard className="group h-full flex flex-col justify-between hover:shadow-2xl hover:border-[#e0a861]/60 transition-all duration-300 bg-white dark:bg-[#1b2117] rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] p-6 sm:p-7">
+                          <div className="space-y-4">
                             <div className="flex items-center justify-between gap-2">
                               <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-[#f8f4e3] dark:bg-[#252e1f] text-[#9a6423] dark:text-[#f0be7c] border border-[#e6dfcb] dark:border-[#323d2b]">
                                 {ecc.city || ecc.region}
@@ -284,43 +294,77 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
                                 {ecc.region}
                               </span>
                             </div>
-                            <CardTitle className="font-serif text-2xl text-[#2c3324] dark:text-[#fefcf1] leading-snug group-hover:text-[#9a6423] dark:group-hover:text-[#e0a861] transition-colors">
+                            <h4 className="font-serif text-2xl text-[#2c3324] dark:text-[#fefcf1] leading-snug group-hover:text-[#9a6423] dark:group-hover:text-[#e0a861] transition-colors">
                               {ecc.name}
-                            </CardTitle>
-                          </CardHeader>
+                            </h4>
 
-                          <CardContent className="space-y-4 text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98] pt-0">
-                            {/* Address */}
-                            <div className="flex items-start gap-3">
-                              <MapPin weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
-                              <span className="leading-relaxed">{ecc.address}</span>
-                            </div>
-
-                            {/* Meeting Schedule */}
-                            <div className="flex items-start gap-3">
-                              <Clock weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
-                              <div className="space-y-0.5">
-                                <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1] block">
-                                  Meeting Schedule:
-                                </span>
-                                <span className="leading-relaxed text-xs">{ecc.meetingSchedule}</span>
+                            <div className="space-y-3.5 text-xs sm:text-sm text-[#505748] dark:text-[#a3ab98]">
+                              {/* Address */}
+                              <div className="flex items-start gap-3">
+                                <MapPin weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
+                                <span className="leading-relaxed">{ecc.address}</span>
                               </div>
-                            </div>
 
-                            {/* Contact Person */}
-                            {ecc.contactPerson && (
-                              <div className="flex items-start gap-3 pt-3 border-t border-[#f4efe0] dark:border-[#323d2b]">
-                                <UserCheck weight="duotone" className="h-4 w-4 text-[#707666] dark:text-[#a3ab98] shrink-0 mt-0.5" />
-                                <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
-                                  Contact / Coordinator:{' '}
-                                  <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">
-                                    {ecc.contactPerson}
-                                  </strong>
-                                </span>
+                              {/* Meeting Schedule */}
+                              <div className="flex items-start gap-3">
+                                <Clock weight="duotone" className="h-4 w-4 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
+                                <div className="space-y-0.5">
+                                  <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1] block">
+                                    Meeting Schedule:
+                                  </span>
+                                  <span className="leading-relaxed text-xs">{ecc.meetingSchedule}</span>
+                                </div>
                               </div>
-                            )}
-                          </CardContent>
-                        </Card>
+
+                              {/* Contact Person */}
+                              {ecc.contactPerson && (
+                                <div className="flex items-start gap-3 pt-3 border-t border-[#f4efe0] dark:border-[#323d2b]">
+                                  <UserCheck weight="duotone" className="h-4 w-4 text-[#707666] dark:text-[#a3ab98] shrink-0 mt-0.5" />
+                                  <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
+                                    Coordinator:{' '}
+                                    <strong className="text-[#2c3324] dark:text-[#fefcf1] font-semibold">
+                                      {ecc.contactPerson}
+                                    </strong>
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Action Bar: Copy Address & Map Search */}
+                          <div className="pt-5 mt-4 border-t border-[#f4efe0] dark:border-[#323d2b] flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(ecc.id, `${ecc.name}, ${ecc.address}`)}
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#707666] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] transition-colors p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
+                              title="Copy Address"
+                            >
+                              {copiedId === ecc.id ? (
+                                <>
+                                  <Check weight="bold" className="h-3.5 w-3.5 text-green-600" />
+                                  <span className="text-green-600 font-bold">Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy weight="bold" className="h-3.5 w-3.5" />
+                                  <span>Copy Info</span>
+                                </>
+                              )}
+                            </button>
+
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                `${ecc.name} ${ecc.address} Philippines`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] hover:underline"
+                            >
+                              <span>View Map</span>
+                              <ArrowSquareOut weight="bold" className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </InteractiveCard>
                       </motion.div>
                     ))}
                   </AnimatePresence>
@@ -333,3 +377,4 @@ export function AboutEcclesiasDirectory({ ecclesias }: AboutEcclesiasDirectoryPr
     </div>
   );
 }
+
