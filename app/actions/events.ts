@@ -9,7 +9,7 @@ import { saveUploadedImage } from '@/lib/storage';
 import { revalidatePath } from 'next/cache';
 import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
-import { eq } from 'drizzle-orm';
+import { eq, and, ne, sql } from 'drizzle-orm';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
 import {
   renderEventRegistrationEmail,
@@ -328,11 +328,10 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
     }
 
     try {
-      // 1. Remove all attendee registrations for this event first
-      await db.delete(eventRegistrations).where(eq(eventRegistrations.eventId, eventId));
-      
-      // 2. Delete the event itself
-      await db.delete(events).where(eq(events.id, eventId));
+      await db.transaction(async (tx) => {
+        await tx.delete(eventRegistrations).where(eq(eventRegistrations.eventId, eventId));
+        await tx.delete(events).where(eq(events.id, eventId));
+      });
 
       logger.info({ eventId, adminId: profile.id }, 'Event and associated attendees deleted by administrator');
       invalidateCacheTag(CACHE_TAGS.events, CACHE_TAGS.eventsPublished);
@@ -463,6 +462,33 @@ export async function registerForEventAction(
         success: false,
         error: 'Registration is closed for this event.',
       };
+    }
+
+    // Enforce registration deadline
+    if (event.registrationDeadline && new Date() > new Date(event.registrationDeadline)) {
+      return {
+        success: false,
+        error: 'Registration deadline has passed for this event.',
+      };
+    }
+
+    // Enforce max attendee capacity
+    if (event.maxAttendees) {
+      const [capacityCheck] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(eventRegistrations)
+        .where(
+          and(
+            eq(eventRegistrations.eventId, eventId),
+            ne(eventRegistrations.status, 'CANCELLED')
+          )
+        );
+      if ((capacityCheck?.count ?? 0) >= event.maxAttendees) {
+        return {
+          success: false,
+          error: 'This event has reached maximum capacity. Registration is closed.',
+        };
+      }
     }
 
     // 2. Check if already registered

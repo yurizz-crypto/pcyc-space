@@ -232,22 +232,48 @@ export async function adminUpdateUserAction(
 
     const auditContext = await getAuditContext();
 
-    // 1. Update Profile in Postgres
-    await db
-      .update(profiles)
-      .set({
-        firstName: data.firstName,
-        middleName: data.middleName || null,
-        lastName: data.lastName,
-        designation: data.designation,
-        ecclesia: data.ecclesia || null,
-        baptismDate: data.baptismDate || null,
-        phoneNumber: data.phoneNumber || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.id, data.userId));
+    // Atomic: profile update + audit log
+    await db.transaction(async (tx) => {
+      await tx
+        .update(profiles)
+        .set({
+          firstName: data.firstName,
+          middleName: data.middleName || null,
+          lastName: data.lastName,
+          designation: data.designation,
+          ecclesia: data.ecclesia || null,
+          baptismDate: data.baptismDate || null,
+          phoneNumber: data.phoneNumber || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.id, data.userId));
 
-    // 2. Update Supabase metadata
+      await tx.insert(auditLogs).values({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        action: 'USER_UPDATED',
+        targetId: data.userId,
+        targetType: 'USER',
+        details: {
+          before: {
+            firstName: existing.firstName,
+            lastName: existing.lastName,
+            designation: existing.designation,
+            ecclesia: existing.ecclesia,
+          },
+          after: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            designation: data.designation,
+            ecclesia: data.ecclesia,
+          },
+        },
+        ipAddress: auditContext.clientIp,
+        userAgent: auditContext.userAgent,
+      });
+    });
+
+    // External service update (outside transaction)
     const supabaseAdmin = getSupabaseAdmin();
     await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       user_metadata: {
@@ -256,31 +282,6 @@ export async function adminUpdateUserAction(
         designation: data.designation,
         ecclesia: data.ecclesia,
       },
-    });
-
-    // 3. Log Audit Event
-    await db.insert(auditLogs).values({
-      actorId: admin.id,
-      actorEmail: admin.email,
-      action: 'USER_UPDATED',
-      targetId: data.userId,
-      targetType: 'USER',
-      details: {
-        before: {
-          firstName: existing.firstName,
-          lastName: existing.lastName,
-          designation: existing.designation,
-          ecclesia: existing.ecclesia,
-        },
-        after: {
-          firstName: data.firstName,
-          lastName: data.lastName,
-          designation: data.designation,
-          ecclesia: data.ecclesia,
-        },
-      },
-      ipAddress: auditContext.clientIp,
-      userAgent: auditContext.userAgent,
     });
 
     logger.info({ targetUserId: data.userId, adminId: admin.id }, 'User profile updated by admin');
@@ -328,51 +329,51 @@ export async function adminChangeUserRoleAction(
       return { success: false, error: 'Target user does not exist.' };
     }
 
-    // Safety Guard: Cannot demote the last remaining Superadministrator
-    if (targetUser.role === 'SUPERADMIN' && newRole !== 'SUPERADMIN') {
-      const superadminCountRes = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(profiles)
-        .where(eq(profiles.role, 'SUPERADMIN'));
-
-      const count = superadminCountRes[0]?.count ?? 0;
-      if (count <= 1) {
-        return {
-          success: false,
-          error: 'Security Lockout Protection: You cannot demote the only remaining Superadministrator.',
-        };
-      }
-    }
-
     const auditContext = await getAuditContext();
 
-    // 1. Update DB Profile Role
-    await db
-      .update(profiles)
-      .set({ role: newRole, updatedAt: new Date() })
-      .where(eq(profiles.id, userId));
+    // Atomic transaction: count check + role update + audit log
+    // Prevents race where two superadmins demote each other simultaneously
+    await db.transaction(async (tx) => {
+      // Safety Guard: Cannot demote the last remaining Superadministrator
+      if (targetUser.role === 'SUPERADMIN' && newRole !== 'SUPERADMIN') {
+        const [superadminCountRes] = await tx
+          .select({ count: sql<number>`count(*)::int` })
+          .from(profiles)
+          .where(eq(profiles.role, 'SUPERADMIN'));
 
-    // 2. Update Supabase Auth App Metadata (for JWT claims verification)
+        if ((superadminCountRes?.count ?? 0) <= 1) {
+          throw new Error('Security Lockout Protection: You cannot demote the only remaining Superadministrator.');
+        }
+      }
+
+      // 1. Update DB Profile Role
+      await tx
+        .update(profiles)
+        .set({ role: newRole, updatedAt: new Date() })
+        .where(eq(profiles.id, userId));
+
+      // 2. Log Audit Event
+      await tx.insert(auditLogs).values({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        action: 'USER_ROLE_CHANGED',
+        targetId: userId,
+        targetType: 'USER',
+        details: {
+          targetUserEmail: targetUser.email,
+          oldRole: targetUser.role,
+          newRole: newRole,
+        },
+        ipAddress: auditContext.clientIp,
+        userAgent: auditContext.userAgent,
+      });
+    });
+
+    // Update Supabase Auth App Metadata (external service, outside transaction)
     const supabaseAdmin = getSupabaseAdmin();
     await supabaseAdmin.auth.admin.updateUserById(userId, {
       app_metadata: { role: newRole },
       user_metadata: { role: newRole },
-    });
-
-    // 3. Log Audit Event
-    await db.insert(auditLogs).values({
-      actorId: admin.id,
-      actorEmail: admin.email,
-      action: 'USER_ROLE_CHANGED',
-      targetId: userId,
-      targetType: 'USER',
-      details: {
-        targetUserEmail: targetUser.email,
-        oldRole: targetUser.role,
-        newRole: newRole,
-      },
-      ipAddress: auditContext.clientIp,
-      userAgent: auditContext.userAgent,
     });
 
     logger.info(
@@ -431,42 +432,41 @@ export async function adminToggleUserStatusAction(
 
     const auditContext = await getAuditContext();
 
-    // 1. Update Profile status
-    await db
-      .update(profiles)
-      .set({ status: nextStatus, updatedAt: new Date() })
-      .where(eq(profiles.id, userId));
+    // Atomic: status update + audit log
+    await db.transaction(async (tx) => {
+      await tx
+        .update(profiles)
+        .set({ status: nextStatus, updatedAt: new Date() })
+        .where(eq(profiles.id, userId));
 
-    // 2. Ban or Unban in Supabase Auth
+      await tx.insert(auditLogs).values({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        action: 'USER_STATUS_CHANGED',
+        targetId: userId,
+        targetType: 'USER',
+        details: {
+          targetUserEmail: targetUser.email,
+          oldStatus: targetUser.status,
+          newStatus: nextStatus,
+          reason,
+        },
+        ipAddress: auditContext.clientIp,
+        userAgent: auditContext.userAgent,
+      });
+    });
+
+    // Ban or Unban in Supabase Auth (external service, outside transaction)
     const supabaseAdmin = getSupabaseAdmin();
     if (nextStatus === 'SUSPENDED') {
-      // Ban for 100 years
       await supabaseAdmin.auth.admin.updateUserById(userId, {
         ban_duration: '876000h',
       });
     } else if (nextStatus === 'ACTIVE') {
-      // Lift ban
       await supabaseAdmin.auth.admin.updateUserById(userId, {
         ban_duration: 'none',
       });
     }
-
-    // 3. Log Audit Event
-    await db.insert(auditLogs).values({
-      actorId: admin.id,
-      actorEmail: admin.email,
-      action: 'USER_STATUS_CHANGED',
-      targetId: userId,
-      targetType: 'USER',
-      details: {
-        targetUserEmail: targetUser.email,
-        oldStatus: targetUser.status,
-        newStatus: nextStatus,
-        reason,
-      },
-      ipAddress: auditContext.clientIp,
-      userAgent: auditContext.userAgent,
-    });
 
     logger.info(
       { targetUserId: userId, newStatus: nextStatus, adminId: admin.id },
@@ -517,43 +517,45 @@ export async function adminAnonymizeUserAction(formData: FormData): Promise<Admi
 
     const auditContext = await getAuditContext();
 
-    // 1. Scrub PII from Postgres Profile
     const anonymizedEmail = `anonymized_${userId.slice(0, 8)}@privacy.pcyc.ph`;
-    await db
-      .update(profiles)
-      .set({
-        email: anonymizedEmail,
-        firstName: 'Anonymized',
-        middleName: null,
-        lastName: 'Member',
-        phoneNumber: null,
-        baptismDate: null,
-        avatarUrl: null,
-        ecclesia: 'Anonymized',
-        status: 'ANONYMIZED',
-        isAnonymized: true,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.id, userId));
 
-    // 2. Delete Supabase Auth Account (prevents future logins)
+    // Atomic: PII scrub + audit log
+    await db.transaction(async (tx) => {
+      await tx
+        .update(profiles)
+        .set({
+          email: anonymizedEmail,
+          firstName: 'Anonymized',
+          middleName: null,
+          lastName: 'Member',
+          phoneNumber: null,
+          baptismDate: null,
+          avatarUrl: null,
+          ecclesia: 'Anonymized',
+          status: 'ANONYMIZED',
+          isAnonymized: true,
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.id, userId));
+
+      await tx.insert(auditLogs).values({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        action: 'USER_ANONYMIZED',
+        targetId: userId,
+        targetType: 'USER',
+        details: {
+          originalEmailMasked: `${targetUser.email.slice(0, 2)}***@***`,
+          reason: 'Right to Erasure / Account Data Anonymization Request',
+        },
+        ipAddress: auditContext.clientIp,
+        userAgent: auditContext.userAgent,
+      });
+    });
+
+    // Delete Supabase Auth Account (external service, outside transaction)
     const supabaseAdmin = getSupabaseAdmin();
     await supabaseAdmin.auth.admin.deleteUser(userId);
-
-    // 3. Log Audit Event
-    await db.insert(auditLogs).values({
-      actorId: admin.id,
-      actorEmail: admin.email,
-      action: 'USER_ANONYMIZED',
-      targetId: userId,
-      targetType: 'USER',
-      details: {
-        originalEmailMasked: `${targetUser.email.slice(0, 2)}***@***`,
-        reason: 'Right to Erasure / Account Data Anonymization Request',
-      },
-      ipAddress: auditContext.clientIp,
-      userAgent: auditContext.userAgent,
-    });
 
     logger.info({ targetUserId: userId, adminId: admin.id }, 'User profile anonymized per privacy request');
 

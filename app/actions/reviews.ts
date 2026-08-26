@@ -98,44 +98,26 @@ export async function submitProductReviewAction(
       };
     }
 
-    // 3. Upsert / Insert Review
-    const [existingReview] = await db
-      .select()
-      .from(productReviews)
-      .where(and(eq(productReviews.orderId, orderId), eq(productReviews.productId, productId)))
-      .limit(1);
-
-    let savedReview: ProductReview;
-
-    if (existingReview) {
-      // Update existing review
-      const [updated] = await db
-        .update(productReviews)
-        .set({
+    // 3. Atomic Upsert Review (eliminates check-then-act race on double-submit)
+    const [savedReview] = await db
+      .insert(productReviews)
+      .values({
+        productId,
+        userId: profile.id,
+        orderId,
+        rating,
+        comment,
+        isHidden: false,
+      })
+      .onConflictDoUpdate({
+        target: [productReviews.orderId, productReviews.productId],
+        set: {
           rating,
           comment,
           updatedAt: new Date(),
-        })
-        .where(eq(productReviews.id, existingReview.id))
-        .returning();
-
-      savedReview = updated;
-    } else {
-      // Insert new review
-      const [inserted] = await db
-        .insert(productReviews)
-        .values({
-          productId,
-          userId: profile.id,
-          orderId,
-          rating,
-          comment,
-          isHidden: false,
-        })
-        .returning();
-
-      savedReview = inserted;
-    }
+        },
+      })
+      .returning();
 
     logger.info(
       { reviewId: savedReview.id, productId, orderId, userId: profile.id, rating },

@@ -9,7 +9,7 @@ import { orderSchema, isSizeAvailable } from '@/lib/validators';
 import { saveUploadedImage } from '@/lib/storage';
 import { logger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql, gte } from 'drizzle-orm';
 import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
 import {
@@ -153,10 +153,8 @@ export async function createOrderAction(
     const deliveryFee = data.fulfillmentType === 'DELIVERY' ? COURIER_DELIVERY_FEE : 0;
     const totalAmount = itemSubtotal + deliveryFee;
 
-    // 4. Generate Unique Order Number: PCYC-YYYY-XXXXX
+    // Order number generated inside the transaction with collision retry
     const year = new Date().getFullYear();
-    const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-    const orderNumber = `PCYC-${year}-${randomSuffix}`;
 
     const isEventPickup = data.fulfillmentType === 'EVENT_PICKUP';
     const shippingInfoPayload = {
@@ -172,65 +170,108 @@ export async function createOrderAction(
     };
 
     try {
-      // 5. Insert Order
-      const [newOrder] = await db
-        .insert(orders)
-        .values({
-          userId: profile.id,
-          orderNumber,
-          totalAmount: totalAmount.toFixed(2),
-          status: 'PENDING_PAYMENT',
-          shippingInfo: shippingInfoPayload,
-          notes: data.notes || null,
-        })
-        .returning();
-
-      // Update phone number on profile if not set
-      if (!profile.phoneNumber && data.contactNumber) {
-        await db
-          .update(profiles)
-          .set({ phoneNumber: data.contactNumber, updatedAt: new Date() })
-          .where(eq(profiles.id, profile.id));
-      }
-
-      // 6. Insert Order Item
-      await db.insert(orderItems).values({
-        orderId: newOrder.id,
-        productId: targetProduct.id,
-        quantity: data.quantity,
-        unitPrice: unitPriceNum.toFixed(2),
-        selectedSize: data.selectedSize || null,
-      });
-
-      // 7. Process Proof of Payment Attachment
+      // Atomic transaction: stock decrement + order + items + receipt
       let hasReceipt = false;
       const amountPaidStr = formData.get('amountPaid') as string | null;
 
-      if (receiptFile && typeof receiptFile === 'object' && receiptFile.size > 0 && refNumber) {
-        const uploadResult = await saveUploadedImage(receiptFile, 'receipts', `receipt-${orderNumber}`);
-        if (uploadResult.success && uploadResult.url) {
-          await db.insert(paymentReceipts).values({
-            orderId: newOrder.id,
-            receiptImageUrl: uploadResult.url,
-            paymentMethod: 'GCASH',
-            referenceNumber: refNumber,
-            amountPaid: (amountPaidStr ? Number(amountPaidStr) : totalAmount).toFixed(2),
-            verificationStatus: 'PENDING',
-          });
+      const newOrder = await db.transaction(async (tx) => {
+        // Atomic stock decrement (skip for pre-orders)
+        if (!targetProduct.isPreorder) {
+          const [decremented] = await tx
+            .update(products)
+            .set({
+              stockQuantity: sql`${products.stockQuantity} - ${data.quantity}`,
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(products.id, data.productId),
+                gte(products.stockQuantity, data.quantity)
+              )
+            )
+            .returning({ id: products.id });
 
-          await db
-            .update(orders)
-            .set({ status: 'VERIFICATION_QUEUED', updatedAt: new Date() })
-            .where(eq(orders.id, newOrder.id));
-
-          hasReceipt = true;
+          if (!decremented) {
+            throw new Error('Insufficient stock. This item may have sold out while you were ordering.');
+          }
         }
-      }
+
+        // Order number with collision retry
+        let insertedOrder;
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const suffix = Math.floor(10000 + Math.random() * 90000);
+          const candidateOrderNumber = `PCYC-${year}-${suffix}`;
+          try {
+            const [row] = await tx
+              .insert(orders)
+              .values({
+                userId: profile.id,
+                orderNumber: candidateOrderNumber,
+                totalAmount: totalAmount.toFixed(2),
+                status: 'PENDING_PAYMENT',
+                shippingInfo: shippingInfoPayload,
+                notes: data.notes || null,
+              })
+              .returning();
+            insertedOrder = row;
+            break;
+          } catch (e: any) {
+            // Retry on unique constraint violation (order number collision)
+            if ((e?.code === '23505' || e?.message?.includes('unique')) && attempt < 4) continue;
+            throw e;
+          }
+        }
+
+        if (!insertedOrder) {
+          throw new Error('Failed to generate a unique order number. Please try again.');
+        }
+
+        // Update phone number on profile if not set
+        if (!profile.phoneNumber && data.contactNumber) {
+          await tx
+            .update(profiles)
+            .set({ phoneNumber: data.contactNumber, updatedAt: new Date() })
+            .where(eq(profiles.id, profile.id));
+        }
+
+        // Insert Order Item
+        await tx.insert(orderItems).values({
+          orderId: insertedOrder.id,
+          productId: targetProduct.id,
+          quantity: data.quantity,
+          unitPrice: unitPriceNum.toFixed(2),
+          selectedSize: data.selectedSize || null,
+        });
+
+        // Process Proof of Payment Attachment
+        if (receiptFile && typeof receiptFile === 'object' && receiptFile.size > 0 && refNumber) {
+          const uploadResult = await saveUploadedImage(receiptFile, 'receipts', `receipt-${insertedOrder.orderNumber}`);
+          if (uploadResult.success && uploadResult.url) {
+            await tx.insert(paymentReceipts).values({
+              orderId: insertedOrder.id,
+              receiptImageUrl: uploadResult.url,
+              paymentMethod: 'GCASH',
+              referenceNumber: refNumber,
+              amountPaid: (amountPaidStr ? Number(amountPaidStr) : totalAmount).toFixed(2),
+              verificationStatus: 'PENDING',
+            });
+
+            await tx
+              .update(orders)
+              .set({ status: 'VERIFICATION_QUEUED', updatedAt: new Date() })
+              .where(eq(orders.id, insertedOrder.id));
+
+            hasReceipt = true;
+          }
+        }
+
+        return insertedOrder;
+      });
 
       logger.info(
         {
           orderId: newOrder.id,
-          orderNumber,
+          orderNumber: newOrder.orderNumber,
           userId: profile.id,
           totalAmount,
           fulfillmentType: data.fulfillmentType,
@@ -306,7 +347,7 @@ export async function createOrderAction(
         orderId: newOrder.id,
         orderNumber: newOrder.orderNumber,
         totalAmount,
-        message: `Order ${orderNumber} placed successfully! Please upload your GCash payment proof.`,
+        message: `Order ${newOrder.orderNumber} placed successfully! Please upload your GCash payment proof.`,
       };
     } catch (error: any) {
       logger.error({ error: error?.message, userId: profile.id }, 'Failed to place order');
@@ -401,46 +442,44 @@ export async function uploadReceiptAction(
       };
     }
 
-    try {
-      // 3. Upsert Receipt Record
-      const existingReceipts = await db
-        .select()
-        .from(paymentReceipts)
-        .where(eq(paymentReceipts.orderId, orderId))
-        .limit(1);
+    const receiptUrl = uploadResult.url;
 
-      if (existingReceipts.length > 0) {
-        await db
-          .update(paymentReceipts)
-          .set({
-            receiptImageUrl: uploadResult.url,
+    try {
+      // Atomic: receipt upsert + order status update
+      await db.transaction(async (tx) => {
+        // Upsert receipt using unique constraint on orderId (eliminates check-then-act race)
+        await tx
+          .insert(paymentReceipts)
+          .values({
+            orderId,
+            receiptImageUrl: receiptUrl,
             paymentMethod,
             referenceNumber: referenceNumber.trim(),
             amountPaid: (amountPaid || Number(existingOrder.totalAmount)).toFixed(2),
             verificationStatus: 'PENDING',
-            verificationNotes: null,
-            createdAt: new Date(),
           })
-          .where(eq(paymentReceipts.id, existingReceipts[0].id));
-      } else {
-        await db.insert(paymentReceipts).values({
-          orderId,
-          receiptImageUrl: uploadResult.url,
-          paymentMethod,
-          referenceNumber: referenceNumber.trim(),
-          amountPaid: (amountPaid || Number(existingOrder.totalAmount)).toFixed(2),
-          verificationStatus: 'PENDING',
-        });
-      }
+          .onConflictDoUpdate({
+            target: paymentReceipts.orderId,
+            set: {
+              receiptImageUrl: receiptUrl,
+              paymentMethod,
+              referenceNumber: referenceNumber.trim(),
+              amountPaid: (amountPaid || Number(existingOrder.totalAmount)).toFixed(2),
+              verificationStatus: 'PENDING',
+              verificationNotes: null,
+              createdAt: new Date(),
+            },
+          });
 
-      // 4. Update order status
-      await db
-        .update(orders)
-        .set({
-          status: 'VERIFICATION_QUEUED',
-          updatedAt: new Date(),
-        })
-        .where(eq(orders.id, orderId));
+        // Update order status
+        await tx
+          .update(orders)
+          .set({
+            status: 'VERIFICATION_QUEUED',
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, orderId));
+      });
 
       logger.info(
         { orderId, orderNumber: existingOrder.orderNumber, userId: profile.id },
@@ -516,26 +555,27 @@ export async function verifyReceiptAction(formData: FormData): Promise<void> {
     }
 
     try {
-      // 1. Update Payment Receipt Record
-      await db
-        .update(paymentReceipts)
-        .set({
-          verificationStatus: decision,
-          verifiedById: profile.id,
-          verifiedAt: new Date(),
-          verificationNotes: adminNotes || null,
-        })
-        .where(eq(paymentReceipts.id, receiptId));
-
-      // 2. Update Order Status
+      // Atomic: receipt verification + order status update
       const newOrderStatus = decision === 'APPROVED' ? 'PAID' : 'PENDING_PAYMENT';
-      await db
-        .update(orders)
-        .set({
-          status: newOrderStatus,
-          updatedAt: new Date(),
-        })
-        .where(eq(orders.id, orderId));
+      await db.transaction(async (tx) => {
+        await tx
+          .update(paymentReceipts)
+          .set({
+            verificationStatus: decision,
+            verifiedById: profile.id,
+            verifiedAt: new Date(),
+            verificationNotes: adminNotes || null,
+          })
+          .where(eq(paymentReceipts.id, receiptId));
+
+        await tx
+          .update(orders)
+          .set({
+            status: newOrderStatus,
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, orderId));
+      });
 
       logger.info({ orderId, receiptId, decision, adminId: profile.id }, 'Payment receipt verified');
 
@@ -610,30 +650,31 @@ export async function cancelOrderAction(formData: FormData): Promise<{ success: 
       return { success: false, error: 'Invalid order identifier.' };
     }
 
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(and(eq(orders.id, orderId), eq(orders.userId, profile.id)))
-      .limit(1);
-
-    if (!order) {
-      return { success: false, error: 'Order not found or access denied.' };
-    }
-
-    if (order.status !== 'PENDING_PAYMENT') {
-      return {
-        success: false,
-        error: 'Only unpaid orders (Pending Payment) can be cancelled directly. Please contact an admin for assistance.',
-      };
-    }
-
-    await db
+    // Atomic cancellation: only cancel if still PENDING_PAYMENT
+    // Prevents race condition where admin approves payment simultaneously
+    const [cancelled] = await db
       .update(orders)
       .set({
         status: 'CANCELLED',
         updatedAt: new Date(),
       })
-      .where(eq(orders.id, orderId));
+      .where(
+        and(
+          eq(orders.id, orderId),
+          eq(orders.userId, profile.id),
+          eq(orders.status, 'PENDING_PAYMENT')
+        )
+      )
+      .returning();
+
+    if (!cancelled) {
+      return {
+        success: false,
+        error: 'Order cannot be cancelled — it may have already been processed or does not exist.',
+      };
+    }
+
+    const order = cancelled;
 
     logger.info({ orderId, userId: profile.id }, 'Order cancelled by member');
 
@@ -682,31 +723,37 @@ export async function adminBulkUpdateOrderStatusAction(
     let processedCount = 0;
 
     for (const orderId of orderIds) {
-      // 1. Update Order status
-      const [order] = await db
-        .update(orders)
-        .set({
-          status: targetStatus,
-          updatedAt: new Date(),
-        })
-        .where(eq(orders.id, orderId))
-        .returning();
+      // Atomic: order status + receipt approval per order
+      const order = await db.transaction(async (tx) => {
+        const [updated] = await tx
+          .update(orders)
+          .set({
+            status: targetStatus,
+            updatedAt: new Date(),
+          })
+          .where(eq(orders.id, orderId))
+          .returning();
+
+        if (!updated) return null;
+
+        // If target is PAID, auto-approve any pending payment receipt
+        if (targetStatus === 'PAID') {
+          await tx
+            .update(paymentReceipts)
+            .set({
+              verificationStatus: 'APPROVED',
+              verifiedById: admin.id,
+              verifiedAt: new Date(),
+              verificationNotes: adminNotes || 'Bulk payment verification by admin',
+            })
+            .where(eq(paymentReceipts.orderId, orderId));
+        }
+
+        return updated;
+      });
 
       if (!order) continue;
       processedCount++;
-
-      // 2. If target is PAID, auto-approve any pending payment receipt
-      if (targetStatus === 'PAID') {
-        await db
-          .update(paymentReceipts)
-          .set({
-            verificationStatus: 'APPROVED',
-            verifiedById: admin.id,
-            verifiedAt: new Date(),
-            verificationNotes: adminNotes || 'Bulk payment verification by admin',
-          })
-          .where(eq(paymentReceipts.orderId, orderId));
-      }
 
       // 3. Dispatch Notification to buyer
       const buyer = await getUserProfileById(order.userId);
