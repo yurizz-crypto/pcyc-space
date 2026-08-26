@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -38,6 +39,22 @@ interface AdminOrdersListProps {
 }
 
 const PAGE_SIZE = 8;
+
+function VerifyButton({ children, variant = 'primary', size = 'sm', className = '' }: any) {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="submit"
+      variant={variant}
+      size={size}
+      disabled={pending}
+      isLoading={pending}
+      className={className}
+    >
+      {children}
+    </Button>
+  );
+}
 
 export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   const [filterTab, setFilterTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
@@ -574,15 +591,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                                   <input type="hidden" name="orderId" value={ord.id} />
                                   <input type="hidden" name="receiptId" value={receipt.id} />
                                   <input type="hidden" name="decision" value="APPROVED" />
-                                  <Button
-                                    type="submit"
+                                  <VerifyButton
                                     variant="primary"
                                     size="sm"
                                     className="gap-1.5 shadow-xs"
                                   >
                                     <CheckCircle className="h-3.5 w-3.5" />
                                     <span>Approve</span>
-                                  </Button>
+                                  </VerifyButton>
                                 </form>
 
                                 <form action={verifyReceiptAction}>
@@ -594,15 +610,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                                     name="adminNotes"
                                     value="Payment screenshot reference did not match GCash account record."
                                   />
-                                  <Button
-                                    type="submit"
+                                  <VerifyButton
                                     variant="destructive"
                                     size="sm"
                                     className="gap-1.5"
                                   >
                                     <XCircle className="h-3.5 w-3.5" />
                                     <span>Reject</span>
-                                  </Button>
+                                  </VerifyButton>
                                 </form>
                               </>
                             )}
@@ -749,15 +764,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                       <input type="hidden" name="orderId" value={selectedReceiptOrder.id} />
                       <input type="hidden" name="receiptId" value={selectedReceiptOrder.receipt?.id} />
                       <input type="hidden" name="decision" value="APPROVED" />
-                      <Button
-                        type="submit"
+                      <VerifyButton
                         variant="primary"
                         size="md"
                         className="w-full gap-2 shadow-sm font-bold bg-[#2e7d32] hover:bg-[#1b5e20] text-white"
                       >
                         <CheckCircle className="h-4 w-4" />
                         <span>Confirm & Approve Payment</span>
-                      </Button>
+                      </VerifyButton>
                     </form>
 
                     {/* Reject Action with Reason */}
@@ -798,15 +812,14 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                         <input type="hidden" name="receiptId" value={selectedReceiptOrder.receipt?.id} />
                         <input type="hidden" name="decision" value="REJECTED" />
                         <input type="hidden" name="adminNotes" value={rejectionReason} />
-                        <Button
-                          type="submit"
+                        <VerifyButton
                           variant="destructive"
                           size="sm"
                           className="w-full gap-2 mt-1"
                         >
                           <XCircle className="h-4 w-4" />
                           <span>Reject Receipt</span>
-                        </Button>
+                        </VerifyButton>
                       </form>
                     </div>
                   </div>
