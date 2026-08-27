@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { InteractiveCard } from '@/components/ui/interactive-card';
-import { Sparkle, ShieldCheck, HandHeart, MagnifyingGlassPlus } from '@phosphor-icons/react';
+import { Sparkle, ShieldCheck, HandHeart, MagnifyingGlassPlus, Image as ImageIcon } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/badge';
 
 interface ProductImageShowcaseProps {
@@ -14,14 +14,39 @@ interface ProductImageShowcaseProps {
   category: string;
 }
 
+const FALLBACK_IMAGE = '/images/logo/pcyc-transparent-logo.png';
+
 export function ProductImageShowcase({
   imageUrls,
   productName,
   isPreorder,
   category,
 }: ProductImageShowcaseProps) {
-  const images = imageUrls && imageUrls.length > 0 ? imageUrls : ['/images/logo/pcyc-transparent-logo.png'];
+  // Sanitize image URLs list
+  const validImages = Array.isArray(imageUrls)
+    ? imageUrls.filter((url) => typeof url === 'string' && url.trim().length > 0)
+    : [];
+
+  const images = validImages.length > 0 ? validImages : [FALLBACK_IMAGE];
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
+
+  // Reset selected image index if out of bounds
+  useEffect(() => {
+    if (selectedImageIndex >= images.length) {
+      setSelectedImageIndex(0);
+    }
+  }, [images.length, selectedImageIndex]);
+
+  const currentImage = failedImages[selectedImageIndex]
+    ? FALLBACK_IMAGE
+    : images[selectedImageIndex] || FALLBACK_IMAGE;
+
+  const isDataOrBlob = currentImage.startsWith('data:') || currentImage.startsWith('blob:');
+
+  const handleImageError = (index: number) => {
+    setFailedImages((prev) => ({ ...prev, [index]: true }));
+  };
 
   return (
     <div className="space-y-4">
@@ -30,7 +55,7 @@ export function ProductImageShowcase({
         {/* Atmospheric Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,168,97,0.18),transparent_70%)] pointer-events-none" />
 
-        {/* Floating Category Badge */}
+        {/* Floating Category & Status Badge */}
         <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
           <Badge variant="cream" size="md" className="rounded-full shadow-md backdrop-blur-md">
             {category}
@@ -44,10 +69,10 @@ export function ProductImageShowcase({
         </div>
 
         {/* Main Image with Animated Transition */}
-        <div className="relative h-[75%] w-[75%] transition-transform duration-700 group-hover:scale-108">
+        <div className="relative h-[75%] w-[75%] transition-transform duration-700 group-hover:scale-108 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
-              key={images[selectedImageIndex]}
+              key={`${currentImage}-${selectedImageIndex}`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -55,10 +80,12 @@ export function ProductImageShowcase({
               className="relative w-full h-full"
             >
               <Image
-                src={images[selectedImageIndex]}
+                src={currentImage}
                 alt={productName}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                unoptimized={isDataOrBlob}
+                onError={() => handleImageError(selectedImageIndex)}
                 className="object-contain drop-shadow-2xl"
                 priority
               />
@@ -80,6 +107,7 @@ export function ProductImageShowcase({
         <div className="flex items-center gap-3 overflow-x-auto pb-2">
           {images.map((img, idx) => {
             const isSelected = selectedImageIndex === idx;
+            const thumbSrc = failedImages[idx] ? FALLBACK_IMAGE : img;
             return (
               <button
                 key={idx}
@@ -91,7 +119,15 @@ export function ProductImageShowcase({
                     : 'border-[#e6dfcb] dark:border-[#323d2b] opacity-70 hover:opacity-100'
                 }`}
               >
-                <Image src={img} alt={`${productName} thumbnail ${idx + 1}`} fill sizes="80px" className="object-contain p-2" />
+                <Image
+                  src={thumbSrc}
+                  alt={`${productName} thumbnail ${idx + 1}`}
+                  fill
+                  sizes="80px"
+                  unoptimized={thumbSrc.startsWith('data:') || thumbSrc.startsWith('blob:')}
+                  onError={() => handleImageError(idx)}
+                  className="object-contain p-2"
+                />
               </button>
             );
           })}

@@ -9,9 +9,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { createEventAction, AdminEventActionState } from '@/app/actions/events';
-import { Calendar, ArrowLeft, AlertCircle, Sparkles, Wand2 } from 'lucide-react';
 import { AdminScheduleBuilder } from '@/components/events/admin-schedule-builder';
 import { AdminChecklistBuilder } from '@/components/events/admin-checklist-builder';
+import {
+  Calendar,
+  ArrowLeft,
+  AlertCircle,
+  Sparkles,
+  Wand2,
+  MapPin,
+  Clock,
+  Luggage,
+  CalendarDays,
+  FileText,
+  Info,
+  CheckCircle2,
+} from 'lucide-react';
 
 const initialState: AdminEventActionState = {
   success: false,
@@ -22,6 +35,7 @@ export default function NewEventPage() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [isManuallyEdited, setIsManuallyEdited] = useState(false);
+  const [fee, setFee] = useState('0');
 
   // Helper to generate clean URL slug
   const generateSlug = (text: string) => {
@@ -53,224 +67,357 @@ export default function NewEventPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <Link
-        href="/admin/events"
-        className="inline-flex items-center gap-1.5 text-xs text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] font-medium"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Events Management</span>
-      </Link>
+    <div className="max-w-4xl mx-auto space-y-6 pb-12">
+      {/* Navigation Header */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/admin/events"
+          className="inline-flex items-center gap-1.5 text-xs text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1] font-semibold transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Events Management</span>
+        </Link>
 
-      <Card className="shadow-md">
+        <span className="text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider bg-[#e0a861]/15 text-[#9a6423] dark:text-[#f0be7c] border border-[#e0a861]/30">
+          PCYC Event CMS
+        </span>
+      </div>
+
+      <Card className="shadow-xl rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden bg-white dark:bg-[#1b2117]">
         <form action={formAction}>
-          <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-[#e0a861]" />
-              <CardTitle className="text-xl">Create New PCYC Event</CardTitle>
+          {/* Header Banner */}
+          <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/60 dark:bg-[#252e1f]/60 p-6 sm:p-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-2xl bg-[#2c3324] text-[#e0a861] flex items-center justify-center shadow-xs">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                  Create New PCYC Gathering
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] mt-1">
+                  Fill in event information, schedules, packing guidelines, and ticketing details below.
+                </CardDescription>
+              </div>
             </div>
-            <CardDescription>
-              Publish a new youth camp or study circle to the public portal and database.
-            </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-5 pt-6">
+          <CardContent className="p-6 sm:p-8 space-y-8">
+            {/* Global Validation Error Notification */}
             {state?.error && (
-              <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{state.error}</span>
+              <div className="p-4 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs sm:text-sm flex items-start gap-3 animate-shake">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <strong className="block font-bold">Submission Incomplete</strong>
+                  <span>{state.error}</span>
+                </div>
               </div>
             )}
 
-            {/* 1. Title & URL Slug (with Auto-Fill) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Event Title"
-                name="title"
-                value={title}
-                onChange={handleTitleChange}
-                placeholder="e.g. PCYC National Youth Camp 2026"
-                required
-                error={state?.fieldErrors?.title?.[0]}
-              />
+            {/* ======================================================== */}
+            {/* SECTION 1: ESSENTIAL DETAILS */}
+            {/* ======================================================== */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+                <FileText className="h-4 w-4 text-[#e0a861]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                  1. Gathering Essentials
+                </h3>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Input
+                    label="Event Title"
+                    name="title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="e.g. Philippine Christadelphian Youth Circle 2027"
+                    required
+                    error={state?.fieldErrors?.title?.[0]}
+                  />
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                    Official public name of the camp or fellowship gathering.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
+                      URL Permanent Slug <span className="text-[#c0392b]">*</span>
+                    </label>
+                    {isManuallyEdited && (
+                      <button
+                        type="button"
+                        onClick={handleRegenerateSlug}
+                        className="inline-flex items-center gap-1 text-[11px] text-[#9a6423] dark:text-[#f0be7c] hover:underline font-bold"
+                      >
+                        <Wand2 className="h-3 w-3" />
+                        <span>Auto-sync with Title</span>
+                      </button>
+                    )}
+                  </div>
+                  <Input
+                    name="slug"
+                    value={slug}
+                    onChange={handleSlugChange}
+                    placeholder="e.g. pcyc-national-camp-2027"
+                    required
+                    error={state?.fieldErrors?.slug?.[0]}
+                  />
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] truncate">
+                    Preview: <span className="font-mono text-[#9a6423] dark:text-[#f0be7c]">/events/{slug || '...'}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Scriptural Theme */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
-                    URL Slug (Permanent Link) <span className="text-[#c0392b]">*</span>
-                  </label>
-                  {isManuallyEdited && (
-                    <button
-                      type="button"
-                      onClick={handleRegenerateSlug}
-                      className="inline-flex items-center gap-1 text-[11px] text-[#e0a861] hover:underline font-medium"
-                    >
-                      <Wand2 className="h-3 w-3" />
-                      <span>Re-sync with Title</span>
-                    </button>
-                  )}
+                <Input
+                  label="Spiritual Theme / Scriptural Motto (Optional)"
+                  name="theme"
+                  placeholder="e.g. Anchored in Hope: Laying Hold on Eternal Life (Hebrews 6:19)"
+                  error={state?.fieldErrors?.theme?.[0]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Scripture passage or theme highlighted in quotes on the event banner.
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-1">
+                <Textarea
+                  label="Event Overview & Fellowship Description"
+                  name="description"
+                  placeholder="Provide an inspiring summary of the camp, lesson focus, guest speakers, accommodation arrangements, and travel logistics..."
+                  required
+                  rows={4}
+                  error={state?.fieldErrors?.description?.[0]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Detailed overview shown in the &quot;About This Gathering&quot; section.
+                </p>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 2: BANNER IMAGE */}
+            {/* ======================================================== */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+                <Sparkles className="h-4 w-4 text-[#e0a861]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                  2. Event Banner Image
+                </h3>
+              </div>
+
+              <ImageUpload
+                name="imageFile"
+                label="Attach Banner Image from Device"
+                helperText="Recommended: 1920x800 px (Landscape 21:9 or 16:9) • PNG, JPG, or WEBP • Max 10MB"
+                error={state?.fieldErrors?.bannerUrl?.[0]}
+              />
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 3: SCHEDULE DATES & TIMES */}
+            {/* ======================================================== */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+                <Clock className="h-4 w-4 text-[#e0a861]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                  3. Dates & Timetable
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Start Date & Time */}
+                <div className="p-4 rounded-2xl bg-[#f8f4e3]/40 dark:bg-[#252e1f]/40 border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#9a6423] dark:text-[#f0be7c] block">
+                    Check-in & Opening Session
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Input
+                      label="Start Date"
+                      name="startDate"
+                      type="date"
+                      required
+                      error={state?.fieldErrors?.startDate?.[0]}
+                    />
+                    <Input
+                      label="Start Time"
+                      name="startTime"
+                      type="time"
+                      defaultValue="08:00"
+                      required
+                    />
+                  </div>
                 </div>
-                <Input
-                  name="slug"
-                  value={slug}
-                  onChange={handleSlugChange}
-                  placeholder="e.g. pcyc-national-youth-camp-2026"
-                  required
-                  helperText={slug ? `Preview: pcyc.ph/events/${slug}` : 'Auto-filled as you type the title'}
-                  error={state?.fieldErrors?.slug?.[0]}
-                />
-              </div>
-            </div>
 
-            {/* 2. Device Image Attachment */}
-            <ImageUpload
-              name="imageFile"
-              label="Event Banner Image"
-              helperText="Attach image from device • Max 5MB • PNG or JPG/JPEG format"
-              error={state?.fieldErrors?.bannerUrl?.[0]}
-            />
-
-            {/* 3. Theme / Motto */}
-            <Input
-              label="Spiritual Theme / Scriptural Motto (Optional)"
-              name="theme"
-              placeholder="e.g. Anchored in Hope (Hebrews 6:19)"
-              error={state?.fieldErrors?.theme?.[0]}
-            />
-
-            {/* 4. Description */}
-            <Textarea
-              label="Event Description & Details"
-              name="description"
-              placeholder="Provide an overview of the event, spiritual study themes, accommodation notes..."
-              required
-              rows={4}
-              error={state?.fieldErrors?.description?.[0]}
-            />
-
-            {/* 5. Schedule & Times (Start & End) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                  label="Start Date"
-                  name="startDate"
-                  type="date"
-                  required
-                  error={state?.fieldErrors?.startDate?.[0]}
-                />
-                <Input
-                  label="Start Time"
-                  name="startTime"
-                  type="time"
-                  defaultValue="08:00"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Input
-                  label="End Date"
-                  name="endDate"
-                  type="date"
-                  required
-                  error={state?.fieldErrors?.endDate?.[0]}
-                />
-                <Input
-                  label="End Time"
-                  name="endTime"
-                  type="time"
-                  defaultValue="17:00"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* 6. Location, Max Attendees & Registration Fee */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Input
-                label="Location / Ecclesia Hall"
-                name="location"
-                placeholder="e.g. Cubao Ecclesial Hall, Quezon City"
-                required
-                error={state?.fieldErrors?.location?.[0]}
-              />
-
-              <Input
-                label="Registration Fee (₱ PHP)"
-                name="registrationFee"
-                type="number"
-                step="0.01"
-                min="0"
-                defaultValue="0"
-                placeholder="0.00 (0 for Free)"
-                helperText="Set to 0 for Free Fellowship"
-                error={state?.fieldErrors?.registrationFee?.[0]}
-              />
-
-              <Input
-                label="Max Attendees Capacity (Optional)"
-                name="maxAttendees"
-                type="number"
-                placeholder="e.g. 120"
-                error={state?.fieldErrors?.maxAttendees?.[0]}
-              />
-            </div>
-
-            {/* 7. Schedule & Checklist */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-              <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
-                <AdminScheduleBuilder />
-              </div>
-              <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
-                <AdminChecklistBuilder />
-              </div>
-            </div>
-
-            {/* 7. Status & Toggles */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Select
-                label="Event Status"
-                name="status"
-                defaultValue="UPCOMING"
-                options={[
-                  { value: 'UPCOMING', label: 'Upcoming (Open for registration)' },
-                  { value: 'ONGOING', label: 'Ongoing (Currently running)' },
-                  { value: 'COMPLETED', label: 'Completed' },
-                  { value: 'CANCELLED', label: 'Cancelled' },
-                  { value: 'ARCHIVED', label: 'Archived (Historical record)' },
-                ]}
-              />
-
-              <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
-                <div>
-                  <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Publish Immediately</strong>
-                  <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">Visible on the public portal.</span>
+                {/* End Date & Time */}
+                <div className="p-4 rounded-2xl bg-[#f8f4e3]/40 dark:bg-[#252e1f]/40 border border-[#e6dfcb] dark:border-[#323d2b] space-y-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#9a6423] dark:text-[#f0be7c] block">
+                    Dismissal & Closing Session
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Input
+                      label="End Date"
+                      name="endDate"
+                      type="date"
+                      required
+                      error={state?.fieldErrors?.endDate?.[0]}
+                    />
+                    <Input
+                      label="End Time"
+                      name="endTime"
+                      type="time"
+                      defaultValue="17:00"
+                      required
+                    />
+                  </div>
                 </div>
-                <input
-                  type="checkbox"
-                  name="isPublished"
-                  defaultChecked
-                  className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 4: LOCATION & REGISTRATION ADMISSION */}
+            {/* ======================================================== */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+                <MapPin className="h-4 w-4 text-[#e0a861]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                  4. Venue, Capacity & Registration Fee
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Input
+                    label="Location / Ecclesial Hall"
+                    name="location"
+                    placeholder="e.g. Cubao Ecclesial Hall, Quezon City"
+                    required
+                    error={state?.fieldErrors?.location?.[0]}
+                  />
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                    Venue address or campsite name.
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <Input
+                    label="Registration Fee (₱ PHP)"
+                    name="registrationFee"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={fee}
+                    onChange={(e) => setFee(e.target.value)}
+                    placeholder="0.00"
+                    required
+                    error={state?.fieldErrors?.registrationFee?.[0]}
+                  />
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                    {Number(fee) === 0 ? (
+                      <span className="text-[#2e7d32] dark:text-[#66bb6a] font-bold">✓ Free Fellowship Event</span>
+                    ) : (
+                      <span>Paid ticketing (settled via GCash / Desk)</span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <Input
+                    label="Max Attendee Capacity (Optional)"
+                    name="maxAttendees"
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 150 (leave blank for unlimited)"
+                    error={state?.fieldErrors?.maxAttendees?.[0]}
+                  />
+                  <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                    Caps automated registrations once reached.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 5: DYNAMIC ITINERARY BUILDER */}
+            {/* ======================================================== */}
+            <div className="p-5 sm:p-6 rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/30 dark:bg-[#1b2117]/30">
+              <AdminScheduleBuilder />
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 6: DYNAMIC PACKING CHECKLIST BUILDER */}
+            {/* ======================================================== */}
+            <div className="p-5 sm:p-6 rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/30 dark:bg-[#1b2117]/30">
+              <AdminChecklistBuilder />
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 7: STATUS & PUBLICATION CONTROLS */}
+            {/* ======================================================== */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+                <Info className="h-4 w-4 text-[#e0a861]" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                  7. Status & Portal Visibility
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Select
+                  label="Gathering Lifecycle Status"
+                  name="status"
+                  defaultValue="UPCOMING"
+                  options={[
+                    { value: 'UPCOMING', label: '🟢 UPCOMING (Open for delegate registration)' },
+                    { value: 'ONGOING', label: '🟡 ONGOING (Currently taking place)' },
+                    { value: 'COMPLETED', label: '⚪ COMPLETED (Gathering concluded)' },
+                    { value: 'CANCELLED', label: '🔴 CANCELLED (Event cancelled)' },
+                    { value: 'ARCHIVED', label: '📦 ARCHIVED (Historical archive only)' },
+                  ]}
                 />
+
+                <div className="p-4 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <strong className="block text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                      Publish to Public Website
+                    </strong>
+                    <span className="text-[11px] text-[#707666] dark:text-[#a3ab98] block">
+                      Make this gathering immediately discoverable on PCYC Space.
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    name="isPublished"
+                    defaultChecked
+                    className="h-5 w-5 rounded-lg border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861] cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
+          {/* Form Action Footer */}
+          <CardFooter className="flex items-center justify-between gap-4 border-t border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/40 dark:bg-[#252e1f]/40 p-6 sm:p-8">
             <Link href="/admin/events">
-              <Button type="button" variant="outline" size="md">
+              <Button type="button" variant="outline" size="md" className="rounded-xl px-5">
                 <span>Cancel</span>
               </Button>
             </Link>
+
             <Button
               type="submit"
               variant="primary"
               size="md"
               isLoading={isPending}
-              className="gap-2 shadow-xs"
+              className="gap-2 rounded-xl px-7 shadow-md font-bold text-sm"
             >
               <Sparkles className="h-4 w-4" />
-              <span>Publish Event</span>
+              <span>Publish Gathering</span>
             </Button>
           </CardFooter>
         </form>

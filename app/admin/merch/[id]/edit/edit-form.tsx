@@ -12,7 +12,17 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { SizeSelector } from '@/components/domain/merch/size-selector';
 import { updateProductAction, AdminProductActionState } from '@/app/actions/products';
 import { type Product } from '@/lib/db/schema/products';
-import { ShoppingBag, AlertCircle, Save, Wand2 } from 'lucide-react';
+import {
+  ShoppingBag,
+  AlertCircle,
+  Save,
+  Wand2,
+  Tag,
+  Sparkles,
+  FileText,
+  Package,
+  Info,
+} from 'lucide-react';
 
 const initialState: AdminProductActionState = {
   success: false,
@@ -62,85 +72,162 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
       ? product.imageUrls[0]
       : '/images/logo/pcyc-transparent-logo.png';
 
+  const isDataOrBlob = currentImg.startsWith('data:') || currentImg.startsWith('blob:');
+
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-xl rounded-3xl border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden bg-white dark:bg-[#1b2117]">
       <form action={formAction}>
+        {/* Hidden identifier inputs */}
         <input type="hidden" name="productId" value={product.id} />
         <input type="hidden" name="existingImageUrl" value={currentImg} />
 
-        <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] pb-4">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-[#e0a861]" />
-            <CardTitle className="text-xl">Edit Merchandise: {product.name}</CardTitle>
+        {/* Header Banner */}
+        <CardHeader className="border-b border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/60 dark:bg-[#252e1f]/60 p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-[#2c3324] text-[#e0a861] flex items-center justify-center shadow-xs">
+              <ShoppingBag className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="font-serif text-2xl sm:text-3xl font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                Edit Merchandise: {product.name}
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] mt-1">
+                Update merchandise pricing, product photos, inventory stock levels, category, or size offerings.
+              </CardDescription>
+            </div>
           </div>
-          <CardDescription>
-            Update pricing, stock levels, category, or product photos.
-          </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-5 pt-6">
+        <CardContent className="p-6 sm:p-8 space-y-8">
+          {/* Global Validation Error */}
           {state?.error && (
-            <div className="p-3.5 rounded-xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>{state.error}</span>
+            <div className="p-4 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs sm:text-sm flex items-start gap-3 animate-shake">
+              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <strong className="block font-bold">Unable to Save Changes</strong>
+                <span>{state.error}</span>
+              </div>
             </div>
           )}
 
-          {/* 1. Name & URL Slug */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Product Name"
-              name="name"
-              value={name}
-              onChange={handleNameChange}
-              placeholder="e.g. PCYC Emblem Heavyweight Tee"
-              required
-              error={state?.fieldErrors?.name?.[0]}
-            />
+          {/* SECTION 1: PRODUCT BASICS */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+              <Tag className="h-4 w-4 text-[#e0a861]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                1. Product Information
+              </h3>
+            </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
-                  URL Slug <span className="text-[#c0392b]">*</span>
-                </label>
-                {isManuallyEdited && (
-                  <button
-                    type="button"
-                    onClick={handleRegenerateSlug}
-                    className="inline-flex items-center gap-1 text-[11px] text-[#e0a861] hover:underline font-medium"
-                  >
-                    <Wand2 className="h-3 w-3" />
-                    <span>Re-sync with Name</span>
-                  </button>
-                )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Input
+                  label="Product Name"
+                  name="name"
+                  value={name}
+                  onChange={handleNameChange}
+                  placeholder="e.g. PCYC Emblem Heavyweight Tee"
+                  required
+                  error={state?.fieldErrors?.name?.[0]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Public title on the catalog and invoice receipts.
+                </p>
               </div>
-              <Input
-                name="slug"
-                value={slug}
-                onChange={handleSlugChange}
-                placeholder="e.g. pcyc-emblem-heavyweight-tee"
-                required
-                helperText={slug ? `Preview: pcyc.ph/merch/${slug}` : 'Auto-filled as you type the name'}
-                error={state?.fieldErrors?.slug?.[0]}
-              />
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
+                    URL Permanent Slug <span className="text-[#c0392b]">*</span>
+                  </label>
+                  {isManuallyEdited && (
+                    <button
+                      type="button"
+                      onClick={handleRegenerateSlug}
+                      className="inline-flex items-center gap-1 text-[11px] text-[#9a6423] dark:text-[#f0be7c] hover:underline font-bold"
+                    >
+                      <Wand2 className="h-3 w-3" />
+                      <span>Auto-sync with Name</span>
+                    </button>
+                  )}
+                </div>
+                <Input
+                  name="slug"
+                  value={slug}
+                  onChange={handleSlugChange}
+                  placeholder="e.g. pcyc-emblem-heavyweight-tee"
+                  required
+                  error={state?.fieldErrors?.slug?.[0]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] truncate">
+                  Link: <span className="font-mono text-[#9a6423] dark:text-[#f0be7c]">/merch/{slug}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Category & Price */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Select
+                  label="Merchandise Category"
+                  name="category"
+                  defaultValue={product.category}
+                  options={[
+                    { value: 'Apparel', label: '👕 Apparel (Shirts & Hoodies)' },
+                    { value: 'Accessories', label: '🎒 Accessories (Totes, Caps, Bags)' },
+                    { value: 'Stationery', label: '📖 Stationery & Scripture Notebooks' },
+                    { value: 'Drinkware', label: '🥤 Drinkware & Flasks' },
+                  ]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Organizes products into catalog filters.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <Input
+                  label="Price in Philippine Pesos (₱ PHP)"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  defaultValue={product.price}
+                  placeholder="450.00"
+                  required
+                  error={state?.fieldErrors?.price?.[0]}
+                />
+                <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                  Unit price paid via GCash (100% proceeds fund youth ministry).
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* 2. Existing Image Preview & Device Image Attachment */}
-          <div className="space-y-3">
+          {/* SECTION 2: PRODUCT PHOTO */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+              <Sparkles className="h-4 w-4 text-[#e0a861]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                2. Product Photography
+              </h3>
+            </div>
+
             {currentImg && (
-              <div className="p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center gap-4">
-                <div className="relative h-16 w-16 rounded-lg overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] shrink-0">
+              <div className="p-3.5 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center gap-4">
+                <div className="relative h-20 w-20 rounded-xl overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-white dark:bg-[#131710] shrink-0">
                   <Image
                     src={currentImg}
                     alt="Current Product Image"
                     fill
-                    className="object-contain p-1"
+                    unoptimized={isDataOrBlob}
+                    className="object-contain p-1.5"
                   />
                 </div>
                 <div className="text-xs space-y-0.5">
-                  <strong className="block text-[#2c3324] dark:text-[#fefcf1]">Current Product Photo</strong>
-                  <p className="text-[#707666] dark:text-[#a3ab98]">Upload a new image below if you wish to replace it.</p>
+                  <strong className="block text-[#2c3324] dark:text-[#fefcf1] font-bold">Current Active Photo</strong>
+                  <p className="text-[#707666] dark:text-[#a3ab98]">
+                    To replace this photo, select a new image file below. If left empty, the current image will be retained.
+                  </p>
                 </div>
               </div>
             )}
@@ -148,112 +235,128 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
             <ImageUpload
               name="imageFile"
               label="Replace Product Image (Optional)"
-              helperText="Attach product photo from device • Max 5MB • PNG or JPG/JPEG format"
+              helperText="Square 1:1 or 4:3 photo recommended • Clean solid or transparent background • Max 10MB"
               error={state?.fieldErrors?.imageUrls?.[0]}
             />
           </div>
 
-          {/* 3. Category & Price */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Select
-              label="Category"
-              name="category"
-              defaultValue={product.category}
-              options={[
-                { value: 'Apparel', label: 'Apparel (Shirts & Hoodies)' },
-                { value: 'Accessories', label: 'Accessories (Totes & Bags)' },
-                { value: 'Stationery', label: 'Stationery & Stickers' },
-                { value: 'Drinkware', label: 'Drinkware & Flasks' },
-              ]}
-            />
-
-            <Input
-              label="Price in Philippine Pesos (PHP)"
-              name="price"
-              type="number"
-              step="0.01"
-              defaultValue={product.price}
-              placeholder="450"
-              required
-              error={state?.fieldErrors?.price?.[0]}
-            />
-          </div>
-
-          {/* 4. Description */}
-          <div className="space-y-1.5">
-            <Textarea
-              label="Product Description & Material Specs"
-              name="description"
-              defaultValue={product.description}
-              placeholder="Describe the fabric quality, sizing details, inspiration..."
-              required
-              rows={5}
-              error={state?.fieldErrors?.description?.[0]}
-            />
-            <p className="text-[10px] text-[#707666] dark:text-[#a3ab98]">
-              Markdown is supported. Use <strong>- bullet</strong> for lists, <strong>**bold**</strong> for emphasis, and double line breaks for paragraphs.
-            </p>
-          </div>
-
-          {/* 5. Available Sizes */}
-          <SizeSelector initialSizes={product.availableSizes || ['XS', 'S', 'M', 'L', 'XL', '2XL']} />
-
-          {/* 6. Stock Quantity */}
-          <Input
-            label="Current Stock Quantity"
-            name="stockQuantity"
-            type="number"
-            defaultValue={String(product.stockQuantity)}
-            placeholder="50"
-            required
-            error={state?.fieldErrors?.stockQuantity?.[0]}
-          />
-
-          {/* 6. Toggles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
-              <div>
-                <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Available for Purchase</strong>
-                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">Display in public store.</span>
-              </div>
-              <input
-                type="checkbox"
-                name="isAvailable"
-                defaultChecked={product.isAvailable}
-                className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
-              />
+          {/* SECTION 3: DESCRIPTION */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+              <FileText className="h-4 w-4 text-[#e0a861]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                3. Description & Material Specifications
+              </h3>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
-              <div>
-                <strong className="block text-xs text-[#2c3324] dark:text-[#fefcf1]">Pre-Order Item</strong>
-                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98]">Item will be made-to-order.</span>
-              </div>
-              <input
-                type="checkbox"
-                name="isPreorder"
-                defaultChecked={product.isPreorder}
-                className="h-5 w-5 rounded border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861]"
+            <div className="space-y-1.5">
+              <Textarea
+                label="Product Story & Fabric Specs"
+                name="description"
+                defaultValue={product.description}
+                placeholder="Describe fabric composition, fit details, care instructions..."
+                required
+                rows={5}
+                error={state?.fieldErrors?.description?.[0]}
               />
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                Markdown is supported: use <strong>- bullet</strong> for lists, <strong>**bold**</strong> for emphasis.
+              </p>
+            </div>
+          </div>
+
+          {/* SECTION 4: SIZES */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+              <Package className="h-4 w-4 text-[#e0a861]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                4. Available Manufactured Sizes
+              </h3>
+            </div>
+
+            <SizeSelector initialSizes={product.availableSizes || ['XS', 'S', 'M', 'L', 'XL', '2XL']} />
+          </div>
+
+          {/* SECTION 5: INVENTORY & VISIBILITY */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2 pb-2 border-b border-[#e6dfcb]/60 dark:border-[#323d2b]/60">
+              <Info className="h-4 w-4 text-[#e0a861]" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#2c3324] dark:text-[#fefcf1]">
+                5. Stock & Store Visibility
+              </h3>
+            </div>
+
+            <div className="space-y-1">
+              <Input
+                label="Current Available Stock Quantity"
+                name="stockQuantity"
+                type="number"
+                min="0"
+                defaultValue={String(product.stockQuantity)}
+                placeholder="50"
+                required
+                error={state?.fieldErrors?.stockQuantity?.[0]}
+              />
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
+                Track physical inventory count. If Pre-Order mode is checked, buyers can still purchase when count reaches 0.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <strong className="block text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                    Display in Public Store
+                  </strong>
+                  <span className="text-[11px] text-[#707666] dark:text-[#a3ab98] block">
+                    Make this product available for member ordering.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  name="isAvailable"
+                  defaultChecked={product.isAvailable}
+                  className="h-5 w-5 rounded-lg border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861] cursor-pointer"
+                />
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <strong className="block text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                    Pre-Order Batch Mode
+                  </strong>
+                  <span className="text-[11px] text-[#707666] dark:text-[#a3ab98] block">
+                    Product is printed on-demand for camp.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  name="isPreorder"
+                  defaultChecked={product.isPreorder}
+                  className="h-5 w-5 rounded-lg border-[#e6dfcb] dark:border-[#323d2b] text-[#2c3324] dark:text-[#e0a861] focus:ring-[#e0a861] cursor-pointer"
+                />
+              </div>
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="flex items-center justify-end gap-3 border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4">
+        {/* Form Action Footer */}
+        <CardFooter className="flex items-center justify-between gap-4 border-t border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3]/40 dark:bg-[#252e1f]/40 p-6 sm:p-8">
           <Link href="/admin/merch">
-            <Button type="button" variant="outline" size="md">
+            <Button type="button" variant="outline" size="md" className="rounded-xl px-5">
               <span>Cancel</span>
             </Button>
           </Link>
+
           <Button
             type="submit"
             variant="primary"
             size="md"
             isLoading={isPending}
-            className="gap-2 shadow-xs"
+            className="gap-2 rounded-xl px-7 shadow-md font-bold text-sm"
           >
             <Save className="h-4 w-4" />
-            <span>Save Changes</span>
+            <span>Save Product Changes</span>
           </Button>
         </CardFooter>
       </form>

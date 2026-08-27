@@ -47,18 +47,29 @@ export interface ScheduleItem {
   description: string;
 }
 
-export function EventScheduleTimeline({ schedule }: { schedule?: ScheduleItem[] }) {
+export function EventScheduleTimeline({ schedule }: { schedule?: ScheduleItem[] | null }) {
   const [activeDayIndex, setActiveDayIndex] = useState(0);
 
-  // If dynamic schedule is provided, map it into a single "Day 01" format to preserve layout
-  // Alternatively, we could group it if we had date fields, but a single list is fine.
-  const displaySchedule = schedule && schedule.length > 0 
-    ? [{
-        day: 'Schedule',
-        title: 'Event Itinerary',
-        subtitle: 'Main gathering schedule and activities',
-        events: schedule.map(s => ({ time: s.time, title: s.title, desc: s.description, icon: Sparkle }))
-      }]
+  // If schedule is explicitly passed as an empty array, render clean notice
+  const isExplicitlyEmpty = Array.isArray(schedule) && schedule.length === 0;
+
+  // If dynamic schedule is provided with items, render it
+  const hasDynamicSchedule = Array.isArray(schedule) && schedule.length > 0;
+
+  const displaySchedule = hasDynamicSchedule
+    ? [
+        {
+          day: 'Itinerary',
+          title: 'Event Schedule & Activities',
+          subtitle: 'Official itinerary and fellowship timetable',
+          events: schedule.map((s) => ({
+            time: s.time,
+            title: s.title,
+            desc: s.description,
+            icon: Sparkle,
+          })),
+        },
+      ]
     : SAMPLE_SCHEDULE;
 
   const activeDay = displaySchedule[activeDayIndex] || displaySchedule[0];
@@ -77,82 +88,99 @@ export function EventScheduleTimeline({ schedule }: { schedule?: ScheduleItem[] 
         </div>
 
         {/* Day Tab Pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#131710] rounded-2xl">
-          {displaySchedule.map((day, idx) => {
-            const isSelected = activeDayIndex === idx;
-            return (
-              <button
-                key={day.day}
-                type="button"
-                onClick={() => setActiveDayIndex(idx)}
-                className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 z-10 select-none ${
-                  isSelected
-                    ? 'text-[#fefcf1] dark:text-[#131710] font-bold'
-                    : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
-                }`}
-              >
-                {isSelected && (
-                  <motion.div
-                    layoutId="activeScheduleDayTab"
-                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-xl z-[-1] shadow-xs"
-                  />
-                )}
-                <span>{day.day}</span>
-              </button>
-            );
-          })}
+        {!isExplicitlyEmpty && (
+          <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#131710] rounded-2xl">
+            {displaySchedule.map((day, idx) => {
+              const isSelected = activeDayIndex === idx;
+              return (
+                <button
+                  key={day.day}
+                  type="button"
+                  onClick={() => setActiveDayIndex(idx)}
+                  className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 z-10 select-none ${
+                    isSelected
+                      ? 'text-[#fefcf1] dark:text-[#131710] font-bold'
+                      : 'text-[#505748] dark:text-[#a3ab98] hover:text-[#2c3324] dark:hover:text-[#fefcf1]'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="activeScheduleDayTab"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                      className="absolute inset-0 bg-[#2c3324] dark:bg-[#e0a861] rounded-xl z-[-1] shadow-xs"
+                    />
+                  )}
+                  <span>{day.day}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {isExplicitlyEmpty ? (
+        <div className="p-8 text-center rounded-2xl bg-[#f8f4e3]/40 dark:bg-[#131710]/40 border border-[#e6dfcb] dark:border-[#323d2b] space-y-2">
+          <p className="font-serif font-bold text-lg text-[#2c3324] dark:text-[#fefcf1]">
+            Itinerary Under Preparation
+          </p>
+          <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] max-w-md mx-auto leading-relaxed">
+            The detailed hour-by-hour program and study lectures for this gathering will be published closer to the camp date.
+          </p>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Subtitle */}
+          <div className="space-y-1">
+            <h4 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
+              {activeDay.title}
+            </h4>
+            <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
+              {activeDay.subtitle}
+            </p>
+          </div>
 
-      {/* Subtitle */}
-      <div className="space-y-1">
-        <h4 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
-          {activeDay.title}
-        </h4>
-        <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
-          {activeDay.subtitle}
-        </p>
-      </div>
-
-      {/* Events Timeline */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeDay.day}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-          className="space-y-4"
-        >
-          {activeDay.events.map((event, idx) => {
-            const EventIcon = event.icon;
-            return (
-              <div
-                key={idx}
-                className="p-4 sm:p-5 rounded-2xl bg-[#f8f4e3]/60 dark:bg-[#131710]/60 border border-[#e6dfcb] dark:border-[#323d2b] flex items-start gap-4 hover:border-[#e0a861]/60 transition-colors"
-              >
-                <div className="h-10 w-10 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center shrink-0 shadow-xs">
-                  <EventIcon weight="duotone" className="h-5 w-5 text-[#9a6423] dark:text-[#f0be7c]" />
-                </div>
-                <div className="space-y-1 flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <strong className="font-serif text-base text-[#2c3324] dark:text-[#fefcf1]">
-                      {event.title}
-                    </strong>
-                    <span className="text-xs font-mono font-bold text-[#9a6423] dark:text-[#f0be7c] px-2.5 py-0.5 rounded-lg bg-[#e0a861]/15 shrink-0 w-fit">
-                      {event.time}
-                    </span>
+          {/* Events Timeline */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeDay.day}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-4"
+            >
+              {activeDay.events.map((event, idx) => {
+                const EventIcon = event.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="p-4 sm:p-5 rounded-2xl bg-[#f8f4e3]/60 dark:bg-[#131710]/60 border border-[#e6dfcb] dark:border-[#323d2b] flex items-start gap-4 hover:border-[#e0a861]/60 transition-colors"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-[#fbf1e2] dark:bg-[#252e1f] text-[#e0a861] flex items-center justify-center shrink-0 shadow-xs">
+                      <EventIcon weight="duotone" className="h-5 w-5 text-[#9a6423] dark:text-[#f0be7c]" />
+                    </div>
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <strong className="font-serif text-base text-[#2c3324] dark:text-[#fefcf1]">
+                          {event.title}
+                        </strong>
+                        <span className="text-xs font-mono font-bold text-[#9a6423] dark:text-[#f0be7c] px-2.5 py-0.5 rounded-lg bg-[#e0a861]/15 shrink-0 w-fit">
+                          {event.time}
+                        </span>
+                      </div>
+                      {event.desc && (
+                        <p className="text-xs text-[#707666] dark:text-[#a3ab98] leading-relaxed">
+                          {event.desc}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-xs text-[#707666] dark:text-[#a3ab98] leading-relaxed">
-                    {event.desc}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </motion.div>
-      </AnimatePresence>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </>
+      )}
     </InteractiveCard>
   );
 }
