@@ -58,32 +58,6 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col w-full overflow-hidden">
-      {/* TESTING PHASE ANNOUNCEMENT BANNER */}
-      <div className="w-full bg-[#fbf1e2] dark:bg-[#2b2315] border-b border-[#e0a861]/40 text-[#422e1b] dark:text-[#f0be7c] py-3.5 px-4 sm:px-6 lg:px-8 relative z-20">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#e0a861]/20 dark:bg-[#e0a861]/15 flex items-center justify-center shrink-0 text-[#9a6423] dark:text-[#f0be7c]">
-              <WarningCircle weight="bold" className="h-4 w-4" />
-            </div>
-            <div className="text-xs sm:text-sm">
-              <span className="font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wide mr-1.5 px-2 py-0.5 bg-[#e0a861]/20 dark:bg-[#e0a861]/15 rounded-md">
-                Testing Phase
-              </span>
-              <span className="text-[#5c4936] dark:text-[#d4b896]">
-                This website is currently in its active development and testing phase.{' '}
-                <strong className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">
-                  Event registration and merchandise ordering are currently disabled.
-                </strong>
-              </span>
-            </div>
-          </div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-[#9a6423] dark:text-[#f0be7c] shrink-0">
-            <Clock weight="bold" className="h-3.5 w-3.5" />
-            <span>Full Launch Coming Soon</span>
-          </div>
-        </div>
-      </div>
-
       {/* 1. HERO SECTION (Asymmetric Split with Dynamic Atmospheric Glow & 3D Showcase) */}
       <section className="relative overflow-hidden bg-[#fefcf1] dark:bg-[#131710] py-20 sm:py-28 lg:py-36">
         <HeroGlow />
