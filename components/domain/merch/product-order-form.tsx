@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { createOrderAction, OrderActionResult } from '@/app/actions/orders';
 import { formatCurrency } from '@/lib/utils';
+import { ProductSizeGuideModal } from '@/components/merch/product-size-guide-modal';
 import type { Product } from '@/lib/db/schema/products';
 import type { Profile } from '@/lib/db/schema/users';
 import {
@@ -172,9 +173,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider">
                   Select Size <span className="text-[#c0392b] dark:text-[#ef5350]">*</span>
                 </label>
-                <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
-                  Selected: <strong className="text-[#2c3324] dark:text-[#fefcf1]">{selectedSize}</strong>
-                </span>
+                <ProductSizeGuideModal />
               </div>
               <div className="flex flex-wrap gap-2">
                 {availableSizes.map((size) => {
@@ -184,10 +183,10 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`min-w-[48px] h-10 px-3.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`min-w-[48px] h-11 px-4 rounded-2xl text-xs font-bold transition-all ${
                         isSelected
-                          ? 'bg-[#2c3324] text-[#fefcf1] shadow-sm ring-2 ring-[#e0a861]'
-                          : 'bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:bg-[#e6dfcb]/50'
+                          ? 'bg-[#2c3324] text-[#fefcf1] dark:bg-[#e0a861] dark:text-[#131710] shadow-md ring-2 ring-[#e0a861]/50 scale-105'
+                          : 'bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[#505748] dark:text-[#a3ab98] hover:border-[#e0a861]/60'
                       }`}
                     >
                       {size}
@@ -203,34 +202,43 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
             </div>
           )}
 
-          {/* 2. Quantity Selector */}
+          {/* 2. Quantity Selector & Mission Impact */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-[#2c3324] dark:text-[#fefcf1] uppercase tracking-wider block">
               Quantity
             </label>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center border border-[#e6dfcb] dark:border-[#323d2b] rounded-xl overflow-hidden bg-white dark:bg-[#1b2117] shadow-2xs">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b]">
+              <div className="flex items-center border border-[#e6dfcb] dark:border-[#323d2b] rounded-xl overflow-hidden bg-white dark:bg-[#131710] shadow-2xs">
                 <button
                   type="button"
                   onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                  className="px-3.5 py-2 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-sm transition-colors"
+                  className="px-3.5 py-1.5 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-base transition-colors"
                 >
                   -
                 </button>
-                <span className="px-4 py-2 text-sm font-bold text-[#2c3324] dark:text-[#fefcf1] min-w-[40px] text-center">
+                <span className="px-4 py-1.5 text-sm font-bold text-[#2c3324] dark:text-[#fefcf1] min-w-[40px] text-center font-mono">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity((prev) => Math.min(50, prev + 1))}
-                  className="px-3.5 py-2 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-sm transition-colors"
+                  className="px-3.5 py-1.5 text-[#505748] dark:text-[#a3ab98] hover:bg-[#f8f4e3] dark:hover:bg-[#1b2117] font-bold text-base transition-colors"
                 >
                   +
                 </button>
               </div>
-              <span className="text-xs text-[#707666] dark:text-[#a3ab98]">
-                Subtotal: <strong className="text-[#2c3324] dark:text-[#fefcf1]">{formatCurrency(itemSubtotal)}</strong>
-              </span>
+
+              <div className="text-right">
+                <span className="text-[11px] text-[#707666] dark:text-[#a3ab98] block">Item Subtotal:</span>
+                <span className="font-serif font-bold text-base text-[#9a6423] dark:text-[#f0be7c]">
+                  {formatCurrency(itemSubtotal)}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-[#e0a861]/10 border border-[#e0a861]/30 flex items-center gap-2 text-[11px] text-[#9a6423] dark:text-[#f0be7c] font-semibold">
+              <Sparkles className="h-3.5 w-3.5 shrink-0" />
+              <span>Includes ~₱{Math.round(quantity * (unitPrice * 0.55))} dedicated to youth travel subsidies.</span>
             </div>
           </div>
 

@@ -105,6 +105,8 @@ export const eventSchema = z.object({
   maxAttendees: z.number().int().positive().optional(),
   registrationDeadline: z.string().optional(),
   status: z.enum(['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).default('UPCOMING'),
+  schedule: z.string().optional(),
+  checklist: z.string().optional(),
 });
 
 export const eventRegistrationSchema = z

@@ -10,9 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { updateEventAction, AdminEventActionState } from '@/app/actions/events';
-import { type Event } from '@/lib/db/schema/events';
+import { Event } from '@/lib/db/schema/events';
 import { formatDateForDateInput, formatTimeForTimeInput } from '@/lib/utils';
 import { Calendar, AlertCircle, Save, Wand2 } from 'lucide-react';
+import { AdminScheduleBuilder } from '@/components/events/admin-schedule-builder';
+import { AdminChecklistBuilder } from '@/components/events/admin-checklist-builder';
 
 const initialState: AdminEventActionState = {
   success: false,
@@ -240,7 +242,17 @@ export function EditEventForm({ event }: EditEventFormProps) {
             />
           </div>
 
-          {/* 7. Status & Toggles */}
+          {/* 7. Schedule & Checklist */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
+              <AdminScheduleBuilder initialSchedule={event.schedule as any} />
+            </div>
+            <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
+              <AdminChecklistBuilder initialChecklist={event.checklist as any} />
+            </div>
+          </div>
+
+          {/* 8. Status & Toggles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
               label="Event Status"

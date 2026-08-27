@@ -10,6 +10,8 @@ import { Select } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { createEventAction, AdminEventActionState } from '@/app/actions/events';
 import { Calendar, ArrowLeft, AlertCircle, Sparkles, Wand2 } from 'lucide-react';
+import { AdminScheduleBuilder } from '@/components/events/admin-schedule-builder';
+import { AdminChecklistBuilder } from '@/components/events/admin-checklist-builder';
 
 const initialState: AdminEventActionState = {
   success: false,
@@ -212,6 +214,16 @@ export default function NewEventPage() {
                 placeholder="e.g. 120"
                 error={state?.fieldErrors?.maxAttendees?.[0]}
               />
+            </div>
+
+            {/* 7. Schedule & Checklist */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
+                <AdminScheduleBuilder />
+              </div>
+              <div className="p-4 rounded-xl border border-[#e6dfcb] dark:border-[#323d2b] bg-white/50 dark:bg-black/20">
+                <AdminChecklistBuilder />
+              </div>
             </div>
 
             {/* 7. Status & Toggles */}

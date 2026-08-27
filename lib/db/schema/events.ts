@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, integer, numeric, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, integer, numeric, pgEnum, index, uniqueIndex, jsonb } from 'drizzle-orm/pg-core';
 import { profiles } from './users';
 
 export const eventStatusEnum = pgEnum('event_status', ['UPCOMING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']);
@@ -20,6 +20,8 @@ export const events = pgTable(
     startDate: timestamp('start_date', { withTimezone: true }).notNull(),
     endDate: timestamp('end_date', { withTimezone: true }).notNull(),
     location: text('location').notNull(),
+    schedule: jsonb('schedule'),
+    checklist: jsonb('checklist'),
     registrationFee: numeric('registration_fee', { precision: 10, scale: 2 }).default('0.00').notNull(),
     isPublished: boolean('is_published').default(false).notNull(),
     status: eventStatusEnum('status').default('UPCOMING').notNull(),

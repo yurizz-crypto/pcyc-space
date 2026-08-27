@@ -86,6 +86,8 @@ export async function createEventAction(
       registrationDeadline: formData.get('registrationDeadline') || undefined,
       isPublished: formData.get('isPublished') === 'on' || formData.get('isPublished') === 'true',
       status: (formData.get('status') as string) || 'UPCOMING',
+      schedule: formData.get('schedule') || undefined,
+      checklist: formData.get('checklist') || undefined,
     };
 
     const parsed = eventSchema.safeParse(rawData);
@@ -112,6 +114,8 @@ export async function createEventAction(
         registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
         isPublished: parsed.data.isPublished ?? true,
         status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED') || 'UPCOMING',
+        schedule: parsed.data.schedule ? JSON.parse(parsed.data.schedule) : null,
+        checklist: parsed.data.checklist ? JSON.parse(parsed.data.checklist) : null,
       });
 
       logger.info({ slug: parsed.data.slug, adminId: profile.id }, 'New event created by admin');
@@ -228,6 +232,8 @@ export async function updateEventAction(
       registrationDeadline: formData.get('registrationDeadline') || undefined,
       isPublished: formData.get('isPublished') === 'on' || formData.get('isPublished') === 'true',
       status: (formData.get('status') as string) || 'UPCOMING',
+      schedule: formData.get('schedule') || undefined,
+      checklist: formData.get('checklist') || undefined,
     };
 
     const parsed = eventSchema.safeParse(rawData);
@@ -258,6 +264,8 @@ export async function updateEventAction(
           registrationDeadline: parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null,
           isPublished: parsed.data.isPublished ?? true,
           status: (parsed.data.status as 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED') || 'UPCOMING',
+          schedule: parsed.data.schedule ? JSON.parse(parsed.data.schedule) : null,
+          checklist: parsed.data.checklist ? JSON.parse(parsed.data.checklist) : null,
           updatedAt: new Date(),
         })
         .where(eq(events.id, eventId));
