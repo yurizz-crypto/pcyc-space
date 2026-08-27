@@ -9,6 +9,20 @@ interface ScrollRevealProps {
   yOffset?: number;
 }
 
+/**
+ * ScrollReveal Component
+ * 
+ * Provides an Apple-style fluid entrance animation triggered when the element scrolls into the viewport.
+ * Uses a highly-optimized Framer Motion cubic-bezier curve `[0.16, 1, 0.3, 1]` for a 
+ * pronounced "snappy but smooth" deceleration profile.
+ * 
+ * @param {ScrollRevealProps} props 
+ * @param {React.ReactNode} props.children - Content to be animated.
+ * @param {number} [props.delay=0] - Stagger delay in seconds before animation begins.
+ * @param {string} [props.className] - Optional Tailwind classes to merge onto the wrapper.
+ * @param {number} [props.yOffset=24] - Vertical translation offset in pixels.
+ * @returns {JSX.Element}
+ */
 export function ScrollReveal({
   children,
   delay = 0,

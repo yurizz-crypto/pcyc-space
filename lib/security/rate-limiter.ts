@@ -31,8 +31,11 @@ const ROUTE_POLICIES: Record<string, RateLimitConfig> = {
 };
 
 /**
- * In-Memory O(1) Sliding Window Store
- * Uses Map with automatic TTL cleanup to maintain fixed memory footprint.
+ * In-Memory O(1) Sliding Window Rate Limiting Store.
+ * 
+ * Implements a high-performance, collision-free Map tailored for Edge runtime constraints.
+ * It automatically triggers non-blocking garbage collection of expired temporal buckets 
+ * to maintain a fixed memory footprint, preventing heap exhaustion under sustained load.
  */
 class MemoryRateLimiter {
   private store = new Map<string, RateLimitBucket>();
@@ -40,7 +43,12 @@ class MemoryRateLimiter {
   private readonly cleanupIntervalMs = 60 * 1000; // Sweep every 60s
 
   /**
-   * Evaluates incoming request against rate limit policy in O(1) time.
+   * Evaluates an incoming request against the defined rate limit policy in O(1) time complexity.
+   *
+   * @param {string} identifier - A unique identifier for the requester (e.g., Client IP or User ID).
+   * @param {string} path - The request path or action key being accessed.
+   * @param {RateLimitConfig} [customConfig] - Optional override configuration for specific bounded contexts.
+   * @returns {RateLimitResult} An object containing the authorization decision and HTTP header metadata.
    */
   public check(identifier: string, path: string, customConfig?: RateLimitConfig): RateLimitResult {
     const now = Date.now();

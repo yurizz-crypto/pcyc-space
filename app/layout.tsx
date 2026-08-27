@@ -109,6 +109,19 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+/**
+ * Root Application Layout
+ * 
+ * Defines the top-level HTML document structure for the Next.js App Router.
+ * Configures the primary theme providers (ThemeProvider), global UI overlays (ToastProvider), 
+ * and universal navigation components (Navbar & Footer).
+ * Automatically injects an inline script in `<head>` to prevent Flash of Unstyled Text (FOUT) 
+ * and Flash of Inaccurate Theme (FOIT) on initial load by checking `localStorage` synchronously.
+ * 
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - The specific page or nested layout to render.
+ * @returns {JSX.Element} The foundational `<html>` and `<body>` structure.
+ */
 export default async function RootLayout({
   children,
 }: {

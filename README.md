@@ -43,10 +43,17 @@
 
 ---
 
+## 📚 Documentation
+
+For an in-depth breakdown of the system architecture, database schema, folder structure, UI system, and concurrency mechanics, please refer to the **[Architecture & Developer Documentation](DOCUMENTATION.md)**.
+
+---
+
 ## ✨ Features
 
 ### 🌐 Public Experience
 - **Rich Landing Page** — Animated hero with trust statistics, three faith pillars, event previews, and merchandise highlights
+- **Interactive Ecclesias Map** — Dynamic Leaflet map plotting active gathering spots across the archipelago
 - **About & History** — PCYC's story, mission statement, leadership team, and statement of faith
 - **Events Showcase** — Browse upcoming camps and gatherings with dates, locations, and registration details
 - **Merch Catalog** — Browse branded products with multi-image galleries, size variants, and live stock availability
@@ -77,7 +84,8 @@
 - **Ecclesia Directory** — Maintain the Philippine ecclesia directory by region (Luzon, Visayas, Mindanao)
 - **Theme Settings** — Manage site-wide theme and display configuration
 
-### 🔒 Security & Privacy
+### 🔒 Security & Concurrency
+- **Transaction Safety** — Robust Drizzle ORM transactions guarding against race conditions for inventory and event registrations
 - **PII Masking** — Email and phone number masking with role-based reveal permissions
 - **Audit Logging** — Enterprise-grade audit trail tracking all admin actions (role changes, status updates, PII reveals, data mutations)
 - **Rate Limiting** — O(1) sliding-window rate limiter at the middleware level

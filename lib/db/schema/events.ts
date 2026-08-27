@@ -37,7 +37,11 @@ export const events = pgTable(
 );
 
 /**
- * Event Registrations Table
+ * Event Registrations Junction Table
+ * 
+ * Maps users (profiles) to events they have signed up for. Acts as the primary ledger for
+ * event attendance, ticketing, and fee collection tracking (GCash/Venue).
+ * Maintains a strict Unique Constraint on (eventId, userId) to prevent duplicate registrations.
  */
 export const eventRegistrations = pgTable(
   'event_registrations',

@@ -11,13 +11,31 @@ import { logger } from '@/lib/logger';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
 import { renderWelcomeEmail } from '@/lib/email/templates/welcome';
 
+/**
+ * State object returned by authentication server actions.
+ */
 export interface ActionState {
+  /** Indicates if the operation was successful. */
   success?: boolean;
+  /** A general error message if the operation failed. */
   error?: string;
+  /** Field-specific validation errors. */
   fieldErrors?: Record<string, string[]>;
+  /** A success message or general information. */
   message?: string;
 }
 
+/**
+ * Authenticates a user using Supabase email and password credentials.
+ * Upon successful authentication, it verifies the user's role from the PostgreSQL
+ * database and redirects them to the appropriate portal (Admin or Member).
+ * 
+ * @param {ActionState} prevState - The previous state of the action.
+ * @param {FormData} formData - The submitted form data containing `email` and `password`.
+ * @returns {Promise<ActionState>} A promise resolving to an `ActionState` object if validation or network errors occur. Otherwise, redirects the user.
+ * 
+ * @throws Will redirect to `/admin` or `/portal` on success.
+ */
 export async function loginAction(
   prevState: ActionState,
   formData: FormData
@@ -81,6 +99,20 @@ export async function loginAction(
   redirect(destination);
 }
 
+/**
+ * Registers a new PCYC Member account.
+ * 
+ * This action performs a two-step registration:
+ * 1. Creates an identity in Supabase Auth to handle secure credential management.
+ * 2. Mirrors the identity into the internal `profiles` table to maintain rich domain data 
+ *    (e.g., designation, baptism date, ecclesia).
+ * 
+ * After successful creation, it dispatches an asynchronous welcome email and an in-app notification.
+ * 
+ * @param {ActionState} prevState - The previous state of the action.
+ * @param {FormData} formData - The submitted form data containing user profile details and credentials.
+ * @returns {Promise<ActionState>} A promise resolving to an `ActionState` object indicating success or failure.
+ */
 export async function registerAction(
   prevState: ActionState,
   formData: FormData
@@ -193,6 +225,15 @@ export async function registerAction(
   };
 }
 
+/**
+ * Initiates the password recovery flow via Supabase Auth.
+ * Dispatches a secure recovery link to the provided email address, which redirects 
+ * the user back to the application to enter a new password.
+ * 
+ * @param {ActionState} prevState - The previous state of the action.
+ * @param {FormData} formData - The submitted form data containing the `email` address.
+ * @returns {Promise<ActionState>} A promise resolving to an `ActionState` object indicating success or failure.
+ */
 export async function resetPasswordAction(
   prevState: ActionState,
   formData: FormData
@@ -242,6 +283,15 @@ export async function resetPasswordAction(
   };
 }
 
+/**
+ * Terminates the current user's active session.
+ * Safely handles network failures by ensuring local session state is cleared regardless,
+ * followed by a strict cache revalidation to prevent stale data exposure.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the user has been signed out and redirected to `/login`.
+ * 
+ * @throws Will redirect to `/login` unconditionally.
+ */
 export async function signOutAction(): Promise<void> {
   try {
     const supabase = await createServerSupabaseClient();

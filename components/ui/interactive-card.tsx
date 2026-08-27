@@ -14,7 +14,16 @@ interface InteractiveCardProps extends HTMLMotionProps<'div'> {
 }
 
 /**
- * Interactive card with physical 3D perspective tilt, specular glare, and cursor spotlight.
+ * Hardware-accelerated Interactive Card component combining spatial physics with lighting effects.
+ * 
+ * Employs Framer Motion's `useSpring` and `useMotionValue` to achieve Apple-esque fluid direct manipulation.
+ * Applies a mathematical mapping of cursor coordinates to 3D CSS rotate transformations (pitch and yaw),
+ * coupled with a dynamic CSS radial-gradient spotlight to create realistic material depth and specularity.
+ * 
+ * @param {InteractiveCardProps} props - Configuration options extending standard HTMLMotionProps.
+ * @param {boolean} [props.enableSpotlight=true] - Toggles the cursor-following radial gradient layer.
+ * @param {boolean} [props.enableTilt=true] - Enables parallax 3D rotation based on mouse bounds.
+ * @param {string} [props.spotlightColor='rgba(224, 168, 97, 0.12)'] - CSS color definition for the lighting cone.
  */
 export function InteractiveCard({
   children,

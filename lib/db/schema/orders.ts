@@ -27,7 +27,11 @@ export const paymentVerificationStatusEnum = pgEnum('payment_verification_status
 ]);
 
 /**
- * Orders Table
+ * Orders Ledger Table
+ * 
+ * Core table for the e-commerce and merchandise fundraising system. 
+ * Tracks the complete lifecycle of a member's purchase, from pending payment to fulfillment.
+ * Includes JSONB column for flexible shipping/pickup logistics data.
  */
 export const orders = pgTable(
   'orders',
@@ -58,7 +62,11 @@ export const orders = pgTable(
 );
 
 /**
- * Order Items Table
+ * Order Line Items Table
+ * 
+ * Maps specific merchandise items (and their selected variants like size) to a parent Order.
+ * Snapshots the unit price at the time of purchase to prevent historical data mutation 
+ * if product prices change later.
  */
 export const orderItems = pgTable(
   'order_items',
@@ -78,8 +86,11 @@ export const orderItems = pgTable(
 );
 
 /**
- * Payment Receipts Table
- * Stores manual proof-of-payment screenshots (GCash / PalawanPay / Bank)
+ * Payment Verification Receipts Table
+ * 
+ * Securely stores manual proof-of-payment screenshots (e.g., GCash, PalawanPay, Bank Transfer).
+ * Administrators review these records to transition Orders from PENDING_PAYMENT to PAID.
+ * Enforces a 1:1 unique relationship with orders.id.
  */
 export const paymentReceipts = pgTable(
   'payment_receipts',
