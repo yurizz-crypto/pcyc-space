@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/ui/pagination';
 import { formatDate } from '@/lib/utils';
-import { confirmEventRegistrationPaymentAction } from '@/app/actions/events';
+import {
+  confirmEventRegistrationPaymentAction,
+  declineEventRegistrationPaymentAction,
+} from '@/app/actions/events';
 import type { AttendeeWithProfile } from '@/lib/db/queries/events';
 import {
   Users,
@@ -88,6 +91,27 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
     setConfirmingId(null);
     if (!result.success) {
       window.alert(result.error || 'Unable to confirm payment.');
+      return;
+    }
+    router.refresh();
+  };
+
+  const handleDeclinePayment = async (registrationId: string, eventId: string) => {
+    const reviewNote = window.prompt(
+      'Why is this payment being declined? This note will be sent to the attendee.',
+      'The uploaded proof could not be verified.'
+    );
+    if (reviewNote === null) return;
+
+    setConfirmingId(registrationId);
+    const formData = new FormData();
+    formData.set('registrationId', registrationId);
+    formData.set('eventId', eventId);
+    formData.set('reviewNote', reviewNote);
+    const result = await declineEventRegistrationPaymentAction(formData);
+    setConfirmingId(null);
+    if (!result.success) {
+      window.alert(result.error || 'Unable to decline payment.');
       return;
     }
     router.refresh();
@@ -301,18 +325,28 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
                         )}
 
                         {reg.paymentOption !== 'FREE' && reg.paymentStatus !== 'PAID' && (
-                          <button
-                            type="button"
-                            disabled={confirmingId === reg.id}
-                            onClick={() => handleConfirmPayment(reg.id, reg.eventId)}
-                            className="px-3 py-2 rounded-xl bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] text-[11px] font-bold hover:opacity-90 disabled:opacity-50 transition-opacity"
-                          >
-                            {confirmingId === reg.id
-                              ? 'Confirming...'
-                              : isVenue
-                              ? 'Confirm Venue Payment'
-                              : 'Confirm Receipt'}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={confirmingId === reg.id}
+                              onClick={() => handleConfirmPayment(reg.id, reg.eventId)}
+                              className="px-3 py-2 rounded-xl bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] text-[11px] font-bold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                            >
+                              {confirmingId === reg.id
+                                ? 'Reviewing...'
+                                : isVenue
+                                ? 'Confirm Venue Payment'
+                                : 'Confirm Receipt'}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={confirmingId === reg.id}
+                              onClick={() => handleDeclinePayment(reg.id, reg.eventId)}
+                              className="px-3 py-2 rounded-xl border border-[#c0392b]/40 text-[#c0392b] dark:text-[#ef5350] text-[11px] font-bold hover:bg-[#fdf2f2] dark:hover:bg-[#2d1815] disabled:opacity-50 transition-colors"
+                            >
+                              Decline
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>

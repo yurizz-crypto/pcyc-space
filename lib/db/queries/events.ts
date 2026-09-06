@@ -110,7 +110,13 @@ export const getUserEventRegistration = cache(async function getUserEventRegistr
     const results = await db
       .select()
       .from(eventRegistrations)
-      .where(and(eq(eventRegistrations.userId, userId), eq(eventRegistrations.eventId, eventId)))
+      .where(
+        and(
+          eq(eventRegistrations.userId, userId),
+          eq(eventRegistrations.eventId, eventId),
+          ne(eventRegistrations.status, 'CANCELLED')
+        )
+      )
       .limit(1);
 
     return results[0] || null;
@@ -184,4 +190,3 @@ export const getEventAttendees = cache(async function getEventAttendees(eventId:
 });
 
 export type AttendeeWithProfile = Awaited<ReturnType<typeof getEventAttendees>>[number];
-

@@ -27,8 +27,22 @@ export interface AdminEventActionState {
 export async function confirmEventRegistrationPaymentAction(
   formData: FormData
 ): Promise<{ success: boolean; message?: string; error?: string }> {
+  return reviewEventRegistrationPaymentAction(formData, 'APPROVED');
+}
+
+export async function declineEventRegistrationPaymentAction(
+  formData: FormData
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  return reviewEventRegistrationPaymentAction(formData, 'DECLINED');
+}
+
+async function reviewEventRegistrationPaymentAction(
+  formData: FormData,
+  decision: 'APPROVED' | 'DECLINED'
+): Promise<{ success: boolean; message?: string; error?: string }> {
   const registrationId = formData.get('registrationId') as string | null;
   const eventId = formData.get('eventId') as string | null;
+  const reviewNote = ((formData.get('reviewNote') as string | null) || '').trim();
 
   if (!registrationId || !eventId) {
     return { success: false, error: 'Registration details are missing.' };
@@ -54,21 +68,50 @@ export async function confirmEventRegistrationPaymentAction(
       return { success: true, message: 'Free registration is already verified.' };
     }
 
-    await db
-      .update(eventRegistrations)
-      .set({
-        status: 'CONFIRMED',
-        paymentStatus: 'PAID',
-      })
-      .where(eq(eventRegistrations.id, registrationId));
+    if (decision === 'APPROVED') {
+      await db
+        .update(eventRegistrations)
+        .set({
+          status: 'CONFIRMED',
+          paymentStatus: 'PAID',
+          specialRequirements: reviewNote
+            ? `${registration.specialRequirements || ''}\nPayment verified: ${reviewNote}`.trim()
+            : registration.specialRequirements,
+        })
+        .where(eq(eventRegistrations.id, registrationId));
+    } else {
+      await db
+        .update(eventRegistrations)
+        .set({
+          status: 'CANCELLED',
+          paymentStatus: 'UNPAID',
+          specialRequirements: `${registration.specialRequirements || ''}\nPayment declined: ${
+            reviewNote || 'Submitted proof could not be verified.'
+          }`.trim(),
+        })
+        .where(eq(eventRegistrations.id, registrationId));
+    }
 
     revalidatePath(`/admin/events/${eventId}/attendees`);
     revalidatePath(`/admin/events/${eventId}/print`);
     revalidatePath('/portal');
 
+    if (decision === 'DECLINED') {
+      await dispatchNotification({
+        userId: registration.userId,
+        type: 'EVENT_REGISTRATION',
+        title: `Payment Review Needed`,
+        message: `Your event payment proof was declined. Please register again with valid payment details.${reviewNote ? ` Note: ${reviewNote}` : ''}`,
+        linkUrl: `/events/${eventId}`,
+        metadata: { eventId, registrationId, decision: 'DECLINED' },
+      });
+    }
+
     return {
       success: true,
-      message: registration.paymentOption === 'VENUE_DESK'
+      message: decision === 'DECLINED'
+        ? 'Payment declined. The attendee can register again.'
+        : registration.paymentOption === 'VENUE_DESK'
         ? 'Venue payment confirmed.'
         : 'Payment receipt confirmed.',
     };
@@ -558,7 +601,7 @@ export async function registerForEventAction(
     // 2. Check if already registered
     const { getUserEventRegistration } = await import('@/lib/db/queries/events');
     const existing = await getUserEventRegistration(profile.id, eventId);
-    if (existing) {
+    if (existing && existing.status !== 'CANCELLED') {
       return {
         success: false,
         error: 'You are already registered for this event! Check your Member Portal for details.',
@@ -606,7 +649,7 @@ export async function registerForEventAction(
 
     // 4. Insert into eventRegistrations
     try {
-      await db.insert(eventRegistrations).values({
+      const registrationValues = {
         eventId: event.id,
         userId: profile.id,
         status: finalRegStatus,
@@ -616,7 +659,15 @@ export async function registerForEventAction(
         receiptImageUrl: receiptImageUrl,
         amountPaid: feeNum > 0 ? feeNum.toFixed(2) : '0.00',
         specialRequirements: specialRequirements || null,
-      });
+      };
+
+      await db
+        .insert(eventRegistrations)
+        .values(registrationValues)
+        .onConflictDoUpdate({
+          target: [eventRegistrations.eventId, eventRegistrations.userId],
+          set: registrationValues,
+        });
 
       logger.info(
         { eventId: event.id, userId: profile.id, paymentOption: finalPaymentOption },
