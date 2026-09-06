@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getCachedAdminOverviewMetrics } from '@/lib/db/queries/cached';
-import { getCachedDisplayedEcclesias } from '@/lib/db/queries/cached';
+import { getCachedDisplayedEcclesias, getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { getAllEvents } from '@/lib/db/queries/events';
 import { updateYouthCountAction } from '@/app/actions/settings';
+import { AdminPaymentSettings } from './admin-payment-settings';
 import {
   Calendar,
   ShoppingBag,
@@ -25,10 +26,11 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const [metrics, ecclesiasList, eventsList] = await Promise.all([
+  const [metrics, ecclesiasList, eventsList, paymentSettings] = await Promise.all([
     getCachedAdminOverviewMetrics(),
     getCachedDisplayedEcclesias(),
     getAllEvents(),
+    getCachedPaymentSettings(),
   ]);
 
   return (
@@ -105,7 +107,7 @@ export default async function AdminDashboardPage() {
               <div className="font-serif font-bold text-3xl text-[#9a6423] dark:text-[#f0be7c]">
                 {metrics.pendingOrdersCount}
               </div>
-              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">GCash receipts queue</p>
+              <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">{paymentSettings.platform} receipts queue</p>
             </CardContent>
           </Card>
         </Link>
@@ -192,6 +194,14 @@ export default async function AdminDashboardPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Dynamic Payment Settings */}
+      <AdminPaymentSettings 
+        initialPlatform={paymentSettings.platform}
+        initialAccountName={paymentSettings.accountName}
+        initialAccountNumber={paymentSettings.accountNumber}
+        initialQrUrl={paymentSettings.qrUrl}
+      />
 
       {/* Section: Ecclesias Directory & Recent Events */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
