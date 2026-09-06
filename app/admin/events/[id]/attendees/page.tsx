@@ -5,7 +5,7 @@ import { getEventById, getEventAttendees } from '@/lib/db/queries/events';
 import { AttendeesClientView } from './attendees-client-view';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatDate, formatPHP, formatEventSchedule } from '@/lib/utils';
+import { formatPHP, formatEventSchedule } from '@/lib/utils';
 import { ArrowLeft, Calendar, MapPin, Printer } from 'lucide-react';
 
 interface EventAttendeesPageProps {
@@ -90,7 +90,7 @@ export default async function EventAttendeesPage({ params }: EventAttendeesPageP
       </div>
 
       {/* Interactive Attendees Directory with Search, Filter Tabs & Pagination */}
-      <AttendeesClientView event={event} attendees={attendees} />
+      <AttendeesClientView attendees={attendees} />
     </div>
   );
 }

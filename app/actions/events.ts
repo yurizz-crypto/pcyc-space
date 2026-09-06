@@ -24,6 +24,60 @@ export interface AdminEventActionState {
   payload?: any;
 }
 
+export async function confirmEventRegistrationPaymentAction(
+  formData: FormData
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  const registrationId = formData.get('registrationId') as string | null;
+  const eventId = formData.get('eventId') as string | null;
+
+  if (!registrationId || !eventId) {
+    return { success: false, error: 'Registration details are missing.' };
+  }
+
+  const profile = await getCurrentUserProfile();
+  if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPERADMIN')) {
+    return { success: false, error: 'Unauthorized: Admin privileges required.' };
+  }
+
+  try {
+    const [registration] = await db
+      .select()
+      .from(eventRegistrations)
+      .where(and(eq(eventRegistrations.id, registrationId), eq(eventRegistrations.eventId, eventId)))
+      .limit(1);
+
+    if (!registration) {
+      return { success: false, error: 'Registration not found.' };
+    }
+
+    if (registration.paymentOption === 'FREE') {
+      return { success: true, message: 'Free registration is already verified.' };
+    }
+
+    await db
+      .update(eventRegistrations)
+      .set({
+        status: 'CONFIRMED',
+        paymentStatus: 'PAID',
+      })
+      .where(eq(eventRegistrations.id, registrationId));
+
+    revalidatePath(`/admin/events/${eventId}/attendees`);
+    revalidatePath(`/admin/events/${eventId}/print`);
+    revalidatePath('/portal');
+
+    return {
+      success: true,
+      message: registration.paymentOption === 'VENUE_DESK'
+        ? 'Venue payment confirmed.'
+        : 'Payment receipt confirmed.',
+    };
+  } catch (error: any) {
+    logger.error({ error: error?.message, registrationId, eventId }, 'Failed to confirm event registration payment');
+    return { success: false, error: 'Unable to confirm this attendee payment.' };
+  }
+}
+
 /**
  * Server Action for Admins to create a new live Event in PostgreSQL.
  */

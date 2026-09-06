@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import { formatDate } from '@/lib/utils';
-import type { Event } from '@/lib/db/schema/events';
+import { confirmEventRegistrationPaymentAction } from '@/app/actions/events';
 import type { AttendeeWithProfile } from '@/lib/db/queries/events';
 import {
   Users,
@@ -16,24 +15,20 @@ import {
   Building2,
   ExternalLink,
   Search,
-  Printer,
-  Calendar,
-  MapPin,
-  CheckCircle2,
-  Clock,
 } from 'lucide-react';
 
 interface AttendeesClientViewProps {
-  event: Event;
   attendees: AttendeeWithProfile[];
 }
 
 const PAGE_SIZE = 10;
 
-export function AttendeesClientView({ event, attendees }: AttendeesClientViewProps) {
+export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
+  const router = useRouter();
   const [filterTab, setFilterTab] = useState<'ALL' | 'CONFIRMED' | 'QUEUED' | 'VENUE'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   // Compute counts
   const totalCount = attendees.length;
@@ -84,9 +79,23 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
     setCurrentPage(1);
   };
 
+  const handleConfirmPayment = async (registrationId: string, eventId: string) => {
+    setConfirmingId(registrationId);
+    const formData = new FormData();
+    formData.set('registrationId', registrationId);
+    formData.set('eventId', eventId);
+    const result = await confirmEventRegistrationPaymentAction(formData);
+    setConfirmingId(null);
+    if (!result.success) {
+      window.alert(result.error || 'Unable to confirm payment.');
+      return;
+    }
+    router.refresh();
+  };
+
   return (
     <div className="space-y-4">
-      {/* Action Bar: Search, Filters & Print Button */}
+      {/* Action Bar: Search and Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-[#1b2117] p-3 rounded-2xl border border-[#e6dfcb] dark:border-[#323d2b] shadow-2xs">
         <div className="flex items-center gap-1.5 p-1 bg-[#f8f4e3] dark:bg-[#252e1f] rounded-xl overflow-x-auto">
           <button
@@ -147,12 +156,6 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
             />
           </div>
 
-          <Link href={`/admin/events/${event.id}/print`}>
-            <Button variant="primary" size="sm" className="gap-1.5 shadow-xs shrink-0">
-              <Printer className="h-3.5 w-3.5" />
-              <span>Print Roster</span>
-            </Button>
-          </Link>
         </div>
       </div>
 
@@ -218,7 +221,9 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                             }
                             size="sm"
                           >
-                            {reg.status === 'VERIFICATION_QUEUED'
+                            {reg.paymentOption !== 'FREE' && reg.paymentStatus === 'PAID'
+                              ? 'Payment Verified'
+                              : reg.status === 'VERIFICATION_QUEUED'
                               ? 'Receipt Under Review'
                               : reg.status}
                           </Badge>
@@ -265,6 +270,11 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                               Ref #: <strong className="font-mono text-[#2c3324] dark:text-[#fefcf1]">{reg.referenceNumber}</strong>
                             </div>
                           )}
+                          {reg.paymentOption !== 'FREE' && reg.paymentStatus === 'PAID' && (
+                            <div className="text-[11px] font-bold text-[#2e7d32] dark:text-[#81c784]">
+                              Verified by admin
+                            </div>
+                          )}
                         </div>
 
                         {reg.receiptImageUrl && (
@@ -288,6 +298,21 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
                               <ExternalLink className="h-3 w-3" />
                             </span>
                           </a>
+                        )}
+
+                        {reg.paymentOption !== 'FREE' && reg.paymentStatus !== 'PAID' && (
+                          <button
+                            type="button"
+                            disabled={confirmingId === reg.id}
+                            onClick={() => handleConfirmPayment(reg.id, reg.eventId)}
+                            className="px-3 py-2 rounded-xl bg-[#2c3324] dark:bg-[#e0a861] text-white dark:text-[#1b2117] text-[11px] font-bold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                          >
+                            {confirmingId === reg.id
+                              ? 'Confirming...'
+                              : isVenue
+                              ? 'Confirm Venue Payment'
+                              : 'Confirm Receipt'}
+                          </button>
                         )}
                       </div>
                     </div>
