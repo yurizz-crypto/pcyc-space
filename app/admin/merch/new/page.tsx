@@ -190,6 +190,7 @@ export default function NewMerchProductPage() {
                     type="number"
                     step="0.01"
                     min="1"
+                    defaultValue={state?.payload?.price || ''}
                     placeholder="450.00"
                     required
                     error={state?.fieldErrors?.price?.[0]}
@@ -231,6 +232,8 @@ export default function NewMerchProductPage() {
                 <Textarea
                   label="Product Story & Fabric Specs"
                   name="description"
+                  key={state?.payload?.description || 'desc'}
+                  defaultValue={state?.payload?.description || ''}
                   placeholder="Describe fabric composition (e.g. 100% 220 GSM combed cotton), fit details (regular/oversized), spiritual design inspiration, care instructions..."
                   required
                   rows={5}
@@ -269,7 +272,7 @@ export default function NewMerchProductPage() {
                   name="stockQuantity"
                   type="number"
                   min="0"
-                  defaultValue="50"
+                  defaultValue={state?.payload?.stockQuantity ?? '50'}
                   placeholder="50"
                   required
                   error={state?.fieldErrors?.stockQuantity?.[0]}

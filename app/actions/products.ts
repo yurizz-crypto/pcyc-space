@@ -16,6 +16,7 @@ export interface AdminProductActionState {
   message?: string;
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  payload?: any;
 }
 
 /**
@@ -74,6 +75,7 @@ export async function createProductAction(
         success: false,
         error: 'Please correct the highlighted errors in the form.',
         fieldErrors: parsed.error.flatten().fieldErrors,
+        payload: rawData,
       };
     }
 
@@ -199,6 +201,7 @@ export async function updateProductAction(
         success: false,
         error: 'Please correct the highlighted errors in the form.',
         fieldErrors: parsed.error.flatten().fieldErrors,
+        payload: rawData,
       };
     }
 

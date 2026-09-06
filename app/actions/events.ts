@@ -21,6 +21,7 @@ export interface AdminEventActionState {
   message?: string;
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  payload?: any;
 }
 
 /**
@@ -96,6 +97,7 @@ export async function createEventAction(
         success: false,
         error: 'Please correct the highlighted errors in the form.',
         fieldErrors: parsed.error.flatten().fieldErrors,
+        payload: rawData,
       };
     }
 

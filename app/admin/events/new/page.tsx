@@ -176,6 +176,8 @@ export default function NewEventPage() {
                 <Input
                   label="Spiritual Theme / Scriptural Motto (Optional)"
                   name="theme"
+                  key={state?.payload?.theme || 'theme'}
+                  defaultValue={state?.payload?.theme || ''}
                   placeholder="e.g. Anchored in Hope: Laying Hold on Eternal Life (Hebrews 6:19)"
                   error={state?.fieldErrors?.theme?.[0]}
                 />
@@ -189,6 +191,8 @@ export default function NewEventPage() {
                 <Textarea
                   label="Event Overview & Fellowship Description"
                   name="description"
+                  key={state?.payload?.description || 'desc'}
+                  defaultValue={state?.payload?.description || ''}
                   placeholder="Provide an inspiring summary of the camp, lesson focus, guest speakers, accommodation arrangements, and travel logistics..."
                   required
                   rows={4}
@@ -241,6 +245,8 @@ export default function NewEventPage() {
                       label="Start Date"
                       name="startDate"
                       type="date"
+                      key={state?.payload?.startDate || 'sd'}
+                      defaultValue={state?.payload?.startDate || ''}
                       required
                       error={state?.fieldErrors?.startDate?.[0]}
                     />
@@ -248,7 +254,8 @@ export default function NewEventPage() {
                       label="Start Time"
                       name="startTime"
                       type="time"
-                      defaultValue="08:00"
+                      key={state?.payload?.startTime || 'st'}
+                      defaultValue={state?.payload?.startTime || '08:00'}
                       required
                     />
                   </div>
@@ -264,6 +271,8 @@ export default function NewEventPage() {
                       label="End Date"
                       name="endDate"
                       type="date"
+                      key={state?.payload?.endDate || 'ed'}
+                      defaultValue={state?.payload?.endDate || ''}
                       required
                       error={state?.fieldErrors?.endDate?.[0]}
                     />
@@ -271,7 +280,8 @@ export default function NewEventPage() {
                       label="End Time"
                       name="endTime"
                       type="time"
-                      defaultValue="17:00"
+                      key={state?.payload?.endTime || 'et'}
+                      defaultValue={state?.payload?.endTime || '17:00'}
                       required
                     />
                   </div>
@@ -295,6 +305,8 @@ export default function NewEventPage() {
                   <Input
                     label="Location / Ecclesial Hall"
                     name="location"
+                    key={state?.payload?.location || 'loc'}
+                    defaultValue={state?.payload?.location || ''}
                     placeholder="e.g. Cubao Ecclesial Hall, Quezon City"
                     required
                     error={state?.fieldErrors?.location?.[0]}
@@ -332,6 +344,8 @@ export default function NewEventPage() {
                     name="maxAttendees"
                     type="number"
                     min="1"
+                    key={state?.payload?.maxAttendees || 'max'}
+                    defaultValue={state?.payload?.maxAttendees || ''}
                     placeholder="e.g. 150 (leave blank for unlimited)"
                     error={state?.fieldErrors?.maxAttendees?.[0]}
                   />
