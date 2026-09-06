@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { QrZoom } from '@/components/ui/qr-zoom';
 import { createOrderAction, OrderActionResult } from '@/app/actions/orders';
 import { formatCurrency } from '@/lib/utils';
 import { ProductSizeGuideModal } from '@/components/merch/product-size-guide-modal';
@@ -30,6 +31,12 @@ import {
 interface ProductOrderFormProps {
   product: Product;
   user: Profile;
+  paymentSettings?: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 const initialState: OrderActionResult = {
@@ -38,7 +45,16 @@ const initialState: OrderActionResult = {
 
 const COURIER_FEE = 120;
 
-export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
+export function ProductOrderForm({ 
+  product, 
+  user,
+  paymentSettings = {
+    platform: 'GCash',
+    accountName: 'PCYC Official',
+    accountNumber: '0917 000 0000',
+    qrUrl: ''
+  }
+}: ProductOrderFormProps) {
   const [state, formAction, isPending] = useActionState(createOrderAction, initialState);
 
   const availableSizes = product.availableSizes && product.availableSizes.length > 0
@@ -102,13 +118,18 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
           <div className="p-5 rounded-2xl bg-[#f0f4eb] dark:bg-[#1b2117] border border-[#d3dec2] dark:border-[#323d2b] space-y-3 text-xs text-[#505748] dark:text-[#a3ab98]">
             <div className="flex items-center gap-2 font-bold text-[#2c3324] dark:text-[#fefcf1]">
               <QrCode className="h-4 w-4 text-[#2e7d32] dark:text-[#66bb6a]" />
-              <span>Next Step: GCash Payment</span>
+              <span>Next Step: {paymentSettings.platform} Payment</span>
             </div>
             <p>
-              Please send <strong>{formatCurrency(totalAmount)}</strong> to the official PCYC GCash:
+              Please send <strong>{formatCurrency(totalAmount)}</strong> to the official PCYC {paymentSettings.platform}:
             </p>
+            {paymentSettings.qrUrl && (
+              <div className="flex justify-center my-3">
+                <QrZoom src={paymentSettings.qrUrl} platform={paymentSettings.platform} />
+              </div>
+            )}
             <div className="p-3 rounded-xl bg-white dark:bg-[#1b2117] border border-[#d3dec2] font-mono text-center text-sm font-bold text-[#2c3324] dark:text-[#fefcf1]">
-              0912-734-1648 (Yuri S.)
+              {paymentSettings.accountNumber} ({paymentSettings.accountName})
             </div>
             <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
               Upload your receipt in the Member Portal to fast-track verification.
@@ -350,24 +371,30 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
                     <QrCode className="h-4 w-4 text-[#9a6423] dark:text-[#f0be7c]" />
-                    <span>GCash Payment (Required for Delivery)</span>
+                    <span>{paymentSettings.platform} Payment (Required for Delivery)</span>
                   </div>
                   <Badge variant="gold" size="sm">Required</Badge>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#707666] dark:text-[#a3ab98]">Official GCash:</span>
-                    <span className="font-mono font-bold text-sm text-[#2c3324] dark:text-[#fefcf1]">0912-734-1648 (Yuri S.)</span>
+                    <span className="text-[#707666] dark:text-[#a3ab98]">Official {paymentSettings.platform}:</span>
+                    <span className="font-mono font-bold text-sm text-[#2c3324] dark:text-[#fefcf1]">{paymentSettings.accountNumber} ({paymentSettings.accountName})</span>
                   </div>
                   <div className="flex items-center justify-between border-t border-[#f0f4eb] dark:border-[#323d2b] pt-2">
                     <span className="text-[#707666] dark:text-[#a3ab98]">Total Amount to Send:</span>
                     <strong className="text-sm text-[#9a6423] dark:text-[#f0be7c] font-serif">{formatCurrency(totalAmount)}</strong>
                   </div>
                 </div>
+                
+                {paymentSettings.qrUrl && (
+                  <div className="flex justify-center mt-2">
+                    <QrZoom src={paymentSettings.qrUrl} platform={paymentSettings.platform} thumbClass="h-28 w-28" />
+                  </div>
+                )}
 
                 <Input
-                  label="GCash Reference Number"
+                  label={`${paymentSettings.platform} Reference Number`}
                   name="referenceNumber"
                   placeholder="e.g. 1004 8920 1827"
                   required
@@ -377,7 +404,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 <ImageUpload
                   label="Proof of Payment (Screenshot)"
                   name="receiptImage"
-                  helperText="Attach your GCash transaction confirmation screenshot (PNG/JPG)."
+                  helperText={`Attach your ${paymentSettings.platform} transaction confirmation screenshot (PNG/JPG).`}
                 />
               </div>
             </div>
@@ -395,7 +422,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   <span>Pre-Order Pickup Protocol</span>
                 </div>
                 <p>
-                  Your order will be prepared for claiming at the official PCYC Registration Desk during the next fellowship camp. You may pay now via GCash or pay upon pickup.
+                  Your order will be prepared for claiming at the official PCYC Registration Desk during the next fellowship camp. You may pay now via {paymentSettings.platform} or pay upon pickup.
                 </p>
               </div>
 
@@ -407,7 +434,7 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                 error={state?.fieldErrors?.contactNumber?.[0]}
               />
 
-              {/* Optional GCash Attachment for Event Pickup */}
+              {/* Optional Payment Attachment for Event Pickup */}
               <div className="border-t border-[#e6dfcb] dark:border-[#323d2b] pt-4 space-y-3">
                 <button
                   type="button"
@@ -415,28 +442,34 @@ export function ProductOrderForm({ product, user }: ProductOrderFormProps) {
                   className="text-xs font-bold text-[#9a6423] dark:text-[#f0be7c] hover:underline flex items-center gap-1.5"
                 >
                   <QrCode className="h-4 w-4" />
-                  <span>{showReceiptUpload ? '− Hide GCash Receipt Upload' : '+ Pay Now via GCash & Attach Screenshot (Optional)'}</span>
+                  <span>{showReceiptUpload ? `- Hide ${paymentSettings.platform} Receipt Upload` : `+ Pay Now via ${paymentSettings.platform} & Attach Screenshot (Optional)`}</span>
                 </button>
 
                 {showReceiptUpload && (
                   <div className="p-4 rounded-xl bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] space-y-4 animate-fadeIn">
                     <div className="text-xs text-[#505748] dark:text-[#a3ab98] space-y-1">
-                      <p className="font-bold text-[#2c3324] dark:text-[#fefcf1]">PCYC Official GCash:</p>
-                      <p className="font-mono text-sm font-bold text-[#9a6423] dark:text-[#f0be7c]">0912-734-1648 (Yuri S.)</p>
+                      <p className="font-bold text-[#2c3324] dark:text-[#fefcf1]">PCYC Official {paymentSettings.platform}:</p>
+                      <p className="font-mono text-sm font-bold text-[#9a6423] dark:text-[#f0be7c]">{paymentSettings.accountNumber} ({paymentSettings.accountName})</p>
                       <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
                         Amount to send: <strong>{formatCurrency(totalAmount)}</strong>
                       </p>
                     </div>
 
+                    {paymentSettings.qrUrl && (
+                      <div className="flex justify-center mt-2">
+                        <QrZoom src={paymentSettings.qrUrl} platform={paymentSettings.platform} thumbClass="h-28 w-28" />
+                      </div>
+                    )}
+
                     <Input
-                      label="GCash Reference Number"
+                      label={`${paymentSettings.platform} Reference Number`}
                       name="referenceNumber"
                       placeholder="e.g. 1004 8920 1827"
                       error={state?.fieldErrors?.referenceNumber?.[0]}
                     />
 
                     <ImageUpload
-                      label="Screenshot of GCash Receipt"
+                      label={`Screenshot of ${paymentSettings.platform} Receipt`}
                       name="receiptImage"
                       helperText="Attach GCash payment confirmation screenshot (PNG/JPG)."
                     />

@@ -2,7 +2,7 @@ import React from 'react';
 import { ProductGrid } from '@/components/domain/merch/product-grid';
 import { FundraisingImpactCalculator } from '@/components/merch/fundraising-impact-calculator';
 import { MerchStepGuide } from '@/components/merch/merch-step-guide';
-import { getCachedAvailableProducts } from '@/lib/db/queries/cached';
+import { getCachedAvailableProducts, getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { QrCode, Sparkle, WarningCircle, Clock, ShoppingBag, ShieldCheck, Heart } from '@phosphor-icons/react/dist/ssr';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import { InteractiveCard } from '@/components/ui/interactive-card';
@@ -15,7 +15,10 @@ export const metadata = {
 };
 
 export default async function MerchPage() {
-  const products = await getCachedAvailableProducts();
+  const [products, paymentSettings] = await Promise.all([
+    getCachedAvailableProducts(),
+    getCachedPaymentSettings()
+  ]);
 
   return (
     <div className="flex flex-col w-full overflow-hidden">
@@ -58,7 +61,7 @@ export default async function MerchPage() {
                       Zero-Fee Payment
                     </h3>
                     <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98] leading-relaxed">
-                      To keep prices accessible and completely fee-free, orders are paid directly via <strong className="text-[#2c3324] dark:text-[#fefcf1]">GCash</strong> (0912-734-1648, Yuri S.).
+                      To keep prices accessible and completely fee-free, orders are paid directly via <strong className="text-[#2c3324] dark:text-[#fefcf1]">{paymentSettings.platform}</strong> ({paymentSettings.accountNumber}, {paymentSettings.accountName}).
                     </p>
                   </div>
                   <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#9a6423] dark:text-[#f0be7c] bg-[#fbf1e2] dark:bg-[#2b2315] px-4 py-2 rounded-full border border-[#e0a861]/30 shadow-xs">
@@ -74,7 +77,7 @@ export default async function MerchPage() {
       </section>
 
       {/* Interactive Fundraising Impact Calculator Section */}
-      <section className="py-20 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-20 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
             <FundraisingImpactCalculator />
@@ -83,7 +86,7 @@ export default async function MerchPage() {
       </section>
 
       {/* Product Grid Section */}
-      <section className="py-24 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-24 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <ScrollReveal className="space-y-3">
             <span className="text-xs font-bold uppercase tracking-widest text-[#9a6423] dark:text-[#f0be7c] px-3 py-1 rounded-full bg-[#e0a861]/15 border border-[#e0a861]/30">
