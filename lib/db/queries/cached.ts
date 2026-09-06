@@ -2,7 +2,7 @@ import { unstable_cache, updateTag, revalidateTag } from 'next/cache';
 import { getPublishedEvents, getEventBySlug } from './events';
 import { getAvailableProducts, getProductBySlug } from './products';
 import { getDisplayedEcclesias, getEcclesiaCount } from './ecclesias';
-import { getSiteSetting, getYouthAndFriendsCount } from './settings';
+import { getSiteSetting, getYouthAndFriendsCount, getPaymentSettings } from './settings';
 import { getAdminOverviewMetrics, type AdminOverviewMetrics } from './admin-metrics';
 import type { Event } from '@/lib/db/schema/events';
 import type { Product } from '@/lib/db/schema/products';
@@ -186,6 +186,21 @@ export function getCachedSiteSetting(key: string, defaultValue: string = ''): Pr
     }
   )();
 }
+
+/**
+ * Cached Payment Provider Settings
+ * Revalidated on-demand when settings are updated or every 1 hour (3600s).
+ */
+export const getCachedPaymentSettings = safeCache(
+  async () => {
+    return getPaymentSettings();
+  },
+  ['cached-payment-settings'],
+  {
+    revalidate: 3600,
+    tags: [CACHE_TAGS.settings],
+  }
+);
 
 /**
  * Cached Admin Overview Metrics

@@ -66,3 +66,75 @@ export async function updateYouthCountAction(formData: FormData): Promise<void> 
     logger.error({ error: err?.message || err }, 'Unhandled error in updateYouthCountAction');
   }
 }
+
+export async function updatePaymentSettingsAction(
+  prevState: any,
+  formData: FormData
+) {
+  try {
+    const { profile } = await verifyCurrentUserRole(['ADMIN', 'SUPERADMIN']);
+    if (!profile) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const platform = formData.get('platform') as string;
+    const accountName = formData.get('accountName') as string;
+    const accountNumber = formData.get('accountNumber') as string;
+    
+    if (!platform || !accountName || !accountNumber) {
+      return { success: false, error: 'All text fields are required.' };
+    }
+
+    // Handle QR code upload
+    const { saveUploadedImage } = await import('@/lib/storage');
+    let qrUrl = formData.get('existingQr') as string | null;
+    const qrFile = formData.get('qrCodeFile') as File | null;
+    
+    if (qrFile && typeof qrFile === 'object' && qrFile.size > 0) {
+      const uploadResult = await saveUploadedImage(qrFile, 'settings', 'payment-qr');
+      if (!uploadResult.success) {
+        return { success: false, error: uploadResult.error || 'Failed to upload QR.' };
+      }
+      qrUrl = uploadResult.url!;
+    }
+
+    // Save to siteSettings table
+    const settingsToSave = [
+      { key: 'payment_platform', value: platform, description: 'Payment Provider Name' },
+      { key: 'payment_account_name', value: accountName, description: 'Payment Account Name' },
+      { key: 'payment_account_number', value: accountNumber, description: 'Payment Account Number' },
+    ];
+    
+    if (qrUrl) {
+      settingsToSave.push({ key: 'payment_qr_url', value: qrUrl, description: 'Payment QR Code URL' });
+    }
+
+    for (const setting of settingsToSave) {
+      await db
+        .insert(siteSettings)
+        .values({
+          key: setting.key,
+          value: setting.value,
+          description: setting.description,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: siteSettings.key,
+          set: {
+            value: setting.value,
+            updatedAt: new Date(),
+          },
+        });
+    }
+
+    invalidateCacheTag(CACHE_TAGS.settings);
+    revalidatePath('/admin');
+    revalidatePath('/merch');
+    revalidatePath('/orders');
+    
+    return { success: true, message: 'Payment settings updated successfully' };
+  } catch (err: any) {
+    logger.error({ error: err?.message || err }, 'Unhandled error in updatePaymentSettingsAction');
+    return { success: false, error: 'Unexpected error occurred.' };
+  }
+}

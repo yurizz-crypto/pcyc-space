@@ -30,12 +30,12 @@ export function validateImageMagicBytes(buffer: Buffer): { valid: boolean; detec
  * Falls back to local disk storage, and finally base64 Data URI on read-only serverless hosts.
  * 
  * @param file Uploaded File object from FormData
- * @param bucket Bucket/Folder name ('events' | 'merch' | 'receipts')
+ * @param bucket Bucket/Folder name ('events' | 'merch' | 'receipts' | 'settings')
  * @param prefix Identifier or slug prefix for unique naming
  */
 export async function saveUploadedImage(
   file: File | null | any,
-  bucket: 'events' | 'merch' | 'receipts' = 'merch',
+  bucket: 'events' | 'merch' | 'receipts' | 'settings' = 'merch',
   prefix: string = 'media'
 ): Promise<SaveImageResult> {
   try {

@@ -51,3 +51,17 @@ export const getYouthAndFriendsCount = cache(async function getYouthAndFriendsCo
     return 150;
   }
 });
+
+export const getPaymentSettings = cache(async function getPaymentSettings() {
+  const platform = await getSiteSetting('payment_platform', 'GCash');
+  const accountName = await getSiteSetting('payment_account_name', 'PCYC Official');
+  const accountNumber = await getSiteSetting('payment_account_number', '09170000000');
+  const qrUrl = await getSiteSetting('payment_qr_url', '');
+
+  return {
+    platform,
+    accountName,
+    accountNumber,
+    qrUrl,
+  };
+});
