@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function RootLoading() {
   return (
-    <div className="w-full flex flex-col min-h-screen bg-[#fefcf1] dark:bg-[#131710] animate-pulse">
+    <div className="w-full flex flex-col min-h-screen bg-cream animate-pulse">
       {/* Hero Skeleton */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

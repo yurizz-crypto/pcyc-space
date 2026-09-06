@@ -51,53 +51,34 @@ export function ProductImageShowcase({
   return (
     <div className="space-y-4">
       {/* Main 3D Interactive Card Showcase */}
-      <InteractiveCard className="relative aspect-square w-full rounded-[2.5rem] bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] flex items-center justify-center overflow-hidden shadow-2xl group">
+      <InteractiveCard className="relative aspect-square w-full rounded-[2.5rem] bg-[#f8f4e3] dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] overflow-hidden shadow-2xl group">
         {/* Atmospheric Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(224,168,97,0.18),transparent_70%)] pointer-events-none" />
 
-        {/* Floating Category & Status Badge */}
-        <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
-          <Badge variant="cream" size="md" className="rounded-full shadow-md backdrop-blur-md">
-            {category}
-          </Badge>
-          {isPreorder && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#fbf1e2] dark:bg-[#2b2315] text-[#9a6423] dark:text-[#f0be7c] border border-[#e0a861]/40 shadow-sm">
+        {/* Floating Pre-Order Status Badge (if active) */}
+        {isPreorder && (
+          <div className="absolute top-6 left-6 z-20">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#fbf1e2] dark:bg-[#2b2315] text-[#9a6423] dark:text-[#f0be7c] border border-[#e0a861]/40 shadow-md backdrop-blur-md">
               <span className="h-2 w-2 rounded-full bg-[#e0a861] animate-ping" />
-              <span>Pre-Order</span>
+              <span>Pre-Order Batch</span>
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Main Image with Animated Transition */}
-        <div className="relative h-[75%] w-[75%] transition-transform duration-700 group-hover:scale-108 flex items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.div
+        {/* Main Image Container (Clean True Centering) */}
+        <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-10">
+          <div className="relative w-full h-full flex items-center justify-center transition-transform duration-700 group-hover:scale-105">
+            <Image
               key={`${currentImage}-${selectedImageIndex}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.25 }}
-              className="relative w-full h-full"
-            >
-              <Image
-                src={currentImage}
-                alt={productName}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                unoptimized={isDataOrBlob}
-                onError={() => handleImageError(selectedImageIndex)}
-                className="object-contain drop-shadow-2xl"
-                priority
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Bottom Floating Guarantee Pill */}
-        <div className="absolute bottom-6 inset-x-6 z-20 flex items-center justify-between text-xs text-[#707666] dark:text-[#a3ab98] pointer-events-none">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-[#e6dfcb] dark:border-[#323d2b] shadow-xs">
-            <HandHeart weight="duotone" className="h-3.5 w-3.5 text-[#e0a861]" />
-            <span className="font-semibold text-[11px]">100% Proceeds to Youth Ministry</span>
+              src={currentImage}
+              alt={productName}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              unoptimized={currentImage.startsWith('http') || isDataOrBlob}
+              onError={() => handleImageError(selectedImageIndex)}
+              className="object-contain object-center drop-shadow-xl rounded-2xl"
+              priority
+            />
           </div>
         </div>
       </InteractiveCard>

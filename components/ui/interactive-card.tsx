@@ -127,7 +127,7 @@ export function InteractiveCard({
         />
       )}
 
-      <div className="relative z-10 h-full">{children}</div>
+      <div className="relative z-10 h-full w-full">{children}</div>
     </motion.div>
   );
 }

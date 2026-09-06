@@ -59,7 +59,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col w-full overflow-hidden">
       {/* 1. HERO SECTION (Asymmetric Split with Dynamic Atmospheric Glow & 3D Showcase) */}
-      <section className="relative overflow-hidden bg-[#fefcf1] dark:bg-[#131710] py-20 sm:py-28 lg:py-36">
+      <section className="relative overflow-hidden bg-cream py-20 sm:py-28 lg:py-36">
         <HeroGlow />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -180,7 +180,7 @@ export default async function HomePage() {
       </section>
 
       {/* 2. PILLARS / MISSION SECTION (Asymmetric 3D Bento Grid) */}
-      <section className="py-28 bg-[#f8f4e3] dark:bg-[#1b2117] relative">
+      <section className="py-28 bg-cream-surface relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="space-y-4 mb-14 text-center sm:text-left">
             <span className="text-xs font-bold uppercase tracking-widest text-[#9a6423] dark:text-[#f0be7c] px-3 py-1 rounded-full bg-[#e0a861]/15 border border-[#e0a861]/30">
@@ -279,7 +279,7 @@ export default async function HomePage() {
       </section>
 
       {/* 3. FEATURED UPCOMING EVENTS (LIVE DB) */}
-      <section className="py-28 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-28 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-12">
             <div className="space-y-4 max-w-2xl">
@@ -302,13 +302,6 @@ export default async function HomePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
-            <div className="mb-10 p-4 rounded-2xl bg-[#fbf1e2] dark:bg-[#2b2315] border border-[#e0a861]/30 text-[#5c4936] dark:text-[#d4b896] flex items-start gap-4 shadow-xs">
-              <Info weight="fill" className="h-5 w-5 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
-              <div className="text-sm leading-relaxed">
-                <strong className="text-[#2c3324] dark:text-[#fefcf1] font-medium block mb-1">Registration Notice</strong>
-                Camp registration is currently in testing mode and not yet accepting submissions. Dates and details are for preview purposes.
-              </div>
-            </div>
 
             <EventGrid
               events={featuredEvents}
@@ -320,7 +313,7 @@ export default async function HomePage() {
       </section>
 
       {/* 4. MERCHANDISE & FUNDRAISING HIGHLIGHT (LIVE DB) */}
-      <section className="py-28 bg-[#f8f4e3] dark:bg-[#1b2117] border-y border-[#e6dfcb] dark:border-[#323d2b]">
+      <section className="py-28 bg-cream-surface border-y border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-12">
             <div className="space-y-4 max-w-2xl">

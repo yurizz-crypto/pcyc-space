@@ -48,8 +48,8 @@ export function NavbarClient({
       <header
         className={`sticky top-0 z-40 w-full transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#fefcf1]/90 dark:bg-[#131710]/90 backdrop-blur-md border-b border-[#e6dfcb] dark:border-[#323d2b] shadow-sm py-3'
-            : 'bg-[#fefcf1] dark:bg-[#131710] py-4'
+            ? 'bg-[var(--background)]/90 backdrop-blur-md border-b border-[var(--border)] shadow-xs py-3'
+            : 'bg-[var(--background)] py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

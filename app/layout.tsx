@@ -136,7 +136,7 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#fefcf1] dark:bg-[#131710] text-[#2c3324] dark:text-[#fefcf1] antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324] transition-colors duration-200">
+      <body className="min-h-screen flex flex-col antialiased selection:bg-[#e0a861]/30 selection:text-[#2c3324] transition-colors duration-200">
         <ThemeProvider>
           <ToastProvider>
             <Navbar />

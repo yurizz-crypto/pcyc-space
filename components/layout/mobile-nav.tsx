@@ -45,10 +45,10 @@ export function MobileNav({ isOpen, onClose, profile }: MobileNavProps) {
       />
 
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-[#fefcf1] dark:bg-[#131710] border-l border-[#e6dfcb] dark:border-[#323d2b] p-6 shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-[var(--background)] border-l border-[var(--border)] p-6 shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-300">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between pb-6 border-b border-[#e6dfcb] dark:border-[#323d2b]">
+          <div className="flex items-center justify-between pb-6 border-b border-[var(--border)]">
             <Link
               href="/"
               onClick={onClose}
