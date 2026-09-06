@@ -11,6 +11,7 @@ import { NotificationsPortalCard } from '@/components/domain/notifications/notif
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { getUserEventRegistrations } from '@/lib/db/queries/events';
 import { getUserOrders } from '@/lib/db/queries/orders';
+import { getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { getCurrentUserNotifications, getUnreadNotificationCount } from '@/lib/db/queries/notifications';
 import { formatDate, formatPHP, formatEventSchedule } from '@/lib/utils';
 import { Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, QrCode, Building2 } from 'lucide-react';
@@ -34,11 +35,12 @@ export default async function PortalPage() {
     redirect('/admin');
   }
 
-  const [orders, registrations, notifications, unreadCount] = await Promise.all([
+  const [orders, registrations, notifications, unreadCount, paymentSettings] = await Promise.all([
     getUserOrders(profile.id),
     getUserEventRegistrations(profile.id),
     getCurrentUserNotifications(30),
     getUnreadNotificationCount(profile.id),
+    getCachedPaymentSettings(),
   ]);
 
   const prefix =
@@ -218,12 +220,13 @@ export default async function PortalPage() {
                           orderNumber={ord.orderNumber}
                           amount={ord.totalAmount}
                           status={ord.status}
-                          paymentMethod={ord.receipt?.paymentMethod || 'GCASH'}
+                          paymentMethod={ord.receipt?.paymentMethod || paymentSettings.platform}
                           referenceNumber={ord.receipt?.referenceNumber || undefined}
                           receiptUrl={ord.receipt?.receiptImageUrl || undefined}
                           verificationNotes={ord.receipt?.verificationNotes || undefined}
                           createdAt={ord.createdAt}
                           itemsSummary={summary}
+                          paymentSettings={paymentSettings}
                         />
                       );
                     })}

@@ -17,6 +17,7 @@ import {
   renderAdminOrderAlert,
 } from '@/lib/email/templates/order-confirmation';
 import { renderPaymentVerificationEmail } from '@/lib/email/templates/payment-verification';
+import { getPaymentSettings } from '@/lib/db/queries/settings';
 
 export interface OrderActionResult {
   success: boolean;
@@ -36,6 +37,23 @@ export interface ReceiptActionResult {
 
 const COURIER_DELIVERY_FEE = 120.0; // Standard PHP courier fee
 
+function getConfiguredPaymentMethod(platform: string): PaymentMethod {
+  switch (platform.trim().toUpperCase().replace(/[\s-]+/g, '_')) {
+    case 'GCASH':
+      return 'GCASH';
+    case 'PALAWAN_PAY':
+    case 'PALAWANPAY':
+      return 'PALAWAN_PAY';
+    case 'MAYA':
+      return 'MAYA';
+    case 'BANK_TRANSFER':
+    case 'BANK':
+      return 'BANK_TRANSFER';
+    default:
+      return 'OTHER';
+  }
+}
+
 /**
  * Server Action for authenticated Members to place a merchandise order or pre-order.
  * Shift-Left Security: Enforces user authentication, role separation, strict input validation,
@@ -53,6 +71,9 @@ export async function createOrderAction(
         error: 'Please log in to your PCYC Member account to place an order.',
       };
     }
+
+    const paymentSettings = await getPaymentSettings();
+    const paymentMethod = getConfiguredPaymentMethod(paymentSettings.platform);
 
     // Role Segregation: Administrators must not place orders using admin privileges
     if (profile.role === 'ADMIN' || profile.role === 'SUPERADMIN') {
@@ -94,7 +115,7 @@ export async function createOrderAction(
 
     const { data } = parsed;
 
-    // Delivery payment proof rule: If shipping via Courier, GCash proof is strictly required
+    // Delivery payment proof rule: a payment proof is strictly required for courier orders
     const receiptFile = formData.get('receiptImage') as File | null;
     const refNumber = (formData.get('referenceNumber') as string | null)?.trim() || null;
 
@@ -102,13 +123,13 @@ export async function createOrderAction(
       if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
         return {
           success: false,
-          error: 'GCash payment proof screenshot is required for courier delivery orders.',
+          error: `${paymentSettings.platform} payment proof screenshot is required for courier delivery orders.`,
         };
       }
       if (!refNumber) {
         return {
           success: false,
-          error: 'Please provide your GCash Reference Number.',
+          error: `Please provide your ${paymentSettings.platform} reference number.`,
         };
       }
     }
@@ -250,7 +271,7 @@ export async function createOrderAction(
             await tx.insert(paymentReceipts).values({
               orderId: insertedOrder.id,
               receiptImageUrl: uploadResult.url,
-              paymentMethod: 'GCASH',
+              paymentMethod,
               referenceNumber: refNumber,
               amountPaid: (amountPaidStr ? Number(amountPaidStr) : totalAmount).toFixed(2),
               verificationStatus: 'PENDING',
@@ -313,7 +334,7 @@ export async function createOrderAction(
         title: `Order #${newOrder.orderNumber} Placed! 🛍️`,
         message: hasReceipt
           ? `Thank you! Your payment for Order #${newOrder.orderNumber} (₱${totalAmount.toFixed(2)}) is queued for verification.`
-          : `Order #${newOrder.orderNumber} recorded. Please upload your GCash payment receipt to proceed with fulfillment.`,
+          : `Order #${newOrder.orderNumber} recorded. Please upload your ${paymentSettings.platform} payment receipt to proceed with fulfillment.`,
         linkUrl: '/portal',
         metadata: { orderId: newOrder.id, orderNumber: newOrder.orderNumber, totalAmount },
         email: {
@@ -347,7 +368,7 @@ export async function createOrderAction(
         orderId: newOrder.id,
         orderNumber: newOrder.orderNumber,
         totalAmount,
-        message: `Order ${newOrder.orderNumber} placed successfully! Please upload your GCash payment proof.`,
+        message: `Order ${newOrder.orderNumber} placed successfully! Please upload your ${paymentSettings.platform} payment proof.`,
       };
     } catch (error: any) {
       logger.error({ error: error?.message, userId: profile.id }, 'Failed to place order');
@@ -374,7 +395,7 @@ export async function createOrderAction(
 }
 
 /**
- * Server Action for Members (or Admins) to upload/re-submit a GCash receipt for an existing order.
+ * Server Action for Members (or Admins) to upload/re-submit a payment receipt for an existing order.
  */
 export async function uploadReceiptAction(
   prevState: ReceiptActionResult,
@@ -391,7 +412,8 @@ export async function uploadReceiptAction(
 
     const orderId = formData.get('orderId') as string;
     const referenceNumber = formData.get('referenceNumber') as string;
-    const paymentMethod = 'GCASH' as PaymentMethod;
+    const paymentSettings = await getPaymentSettings();
+    const paymentMethod = getConfiguredPaymentMethod(paymentSettings.platform);
     const amountPaid = formData.get('amountPaid') ? Number(formData.get('amountPaid')) : null;
     const receiptFile = formData.get('receiptImage') as File | null;
 
@@ -402,14 +424,14 @@ export async function uploadReceiptAction(
     if (!referenceNumber || referenceNumber.trim().length < 3) {
       return {
         success: false,
-        error: 'Please provide a valid GCash Reference Number.',
+        error: `Please provide a valid ${paymentSettings.platform} reference number.`,
       };
     }
 
     if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
       return {
         success: false,
-        error: 'Please select a clear screenshot of your GCash receipt.',
+        error: `Please select a clear screenshot of your ${paymentSettings.platform} receipt.`,
       };
     }
 
@@ -491,12 +513,12 @@ export async function uploadReceiptAction(
         userId: existingOrder.userId,
         type: 'PAYMENT_VERIFICATION',
         title: `Receipt Submitted for #${existingOrder.orderNumber}`,
-        message: 'Your GCash receipt has been received and queued for admin review.',
+        message: `Your ${paymentSettings.platform} receipt has been received and queued for admin review.`,
         linkUrl: '/portal',
         notifyAdmins: true,
         adminAlert: {
           title: `Receipt Queued: #${existingOrder.orderNumber}`,
-          message: `New GCash receipt submitted for Order #${existingOrder.orderNumber} (Ref: ${referenceNumber.trim()}).`,
+          message: `New ${paymentSettings.platform} receipt submitted for Order #${existingOrder.orderNumber} (Ref: ${referenceNumber.trim()}).`,
           linkUrl: '/admin/orders',
         },
       });
@@ -538,7 +560,7 @@ export async function uploadReceiptAction(
 }
 
 /**
- * Server Action for Admins to verify/approve or reject an uploaded GCash payment receipt.
+ * Server Action for Admins to verify/approve or reject an uploaded payment receipt.
  */
 export async function verifyReceiptAction(formData: FormData): Promise<void> {
   try {
@@ -597,7 +619,7 @@ export async function verifyReceiptAction(formData: FormData): Promise<void> {
               : `Payment Review Needed for #${order.orderNumber} ⚠️`,
             message: isApproved
               ? `Your payment of ₱${order.totalAmount} has been verified. We are now preparing your order.`
-              : `We could not verify your GCash payment: ${adminNotes || 'Please re-upload a clear receipt screenshot.'}`,
+              : `We could not verify your ${receipt?.paymentMethod || 'payment'}: ${adminNotes || 'Please re-upload a clear receipt screenshot.'}`,
             linkUrl: '/portal',
             metadata: { orderId: order.id, orderNumber: order.orderNumber, decision },
             email: {
@@ -803,4 +825,3 @@ export async function adminBulkUpdateOrderStatusAction(
     return { success: false, error: error?.message || 'Bulk order update failed.' };
   }
 }
-

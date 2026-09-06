@@ -20,6 +20,12 @@ export interface ReceiptCardProps {
   verificationNotes?: string;
   createdAt: string | Date;
   itemsSummary?: string;
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 export function ReceiptCard({
@@ -27,12 +33,13 @@ export function ReceiptCard({
   orderNumber,
   amount,
   status,
-  paymentMethod = 'GCASH',
+  paymentMethod,
   referenceNumber,
   receiptUrl,
   verificationNotes,
   createdAt,
   itemsSummary,
+  paymentSettings,
 }: ReceiptCardProps) {
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -85,7 +92,9 @@ export function ReceiptCard({
         <div className="flex items-center justify-between p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#20271c] border border-[#e6dfcb] dark:border-[#323d2b]">
           <div className="flex items-center gap-2 text-xs">
             <QrCode className="h-4 w-4 text-[#e0a861]" />
-            <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">{paymentMethod}</span>
+            <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">
+              {paymentMethod || paymentSettings.platform}
+            </span>
             {referenceNumber && <span className="font-mono text-xs text-[#707666] dark:text-[#a3ab98]">({referenceNumber})</span>}
           </div>
           <div className="flex items-center gap-2">
@@ -159,6 +168,7 @@ export function ReceiptCard({
         orderId={orderId}
         orderNumber={orderNumber}
         amount={amount}
+        paymentSettings={paymentSettings}
       />
     </div>
   );

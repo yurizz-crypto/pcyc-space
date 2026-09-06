@@ -22,11 +22,17 @@ import {
 interface OrdersClientHubProps {
   initialOrders: OrderWithDetails[];
   userReviews: ProductReview[];
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 type FilterTab = 'ALL' | 'UNPAID' | 'VERIFYING' | 'IN_TRANSIT' | 'COMPLETED' | 'CANCELLED';
 
-export function OrdersClientHub({ initialOrders, userReviews }: OrdersClientHubProps) {
+export function OrdersClientHub({ initialOrders, userReviews, paymentSettings }: OrdersClientHubProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -226,7 +232,7 @@ export function OrdersClientHub({ initialOrders, userReviews }: OrdersClientHubP
       ) : (
         <div className="space-y-4">
           {filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} userReviews={reviewMap} />
+            <OrderCard key={order.id} order={order} userReviews={reviewMap} paymentSettings={paymentSettings} />
           ))}
         </div>
       )}

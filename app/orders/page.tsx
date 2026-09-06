@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { getUserOrders } from '@/lib/db/queries/orders';
 import { getUserReviews } from '@/lib/db/queries/reviews';
+import { getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { OrdersClientHub } from './orders-client-hub';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, ArrowLeft, Plus } from 'lucide-react';
@@ -22,9 +23,10 @@ export default async function MemberOrdersPage() {
     redirect('/login?redirectTo=/orders');
   }
 
-  const [ordersList, userReviews] = await Promise.all([
+  const [ordersList, userReviews, paymentSettings] = await Promise.all([
     getUserOrders(profile.id),
     getUserReviews(profile.id),
+    getCachedPaymentSettings(),
   ]);
 
   return (
@@ -60,7 +62,7 @@ export default async function MemberOrdersPage() {
         </div>
 
         {/* Client Interactive Hub */}
-        <OrdersClientHub initialOrders={ordersList} userReviews={userReviews} />
+        <OrdersClientHub initialOrders={ordersList} userReviews={userReviews} paymentSettings={paymentSettings} />
       </div>
     </div>
   );

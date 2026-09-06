@@ -16,6 +16,12 @@ interface ReceiptUploadModalProps {
   orderId: string;
   orderNumber: string;
   amount: number | string;
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 const initialState: ReceiptActionResult = {
@@ -28,6 +34,7 @@ export function ReceiptUploadModal({
   orderId,
   orderNumber,
   amount,
+  paymentSettings,
 }: ReceiptUploadModalProps) {
   const [state, formAction, isPending] = useActionState(uploadReceiptAction, initialState);
 
@@ -81,21 +88,25 @@ export function ReceiptUploadModal({
               </span>
             </div>
             <div className="border-t border-[#e6dfcb]/80 dark:border-[#323d2b]/80 pt-2 flex items-center justify-between">
-              <span className="text-[#707666] dark:text-[#a3ab98]">GCash Number:</span>
-              <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">0912-734-1648 (Yuri S.)</span>
+              <span className="text-[#707666] dark:text-[#a3ab98]">{paymentSettings.platform} Account:</span>
+              <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">
+                {paymentSettings.accountNumber} ({paymentSettings.accountName})
+              </span>
             </div>
           </div>
 
-          <input type="hidden" name="paymentMethod" value="GCASH" />
+          <input type="hidden" name="paymentPlatform" value={paymentSettings.platform} />
           <div className="p-3 rounded-xl bg-white dark:bg-[#1b2117] border border-[#d3dec2] flex items-center justify-between text-xs">
             <span className="text-[#707666] dark:text-[#a3ab98]">Payment Method:</span>
-            <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">GCash (0912-734-1648)</span>
+            <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">
+              {paymentSettings.platform} ({paymentSettings.accountNumber})
+            </span>
           </div>
 
           <Input
             label="Reference / Transaction Number"
             name="referenceNumber"
-            placeholder="e.g. 1004 9820 1823"
+            placeholder={`e.g. ${paymentSettings.platform} transaction number`}
             required
           />
 

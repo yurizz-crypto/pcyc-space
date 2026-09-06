@@ -31,9 +31,15 @@ import {
 interface OrderCardProps {
   order: OrderWithDetails;
   userReviews?: Record<string, ProductReview>; // Keyed by `${orderId}:${productId}`
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
-export function OrderCard({ order, userReviews = {} }: OrderCardProps) {
+export function OrderCard({ order, userReviews = {}, paymentSettings }: OrderCardProps) {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [isViewReceiptOpen, setIsViewReceiptOpen] = useState(false);
@@ -374,7 +380,7 @@ export function OrderCard({ order, userReviews = {} }: OrderCardProps) {
                     onClick={() => setIsReceiptModalOpen(true)}
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    <span>Upload GCash Receipt</span>
+                    <span>Upload Payment Receipt</span>
                   </Button>
                 </>
               )}
@@ -437,7 +443,7 @@ export function OrderCard({ order, userReviews = {} }: OrderCardProps) {
         </Modal>
       )}
 
-      {/* Upload GCash Receipt Modal */}
+      {/* Upload payment receipt modal */}
       {isReceiptModalOpen && (
         <ReceiptUploadModal
           isOpen={isReceiptModalOpen}
@@ -445,6 +451,7 @@ export function OrderCard({ order, userReviews = {} }: OrderCardProps) {
           orderId={order.id}
           orderNumber={order.orderNumber}
           amount={order.totalAmount}
+          paymentSettings={paymentSettings}
         />
       )}
 
@@ -459,7 +466,7 @@ export function OrderCard({ order, userReviews = {} }: OrderCardProps) {
             <div className="relative aspect-[3/4] w-full max-w-sm mx-auto rounded-2xl bg-[#f8f4e3] dark:bg-[#131710] overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b]">
               <Image
                 src={order.receipt.receiptImageUrl}
-                alt="GCash Payment Receipt"
+                alt="Payment Receipt"
                 fill
                 className="object-contain"
               />
