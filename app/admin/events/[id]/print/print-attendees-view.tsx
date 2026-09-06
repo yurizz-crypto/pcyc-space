@@ -19,6 +19,8 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
   const [searchQuery, setSearchQuery] = useState('');
 
   const feeNum = Number(event.registrationFee || 0);
+  const isPaidRegistration = (paymentOption: string, paymentStatus: string) =>
+    paymentOption === 'FREE' || paymentStatus === 'PAID';
 
   // Extract unique sorted ecclesias from attendees
   const distinctEcclesias = Array.from(
@@ -27,7 +29,7 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
 
   // Filter list by Payment Status, Ecclesia, and Search Query
   const filteredAttendees = attendees.filter(({ registration: reg, profile }) => {
-    const isPaid = reg.status === 'CONFIRMED' || reg.paymentOption === 'FREE';
+    const isPaid = isPaidRegistration(reg.paymentOption, reg.paymentStatus);
 
     if (filterMode === 'PAID' && !isPaid) return false;
     if (filterMode === 'UNPAID' && isPaid) return false;
@@ -53,7 +55,7 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
   const totalCount = attendees.length;
   const filteredTotalCount = filteredAttendees.length;
   const paidCount = filteredAttendees.filter(
-    (a) => a.registration.status === 'CONFIRMED' || a.registration.paymentOption === 'FREE'
+    (a) => isPaidRegistration(a.registration.paymentOption, a.registration.paymentStatus)
   ).length;
   const unpaidCount = filteredTotalCount - paidCount;
 
@@ -323,7 +325,7 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
             </thead>
             <tbody className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b] print:divide-gray-400">
               {filteredAttendees.map(({ registration: reg, profile }, idx) => {
-                const isPaid = reg.status === 'CONFIRMED' || reg.paymentOption === 'FREE';
+                const isPaid = isPaidRegistration(reg.paymentOption, reg.paymentStatus);
                 const isGcash = reg.paymentOption === 'GCASH';
                 const isFree = reg.paymentOption === 'FREE';
 
@@ -390,11 +392,11 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
                           <span className="print:hidden inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#fff8e1] dark:bg-[#3d2e08] text-[#b78103] dark:text-[#ffd54f] border border-[#ffe082] dark:border-[#b78103]/40">
                             ⚠ Pay in Venue (Unpaid)
                           </span>
-                          {/* Print Checkbox for On-Site Check-in */}
+                          {/* Printed checkbox lets the receiving committee mark venue payment received. */}
                           <div className="hidden print:flex items-center justify-center gap-1.5 text-black">
                             <span className="h-3.5 w-3.5 border-2 border-black inline-block rounded-xs shrink-0" />
                             <span className="text-[8.5px] font-bold font-mono">
-                              [ ] COLLECT {feeNum > 0 ? formatPHP(feeNum) : ''}
+                              [ ] PAID AT DESK {feeNum > 0 ? formatPHP(feeNum) : ''}
                             </span>
                           </div>
                         </div>
@@ -443,4 +445,3 @@ export function PrintAttendeesView({ event, attendees }: PrintAttendeesViewProps
     </div>
   );
 }
-

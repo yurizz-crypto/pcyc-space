@@ -38,7 +38,7 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
   // Compute counts
   const totalCount = attendees.length;
   const confirmedCount = attendees.filter(
-    (a) => a.registration.status === 'CONFIRMED' || a.registration.paymentOption === 'FREE'
+    (a) => a.registration.paymentOption === 'FREE' || a.registration.paymentStatus === 'PAID'
   ).length;
   const queuedCount = attendees.filter(
     (a) => a.registration.status === 'VERIFICATION_QUEUED'
@@ -50,7 +50,7 @@ export function AttendeesClientView({ event, attendees }: AttendeesClientViewPro
   // Filter list
   const filteredAttendees = attendees.filter(({ registration: reg, profile }) => {
     // Tab filter
-    if (filterTab === 'CONFIRMED' && reg.status !== 'CONFIRMED' && reg.paymentOption !== 'FREE') return false;
+    if (filterTab === 'CONFIRMED' && reg.paymentOption !== 'FREE' && reg.paymentStatus !== 'PAID') return false;
     if (filterTab === 'QUEUED' && reg.status !== 'VERIFICATION_QUEUED') return false;
     if (filterTab === 'VENUE' && reg.paymentOption !== 'VENUE_DESK') return false;
 
