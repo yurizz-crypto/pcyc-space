@@ -336,14 +336,6 @@ export default async function HomePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
-            <div className="mb-10 p-4 rounded-2xl bg-[#fbf1e2] dark:bg-[#2b2315] border border-[#e0a861]/30 text-[#5c4936] dark:text-[#d4b896] flex items-start gap-4 shadow-xs">
-              <Info weight="fill" className="h-5 w-5 text-[#9a6423] dark:text-[#e0a861] shrink-0 mt-0.5" />
-              <div className="text-sm leading-relaxed">
-                <strong className="text-[#2c3324] dark:text-[#fefcf1] font-medium block mb-1">Store Preview Notice</strong>
-                Merchandise catalog is currently in preview mode. Checkout and order fulfillment are temporarily paused during website testing.
-              </div>
-            </div>
-
             <ProductGrid
               products={featuredProducts}
               emptyTitle="Merch Catalog Updating"
