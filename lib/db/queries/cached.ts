@@ -87,42 +87,23 @@ export function getCachedEventBySlug(slug: string): Promise<Event | null> {
 }
 
 /**
- * Cached Available Products for Public Merch Store
- * Revalidated on-demand when admin updates products/stock or every 1 hour (3600s).
+ * Available Products for Public Merch Store.
+ *
+ * Product inventory can also be changed directly in the database, so this read
+ * intentionally avoids a persistent Next.js cache and always reflects current data.
  */
 export function getCachedAvailableProducts(category?: string): Promise<Product[]> {
-  const catKey = category && category !== 'All' ? category : 'all';
-  return safeCache(
-    async (): Promise<Product[]> => {
-      return getAvailableProducts(category);
-    },
-    [`cached-products-${catKey}`],
-    {
-      revalidate: 3600,
-      tags: [
-        CACHE_TAGS.products,
-        CACHE_TAGS.productsAvailable,
-        category ? `products:category:${category}` : 'products:all',
-      ],
-    }
-  )();
+  return getAvailableProducts(category);
 }
 
 /**
- * Cached Product by Slug for Public Merch Detail View
- * Revalidated on-demand when product is updated or every 1 hour (3600s).
+ * Product by Slug for Public Merch Detail View.
+ *
+ * Avoid persistent caching so direct database changes cannot leave deleted or
+ * archived products visible until the cache TTL expires.
  */
 export function getCachedProductBySlug(slug: string): Promise<Product | null> {
-  return safeCache(
-    async (): Promise<Product | null> => {
-      return getProductBySlug(slug);
-    },
-    [`cached-product-${slug}`],
-    {
-      revalidate: 3600,
-      tags: [CACHE_TAGS.products, CACHE_TAGS.product(slug)],
-    }
-  )();
+  return getProductBySlug(slug);
 }
 
 /**
@@ -265,5 +246,4 @@ export function invalidateCacheTag(...tags: string[]): void {
     }
   }
 }
-
 
