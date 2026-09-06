@@ -149,7 +149,9 @@ export default async function PortalPage() {
                             </div>
                             <Badge
                               variant={
-                                reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
+                                reg.status === 'CANCELLED'
+                                  ? 'destructive'
+                                  : reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
                                   ? 'gold'
                                   : reg.paymentStatus === 'VERIFICATION_QUEUED'
                                   ? 'gold'
@@ -157,10 +159,12 @@ export default async function PortalPage() {
                               }
                               size="sm"
                             >
-                              {reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
+                              {reg.status === 'CANCELLED'
+                                ? 'Payment Declined — Register Again'
+                                : reg.paymentStatus === 'CONFIRMED' || reg.paymentStatus === 'PAID'
                                 ? 'Confirmed'
                                 : reg.paymentStatus === 'VERIFICATION_QUEUED'
-                                ? 'GCash Queued'
+                                ? 'Payment Review Queued'
                                 : 'Payment Due at Desk'}
                             </Badge>
                           </div>

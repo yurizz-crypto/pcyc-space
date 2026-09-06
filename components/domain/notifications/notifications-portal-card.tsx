@@ -106,7 +106,7 @@ export function NotificationsPortalCard({
               Activity & Notifications
             </h3>
             <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
-              Updates on your event tickets, merch orders, and GCash payments
+              Updates on your event tickets, merch orders, and payment reviews
             </p>
           </div>
         </div>

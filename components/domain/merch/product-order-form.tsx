@@ -49,7 +49,7 @@ export function ProductOrderForm({
   product, 
   user,
   paymentSettings = {
-    platform: 'GCash',
+    platform: 'Online Payment',
     accountName: 'PCYC Official',
     accountNumber: '0917 000 0000',
     qrUrl: ''
@@ -301,7 +301,7 @@ export function ProductOrderForm({
                   <span>Door Delivery (+₱120)</span>
                 </div>
                 <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-1">
-                  Shipped directly to your home address. GCash payment required upfront.
+                  Shipped directly to your home address. Online payment is required upfront.
                 </p>
               </button>
             </div>
@@ -471,7 +471,7 @@ export function ProductOrderForm({
                     <ImageUpload
                       label={`Screenshot of ${paymentSettings.platform} Receipt`}
                       name="receiptImage"
-                      helperText="Attach GCash payment confirmation screenshot (PNG/JPG)."
+                      helperText={`Attach your ${paymentSettings.platform} payment confirmation screenshot (PNG/JPG).`}
                     />
                   </div>
                 )}

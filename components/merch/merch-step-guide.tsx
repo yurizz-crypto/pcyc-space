@@ -5,7 +5,16 @@ import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scr
 import { InteractiveCard } from '@/components/ui/interactive-card';
 import { ShoppingBag, QrCode, Receipt, Package, ArrowRight } from '@phosphor-icons/react';
 
-const STEPS = [
+interface MerchStepGuideProps {
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+  };
+}
+
+export function MerchStepGuide({ paymentSettings }: MerchStepGuideProps) {
+  const steps = [
   {
     step: '01',
     icon: ShoppingBag,
@@ -15,8 +24,8 @@ const STEPS = [
   {
     step: '02',
     icon: QrCode,
-    title: 'Zero-Fee GCash Payment',
-    description: 'Send exact order total to 0912-734-1648 (Yuri S.) with no extra gateway fees.',
+    title: 'Zero-Fee Online Payment',
+    description: `Send exact order total via ${paymentSettings.platform} to ${paymentSettings.accountNumber} (${paymentSettings.accountName}) with no extra gateway fees.`,
   },
   {
     step: '03',
@@ -30,9 +39,8 @@ const STEPS = [
     title: 'Shipped to Your Ecclesia',
     description: 'Orders are packed with care and dispatched directly to your ecclesia coordinator.',
   },
-];
+  ];
 
-export function MerchStepGuide() {
   return (
     <div className="space-y-12">
       <ScrollReveal className="text-center space-y-4 max-w-2xl mx-auto">
@@ -48,7 +56,7 @@ export function MerchStepGuide() {
       </ScrollReveal>
 
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {STEPS.map((step, idx) => {
+        {steps.map((step) => {
           const StepIcon = step.icon;
           return (
             <StaggerItem key={step.step} className="h-full">

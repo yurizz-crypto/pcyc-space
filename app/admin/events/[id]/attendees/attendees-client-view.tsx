@@ -22,11 +22,12 @@ import {
 
 interface AttendeesClientViewProps {
   attendees: AttendeeWithProfile[];
+  paymentPlatform: string;
 }
 
 const PAGE_SIZE = 10;
 
-export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
+export function AttendeesClientView({ attendees, paymentPlatform }: AttendeesClientViewProps) {
   const router = useRouter();
   const [filterTab, setFilterTab] = useState<'ALL' | 'CONFIRMED' | 'QUEUED' | 'VENUE'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,7 +193,7 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
                 Attendee Directory ({filteredAttendees.length})
               </CardTitle>
               <CardDescription>
-                Review registration details, contact numbers, and GCash transaction receipts.
+                Review registration details, contact numbers, and payment receipts.
               </CardDescription>
             </div>
             <Users className="h-5 w-5 text-[#e0a861]" />
@@ -214,7 +215,7 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
             <div className="space-y-4">
               <div className="divide-y divide-[#e6dfcb] dark:divide-[#323d2b]">
                 {paginatedAttendees.map(({ registration: reg, profile }) => {
-                  const isGcash = reg.paymentOption === 'GCASH';
+                  const isOnlinePayment = reg.paymentOption !== 'VENUE_DESK' && reg.paymentOption !== 'FREE';
                   const isVenue = reg.paymentOption === 'VENUE_DESK';
                   const isFree = reg.paymentOption === 'FREE';
 
@@ -278,13 +279,13 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs shrink-0 self-end md:self-center">
                         <div className="p-3 rounded-xl bg-[#f8f4e3] dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] space-y-1">
                           <div className="flex items-center gap-1.5 font-bold text-[#2c3324] dark:text-[#fefcf1]">
-                            {isGcash && <QrCode className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />}
+                            {isOnlinePayment && <QrCode className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />}
                             {isVenue && <Building2 className="h-3.5 w-3.5 text-[#9a6423] dark:text-[#f0be7c]" />}
                             <span>
                               {isFree
                                 ? 'Free Admission'
-                                : isGcash
-                                ? 'GCash Payment'
+                                : isOnlinePayment
+                                ? `${paymentPlatform} Payment`
                                 : 'Pay at Venue Desk'}
                             </span>
                           </div>
@@ -307,12 +308,12 @@ export function AttendeesClientView({ attendees }: AttendeesClientViewProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 p-2 rounded-xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] hover:border-[#e0a861] dark:hover:border-[#e0a861] transition-all shadow-xs group"
-                            title="View Full GCash Receipt"
+                            title={`View Full ${paymentPlatform} Receipt`}
                           >
                             <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-[#e6dfcb] dark:border-[#323d2b] bg-[#f8f4e3] dark:bg-[#252e1f]">
                               <Image
                                 src={reg.receiptImageUrl}
-                                alt="GCash Proof"
+                                alt={`${paymentPlatform} Proof`}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform"
                               />

@@ -197,7 +197,7 @@ export function EditMerchForm({ product }: EditMerchFormProps) {
                   error={state?.fieldErrors?.price?.[0]}
                 />
                 <p className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
-                  Unit price paid via GCash (100% proceeds fund youth ministry).
+                  Unit price paid through the configured payment method (100% proceeds fund youth ministry).
                 </p>
               </div>
             </div>

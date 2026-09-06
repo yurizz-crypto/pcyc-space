@@ -174,7 +174,7 @@ export const getEventAttendees = cache(async function getEventAttendees(eventId:
       })
       .from(eventRegistrations)
       .innerJoin(profiles, eq(eventRegistrations.userId, profiles.id))
-      .where(eq(eventRegistrations.eventId, eventId))
+      .where(and(eq(eventRegistrations.eventId, eventId), ne(eventRegistrations.status, 'CANCELLED')))
       .orderBy(desc(eventRegistrations.registeredAt));
   } catch (error: any) {
     if (

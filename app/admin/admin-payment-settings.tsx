@@ -30,7 +30,7 @@ export function AdminPaymentSettings({ initialPlatform, initialAccountName, init
           <CardTitle className="text-lg font-serif">Platform Payment Settings</CardTitle>
         </div>
         <CardDescription>
-          Configure the manual payment receiver details shown to users during checkout and on the merch store. (e.g. GCash, Maya, MariBank).
+          Configure the manual payment receiver details shown to users during checkout and on the merch store.
         </CardDescription>
       </CardHeader>
       
@@ -55,7 +55,7 @@ export function AdminPaymentSettings({ initialPlatform, initialAccountName, init
                 label="Payment Platform Name"
                 name="platform"
                 defaultValue={initialPlatform}
-                placeholder="e.g. GCash, BDO, MariBank"
+                placeholder="e.g. Maya, BDO, MariBank"
                 required
               />
               <Input

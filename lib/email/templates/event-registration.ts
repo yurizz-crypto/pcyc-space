@@ -13,6 +13,7 @@ export interface EventRegistrationEmailData {
   registrationFee: number | string;
   paymentOption: 'GCASH' | 'VENUE_DESK' | 'FREE' | string;
   paymentStatus: 'PAID' | 'VERIFICATION_QUEUED' | 'UNPAID' | 'CONFIRMED' | string;
+  paymentPlatform?: string;
   referenceNumber?: string | null;
   specialRequirements?: string | null;
 }
@@ -40,7 +41,7 @@ export function renderEventRegistrationEmail(data: EventRegistrationEmailData): 
     data.paymentStatus === 'CONFIRMED' || data.paymentStatus === 'PAID'
       ? 'Paid / Confirmed'
       : data.paymentStatus === 'VERIFICATION_QUEUED'
-      ? 'GCash Verification Queued'
+      ? `${data.paymentPlatform || 'Online Payment'} Verification Queued`
       : 'Payment Due at Venue Desk';
 
   const contentHtml = `
@@ -88,8 +89,8 @@ export function renderEventRegistrationEmail(data: EventRegistrationEmailData): 
               ${paymentStatusText}
             </span>
           </div>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>Payment Option:</strong> ${data.paymentOption === 'GCASH' ? 'GCash Transfer' : data.paymentOption === 'FREE' ? 'Free Event' : 'Payment at Venue Desk'}</p>
-          ${data.referenceNumber ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>GCash Reference #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>Payment Option:</strong> ${data.paymentOption === 'GCASH' ? `${data.paymentPlatform || 'Online Payment'} Transfer` : data.paymentOption === 'FREE' ? 'Free Event' : 'Payment at Venue Desk'}</p>
+          ${data.referenceNumber ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>${data.paymentPlatform || 'Online Payment'} Reference #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
           ${data.specialRequirements ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>Notes/Dietary:</strong> ${data.specialRequirements}</p>` : ''}
         </td>
       </tr>
@@ -140,7 +141,7 @@ export function renderAdminEventRegistrationAlert(data: EventRegistrationEmailDa
           ${data.userEcclesia ? `<p style="margin: 0;"><strong>Ecclesia:</strong> ${data.userEcclesia}</p>` : ''}
           <p style="margin: 0;"><strong>Event:</strong> ${data.eventTitle}</p>
           <p style="margin: 0;"><strong>Payment Mode:</strong> ${data.paymentOption} (${fee === 0 ? 'FREE' : formatPHP(fee)})</p>
-          ${data.referenceNumber ? `<p style="margin: 0;"><strong>GCash Ref #:</strong> ${data.referenceNumber}</p>` : ''}
+          ${data.referenceNumber ? `<p style="margin: 0;"><strong>${data.paymentPlatform || 'Online Payment'} Ref #:</strong> ${data.referenceNumber}</p>` : ''}
           ${data.specialRequirements ? `<p style="margin: 0;"><strong>Special Notes:</strong> ${data.specialRequirements}</p>` : ''}
         </td>
       </tr>

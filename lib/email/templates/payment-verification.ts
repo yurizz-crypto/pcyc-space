@@ -30,10 +30,10 @@ export function renderPaymentVerificationEmail(data: PaymentVerificationEmailDat
       </p>
       <div style="background-color: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
         <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 15px; color: #2e7d32;">
-          ✅ GCash Payment Approved!
+          ✅ Payment Approved!
         </p>
         <p style="margin: 0; font-size: 13px; color: #1b5e20; line-height: 1.6;">
-          Your GCash payment for Order <strong>#${data.orderNumber}</strong> (${formatPHP(total)}) has been verified by our committee. Your order is now marked as <strong>PAID</strong>.
+          Your payment for Order <strong>#${data.orderNumber}</strong> (${formatPHP(total)}) has been verified by our committee. Your order is now marked as <strong>PAID</strong>.
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export function renderPaymentVerificationEmail(data: PaymentVerificationEmailDat
           <td style="padding: 16px 20px; font-size: 13px; color: #2c3324; line-height: 1.7;">
             <p style="margin: 0;"><strong>Order Number:</strong> #${data.orderNumber}</p>
             <p style="margin: 0;"><strong>Total Verified:</strong> ${formatPHP(total)}</p>
-            ${data.referenceNumber ? `<p style="margin: 0;"><strong>GCash Ref #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
+            ${data.referenceNumber ? `<p style="margin: 0;"><strong>Payment Ref #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
             ${data.adminNotes ? `<p style="margin: 4px 0 0 0;"><strong>Admin Note:</strong> ${data.adminNotes}</p>` : ''}
           </td>
         </tr>
@@ -77,7 +77,7 @@ export function renderPaymentVerificationEmail(data: PaymentVerificationEmailDat
       </table>
 
       <p style="margin: 0 0 16px 0; font-size: 13px; color: #505748; line-height: 1.6;">
-        Please log in to your Member Space to re-upload a clear screenshot of your GCash receipt or verify the reference number.
+        Please log in to your Member Space to re-upload a clear payment receipt or verify the reference number.
       </p>
     `;
 

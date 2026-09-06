@@ -11,6 +11,7 @@ import { CACHE_TAGS, invalidateCacheTag } from '@/lib/db/queries/cached';
 import { redirect } from 'next/navigation';
 import { eq, and, ne, sql } from 'drizzle-orm';
 import { dispatchNotification } from '@/lib/notifications/dispatcher';
+import { getPaymentSettings } from '@/lib/db/queries/settings';
 import {
   renderEventRegistrationEmail,
   renderAdminEventRegistrationAlert,
@@ -84,7 +85,8 @@ async function reviewEventRegistrationPaymentAction(
         .update(eventRegistrations)
         .set({
           status: 'CANCELLED',
-          paymentStatus: 'UNPAID',
+          paymentStatus: 'DECLINED',
+          receiptImageUrl: null,
           specialRequirements: `${registration.specialRequirements || ''}\nPayment declined: ${
             reviewNote || 'Submitted proof could not be verified.'
           }`.trim(),
@@ -609,6 +611,7 @@ export async function registerForEventAction(
     }
 
     const feeNum = Number(event.registrationFee || 0);
+    const paymentSettings = await getPaymentSettings();
 
     // 3. Payment Processing
     let finalPaymentOption = feeNum === 0 ? 'FREE' : paymentOption;
@@ -620,14 +623,14 @@ export async function registerForEventAction(
       if (!referenceNumber || referenceNumber.length < 3) {
         return {
           success: false,
-          error: 'Please provide your GCash Reference Number.',
+          error: `Please provide your ${paymentSettings.platform} reference number.`,
         };
       }
 
       if (!receiptFile || (typeof receiptFile === 'object' && receiptFile.size === 0)) {
         return {
           success: false,
-          error: 'Please upload a screenshot of your GCash payment confirmation receipt.',
+          error: `Please upload a screenshot of your ${paymentSettings.platform} payment confirmation receipt.`,
         };
       }
 
@@ -640,7 +643,7 @@ export async function registerForEventAction(
       if (!uploadResult.success || !uploadResult.url) {
         return {
           success: false,
-          error: uploadResult.error || 'Failed to upload GCash receipt proof.',
+          error: uploadResult.error || `Failed to upload ${paymentSettings.platform} receipt proof.`,
         };
       }
 
@@ -655,6 +658,7 @@ export async function registerForEventAction(
         status: finalRegStatus,
         paymentOption: finalPaymentOption,
         paymentStatus: finalPaymentStatus,
+        paymentPlatform: paymentSettings.platform,
         referenceNumber: referenceNumber || null,
         receiptImageUrl: receiptImageUrl,
         amountPaid: feeNum > 0 ? feeNum.toFixed(2) : '0.00',
@@ -698,7 +702,7 @@ export async function registerForEventAction(
         title: `Registered for ${event.title}! 🎟️`,
         message:
           finalPaymentOption === 'GCASH'
-            ? `Your registration is queued for payment verification (GCash Ref: ${referenceNumber || 'N/A'}).`
+            ? `Your registration is queued for payment verification (${paymentSettings.platform} Ref: ${referenceNumber || 'N/A'}).`
             : finalPaymentOption === 'VENUE_DESK'
             ? `Registration confirmed! You can settle the fee (${feeNum > 0 ? `₱${feeNum}` : 'FREE'}) at the venue desk.`
             : `Registration confirmed! See you at ${event.location}.`,
@@ -712,7 +716,9 @@ export async function registerForEventAction(
         notifyAdmins: true,
         adminAlert: {
           title: `New Registration: ${attendeeName}`,
-          message: `${attendeeName} registered for "${event.title}" (${finalPaymentOption}).`,
+          message: `${attendeeName} registered for "${event.title}" (${
+            finalPaymentOption === 'GCASH' ? paymentSettings.platform : finalPaymentOption
+          }).`,
           linkUrl: '/admin/events',
           emailSubject: `[Admin Alert] New Registration for ${event.title}`,
           emailHtml: renderAdminEventRegistrationAlert({
@@ -736,7 +742,7 @@ export async function registerForEventAction(
         success: true,
         message:
           finalPaymentOption === 'GCASH'
-            ? 'Registration submitted with GCash payment! Our committee will verify your payment shortly.'
+            ? `Registration submitted with ${paymentSettings.platform} payment! Our committee will verify your payment shortly.`
             : finalPaymentOption === 'VENUE_DESK'
             ? 'Registration confirmed! You can settle your registration fee at the venue desk upon arrival.'
             : 'Registration confirmed! We look forward to seeing you at the gathering.',

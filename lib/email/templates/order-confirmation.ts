@@ -105,10 +105,10 @@ export function renderOrderConfirmationEmail(data: OrderConfirmationEmailData): 
           <p style="margin: 8px 0 0 0; font-size: 13px; color: #2c3324;">
             <strong>Payment Status:</strong> 
             <span style="font-weight: 700; color: ${data.hasReceiptUploaded ? '#b78103' : '#c0392b'};">
-              ${data.hasReceiptUploaded ? 'GCash Verification Queued' : 'Pending GCash Receipt Upload'}
+              ${data.hasReceiptUploaded ? `${data.paymentMethod || 'Online Payment'} Verification Queued` : `Pending ${data.paymentMethod || 'Online Payment'} Receipt Upload`}
             </span>
           </p>
-          ${data.referenceNumber ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>GCash Ref #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
+          ${data.referenceNumber ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #2c3324;"><strong>${data.paymentMethod || 'Online Payment'} Ref #:</strong> <code style="background-color: #e6dfcb; padding: 2px 6px; border-radius: 4px; font-family: monospace;">${data.referenceNumber}</code></p>` : ''}
         </td>
       </tr>
     </table>
@@ -146,8 +146,8 @@ export function renderAdminOrderAlert(data: OrderConfirmationEmailData & { userE
           <p style="margin: 0;"><strong>Customer:</strong> ${data.userName} (${data.userEmail})</p>
           <p style="margin: 0;"><strong>Total Amount:</strong> ${formatPHP(total)}</p>
           <p style="margin: 0;"><strong>Item Count:</strong> ${data.items.reduce((acc, i) => acc + i.quantity, 0)} item(s)</p>
-          <p style="margin: 0;"><strong>Payment Proof:</strong> ${data.hasReceiptUploaded ? '✅ GCash Screenshot Uploaded' : '⏳ Awaiting Upload'}</p>
-          ${data.referenceNumber ? `<p style="margin: 0;"><strong>GCash Ref #:</strong> ${data.referenceNumber}</p>` : ''}
+          <p style="margin: 0;"><strong>Payment Proof:</strong> ${data.hasReceiptUploaded ? '✅ Payment Screenshot Uploaded' : '⏳ Awaiting Upload'}</p>
+          ${data.referenceNumber ? `<p style="margin: 0;"><strong>${data.paymentMethod || 'Online Payment'} Ref #:</strong> ${data.referenceNumber}</p>` : ''}
         </td>
       </tr>
     </table>

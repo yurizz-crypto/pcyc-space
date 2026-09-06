@@ -6,6 +6,7 @@ import { AttendeesClientView } from './attendees-client-view';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatPHP, formatEventSchedule } from '@/lib/utils';
+import { getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { ArrowLeft, Calendar, MapPin, Printer } from 'lucide-react';
 
 interface EventAttendeesPageProps {
@@ -24,15 +25,16 @@ export async function generateMetadata({ params }: EventAttendeesPageProps) {
 
   return {
     title: `${event.title} Attendees (${event.status}) — PCYC Space Admin`,
-    description: `Manage registered attendees, verify GCash payment receipts, and print registration manifests for ${event.title}.`,
+    description: `Manage registered attendees, verify payment receipts, and print registration manifests for ${event.title}.`,
   };
 }
 
 export default async function EventAttendeesPage({ params }: EventAttendeesPageProps) {
   const { id } = await params;
-  const [event, attendees] = await Promise.all([
+  const [event, attendees, paymentSettings] = await Promise.all([
     getEventById(id),
     getEventAttendees(id),
+    getCachedPaymentSettings(),
   ]);
 
   if (!event) {
@@ -90,7 +92,7 @@ export default async function EventAttendeesPage({ params }: EventAttendeesPageP
       </div>
 
       {/* Interactive Attendees Directory with Search, Filter Tabs & Pagination */}
-      <AttendeesClientView attendees={attendees} />
+      <AttendeesClientView attendees={attendees} paymentPlatform={paymentSettings.platform} />
     </div>
   );
 }

@@ -113,10 +113,9 @@ export default async function MerchPage() {
       {/* How Ordering Works (Step-by-step Guide) */}
       <section className="py-28 bg-[#f8f4e3] dark:bg-[#1b2117] border-t border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <MerchStepGuide />
+          <MerchStepGuide paymentSettings={paymentSettings} />
         </div>
       </section>
     </div>
   );
 }
-

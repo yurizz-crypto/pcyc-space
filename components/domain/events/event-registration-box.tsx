@@ -46,7 +46,7 @@ export function EventRegistrationBox({
   user,
   registration,
   paymentSettings = {
-    platform: 'GCash',
+    platform: 'Online Payment',
     accountName: 'PCYC Official',
     accountNumber: '0917 000 0000',
     qrUrl: '',

@@ -333,7 +333,7 @@ export default function NewEventPage() {
                     {Number(fee) === 0 ? (
                       <span className="text-[#2e7d32] dark:text-[#66bb6a] font-bold">✓ Free Fellowship Event</span>
                     ) : (
-                      <span>Paid ticketing (settled via GCash / Desk)</span>
+                      <span>Paid ticketing (settled online / at venue desk)</span>
                     )}
                   </p>
                 </div>

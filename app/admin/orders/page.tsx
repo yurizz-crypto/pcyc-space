@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Orders & Receipts Management — PCYC Space Admin',
-  description: 'Verify GCash payments and manage member merchandise transactions.',
+  description: 'Verify member payments and manage merchandise transactions.',
 };
 
 export default async function AdminOrdersPage() {
@@ -24,7 +24,7 @@ export default async function AdminOrdersPage() {
             Orders & Payment Receipts Queue
           </h1>
           <p className="text-xs sm:text-sm text-[#707666] dark:text-[#a3ab98]">
-            Verify GCash screenshot references submitted by brethren for merchandise orders.
+            Verify payment receipt references submitted by brethren for merchandise orders.
           </p>
         </div>
 
