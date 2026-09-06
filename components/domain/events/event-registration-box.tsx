@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { QrZoom } from '@/components/ui/qr-zoom';
 import { formatCurrency, formatPHP } from '@/lib/utils';
 import type { Event, EventRegistration } from '@/lib/db/schema/events';
 import type { Profile } from '@/lib/db/schema/users';
@@ -28,13 +29,29 @@ interface EventRegistrationBoxProps {
   event: Event;
   user: Profile | null;
   registration: EventRegistration | null;
+  paymentSettings?: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 const initialState: EventRegistrationState = {
   success: false,
 };
 
-export function EventRegistrationBox({ event, user, registration }: EventRegistrationBoxProps) {
+export function EventRegistrationBox({
+  event,
+  user,
+  registration,
+  paymentSettings = {
+    platform: 'GCash',
+    accountName: 'PCYC Official',
+    accountNumber: '0917 000 0000',
+    qrUrl: '',
+  },
+}: EventRegistrationBoxProps) {
   const [state, formAction, isPending] = useActionState(registerForEventAction, initialState);
   const [paymentOption, setPaymentOption] = useState<'GCASH' | 'VENUE_DESK'>('GCASH');
 
@@ -80,11 +97,11 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
             <div className="flex justify-between items-center border-t border-[#f0f4eb] pt-2">
               <span className="text-[#707666] dark:text-[#a3ab98]">Payment Method:</span>
               <Badge variant={isGcashPending ? 'gold' : 'success'} size="sm">
-                {isFree
-                  ? 'Free'
-                  : isGcashPending
-                  ? 'GCash (Verification Queued)'
-                  : 'Pay at Venue Desk'}
+                  {isFree
+                    ? 'Free'
+                    : isGcashPending
+                    ? `${paymentSettings.platform} (Verification Queued)`
+                    : 'Pay at Venue Desk'}
               </Badge>
             </div>
           </div>
@@ -227,7 +244,7 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
                 >
                   <div className="flex items-center gap-1.5 font-bold text-xs text-[#2c3324] dark:text-[#fefcf1]">
                     <QrCode className="h-4 w-4 text-[#e0a861]" />
-                    <span>Pay via GCash</span>
+                    <span>Pay via {paymentSettings.platform}</span>
                   </div>
                   <p className="text-[11px] text-[#707666] dark:text-[#a3ab98] mt-0.5">
                     Fast-track confirmation by uploading screenshot receipt.
@@ -253,32 +270,38 @@ export function EventRegistrationBox({ event, user, registration }: EventRegistr
                 </button>
               </div>
 
-              {/* GCash Details & Upload Box */}
+              {/* Payment Details & Upload Box */}
               {paymentOption === 'GCASH' && (
                 <div className="p-4 rounded-xl bg-gradient-to-br from-[#f8f4e3] dark:from-[#1b2117] to-[#fefcf1] dark:to-[#131710] border-2 border-[#e0a861] space-y-4 animate-fadeIn">
                   <div className="flex items-center justify-between text-xs font-bold text-[#2c3324] dark:text-[#fefcf1]">
                     <div className="flex items-center gap-1.5">
                       <QrCode className="h-4 w-4 text-[#9a6423] dark:text-[#f0be7c]" />
-                      <span>PCYC Official GCash</span>
+                      <span>PCYC Official {paymentSettings.platform}</span>
                     </div>
-                    <span className="font-mono text-sm text-[#9a6423] dark:text-[#f0be7c]">0912-734-1648 (Yuri S.)</span>
+                    <span className="font-mono text-sm text-[#9a6423] dark:text-[#f0be7c]">{paymentSettings.accountNumber} ({paymentSettings.accountName})</span>
                   </div>
+
+                  {paymentSettings.qrUrl && (
+                    <div className="flex justify-center">
+                      <QrZoom src={paymentSettings.qrUrl} platform={paymentSettings.platform} />
+                    </div>
+                  )}
 
                   <div className="p-2.5 rounded-lg bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] text-[11px] text-[#707666] dark:text-[#a3ab98]">
                     Please send exact registration fee <strong>{formatPHP(feeNum)}</strong> and provide reference details below.
                   </div>
 
                   <Input
-                    label="GCash Reference Number"
+                    label={`${paymentSettings.platform} Reference Number`}
                     name="referenceNumber"
                     placeholder="e.g. 1004 8920 1827"
                     required
                   />
 
                   <ImageUpload
-                    label="GCash Receipt Screenshot"
+                    label={`${paymentSettings.platform} Receipt Screenshot`}
                     name="receiptImage"
-                    helperText="Upload your GCash payment confirmation screenshot (PNG/JPG)."
+                    helperText={`Upload your ${paymentSettings.platform} payment confirmation screenshot (PNG/JPG).`}
                   />
                 </div>
               )}

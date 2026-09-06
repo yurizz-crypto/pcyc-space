@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { getUserEventRegistration } from '@/lib/db/queries/events';
-import { getCachedEventBySlug } from '@/lib/db/queries/cached';
+import { getCachedEventBySlug, getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { formatPHP, formatEventSchedule } from '@/lib/utils';
 import { Calendar, MapPin, Users, CheckCircle, ArrowLeft, Sparkle, HandHeart, Info, Quotes } from '@phosphor-icons/react/dist/ssr';
@@ -36,9 +36,10 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
-  const [event, profile] = await Promise.all([
+  const [event, profile, paymentSettings] = await Promise.all([
     getCachedEventBySlug(slug),
     getCurrentUserProfile(),
+    getCachedPaymentSettings(),
   ]);
 
   if (!event) {
@@ -110,7 +111,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       </section>
 
       {/* Main Content Layout */}
-      <section className="py-16 sm:py-24 bg-[#fefcf1] dark:bg-[#131710] -mt-12 relative z-20">
+      <section className="py-16 sm:py-24 bg-cream -mt-12 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 items-start">
             
@@ -246,6 +247,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                   event={event}
                   user={profile}
                   registration={existingRegistration}
+                  paymentSettings={paymentSettings}
                 />
 
                 {/* Island Aid & Travel Subsidies Banner */}
