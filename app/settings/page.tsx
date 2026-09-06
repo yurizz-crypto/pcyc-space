@@ -29,7 +29,7 @@ export default async function SettingsPage() {
         description="Manage your Christadelphian brotherhood information, password, and app appearance."
       />
 
-      <section className="py-8 sm:py-12 bg-[#fefcf1] dark:bg-[#131710] flex-1 transition-colors duration-200">
+      <section className="py-8 sm:py-12 bg-cream flex-1 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SettingsClientView profile={profile} ecclesias={ecclesias} />
         </div>

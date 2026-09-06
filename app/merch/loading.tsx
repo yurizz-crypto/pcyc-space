@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function MerchLoading() {
   return (
-    <div className="w-full flex flex-col min-h-screen bg-[#fefcf1] dark:bg-[#131710] animate-pulse">
+    <div className="w-full flex flex-col min-h-screen bg-cream animate-pulse">
       {/* Header Skeleton */}
       <div className="bg-[#f8f4e3] dark:bg-[#1b2117] py-24 sm:py-32 border-b border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

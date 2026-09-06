@@ -56,7 +56,7 @@ export default async function PortalPage() {
         description="Manage your camp registrations, view merchandise order receipts, and connect with your ecclesia."
       />
 
-      <section className="py-12 sm:py-16 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-12 sm:py-16 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           {/* Profile Summary Card */}
           <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#1b2117] border border-[#e6dfcb] dark:border-[#323d2b] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">

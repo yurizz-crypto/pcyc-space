@@ -60,7 +60,7 @@ export default async function EventsPage() {
       </section>
 
       {/* Event Grid Section */}
-      <section className="py-28 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-28 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
             <EventGrid

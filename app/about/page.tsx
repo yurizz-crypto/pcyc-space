@@ -42,7 +42,7 @@ export default async function AboutPage() {
       </section>
 
       {/* 2. WHO ARE THE CHRISTADELPHIANS & CORE DOCTRINES (Asymmetric 3D Grid) */}
-      <section className="py-28 bg-[#fefcf1] dark:bg-[#131710]">
+      <section className="py-28 bg-cream">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
             
@@ -169,7 +169,7 @@ export default async function AboutPage() {
       </section>
 
       {/* 4. PHILIPPINE ECCLESIAS INTERACTIVE MAP & DIRECTORY */}
-      <section className="py-28 bg-[#fefcf1] dark:bg-[#131710] border-t border-[#e6dfcb] dark:border-[#323d2b]">
+      <section className="py-28 bg-cream border-t border-[#e6dfcb] dark:border-[#323d2b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <ScrollReveal className="text-center max-w-3xl mx-auto space-y-4">
             <span className="text-xs font-bold uppercase tracking-widest text-[#9a6423] dark:text-[#f0be7c] px-3.5 py-1.5 rounded-full bg-[#e0a861]/15 border border-[#e0a861]/30">

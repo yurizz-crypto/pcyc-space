@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function AboutLoading() {
   return (
-    <div className="w-full flex flex-col min-h-screen bg-[#fefcf1] dark:bg-[#131710] animate-pulse">
+    <div className="w-full flex flex-col min-h-screen bg-cream animate-pulse">
       {/* Header Skeleton */}
       <div className="bg-[#2c3324] py-24 sm:py-32 border-b border-[#3d4632]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
