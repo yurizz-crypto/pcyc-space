@@ -10,7 +10,7 @@ web
 
 **Dual audience, equal weight:**
 
-1. **Existing PCYC members** — Brothers, Sisters, and Friends within the Philippine Christadelphian community who participate in youth circle events, order fundraising merchandise, and stay connected across ecclesias. They log in, register for camps, place merch orders, and upload GCash/PalawanPay payment receipts.
+1. **Existing PCYC members** — Brothers, Sisters, and Friends within the Philippine Christadelphian community who participate in youth circle events, order fundraising merchandise, and stay connected across ecclesias. They log in, register for camps, place merch orders, and upload payment receipts for the provider configured by PCYC administrators.
 
 2. **Prospective visitors and friends** — People curious about the Christadelphian faith or looking for a Philippine youth fellowship community. They browse publicly, learn about PCYC's mission and history, view upcoming events, and may register as a Friend to participate.
 
@@ -22,7 +22,7 @@ PCYC Space is the digital home of the Philippine Christadelphian Youth Circle �
 
 1. **Inform & welcome** — Present PCYC's mission, history, leadership, and faith to both existing members and newcomers.
 2. **Organize & connect** — Publish and manage youth events (bible camps, fellowship gatherings, study circles) with online registration.
-3. **Fund & sustain** — Sell branded merchandise (shirts, hoodies, tote bags, stickers) with a manual payment verification flow (GCash, Maya, PalawanPay screenshot receipts) to raise funds at zero transaction cost.
+3. **Fund & sustain** — Sell branded merchandise (shirts, hoodies, tote bags, stickers) with a manual payment verification flow using an admin-configured payment platform and screenshot receipts to raise funds at zero transaction cost.
 
 Success means the site is the first place members check for PCYC updates and the first thing a curious visitor finds when looking for Christadelphian youth community in the Philippines.
 
@@ -34,7 +34,7 @@ PCYC is the sole Christadelphian youth circle in the Philippines — unique by d
 
 - Members are spread across multiple Philippine ecclesias (Manila, Davao, Cebu, etc.)
 - Events are primarily in-person camps and gatherings; the site handles promotion and registration, not the event itself
-- Merch orders use manual payment: buyer sends funds via GCash/Maya/PalawanPay → uploads receipt screenshot → admin verifies and fulfills
+- Merch orders use manual payment: buyer sends funds via the configured provider → uploads a receipt screenshot → admin verifies and fulfills
 - Communication supplements, not replaces, existing group chats and in-person fellowship
 - Admin operations happen through the built-in dashboard, not a third-party CMS
 
@@ -46,12 +46,12 @@ PCYC is the sole Christadelphian youth circle in the Philippines — unique by d
 - Member portal: profile management, order history, receipt upload
 - Admin dashboard: events CRUD, merch inventory, order/receipt verification queue, member management
 - Manual payment flow with receipt screenshot upload to private Supabase Storage
-- Transactional email via Resend (order confirmation, verification notices)
+- Transactional email via Nodemailer and Gmail SMTP (order confirmation, verification notices)
 
 **Constraints:**
-- Zero-cost operations on free tiers (Supabase, Vercel, Resend 100/day)
-- No automated payment gateway yet (PayMongo integration deferred)
-- No real-time chat or messaging — out of scope
+- Zero-cost operations on free tiers (Supabase, Vercel, and Gmail SMTP)
+- No automated payment gateway yet; the current flow is manual receipt verification
+- No real-time chat or messaging — out of scope; members receive in-app notifications
 - Philippine Peso (PHP) currency only
 
 ## Brand Commitments
@@ -64,12 +64,12 @@ PCYC is the sole Christadelphian youth circle in the Philippines — unique by d
 - Name: "PCYC" / "Philippine Christadelphian Youth Circle"
 - Tone: welcoming, faith-driven, youthful but grounded
 
-## Evidence on Hand
+## Current Product Surface
 
-- No live production site currently exists — this is the canonical first build
-- Logo and brand assets exist but have not yet been provided to the repository
-- No testimonials, case studies, or press coverage to reference
-- Event history exists in community memory but has not been digitized
+- Public landing, About, Events, and Merchandise pages are implemented.
+- Members can register, manage profiles, view notifications, register for events, place orders, upload receipts, and review completed purchases.
+- Admins can manage members, ecclesias, events, merchandise, reviews, payment settings, site metrics, and order verification.
+- The payment platform, account name, account number, and QR code are managed from the admin dashboard and reused across checkout and receipt upload.
 
 ## Product Principles
 

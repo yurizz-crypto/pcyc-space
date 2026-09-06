@@ -39,13 +39,15 @@
 |---|---|---|
 | 🕊️ | **Inform & Welcome** | Present PCYC's mission, history, leadership, and faith to members and newcomers alike |
 | 📅 | **Organize & Connect** | Publish and manage youth events — bible camps, fellowship gatherings, study circles — with online registration |
-| 🛍️ | **Fund & Sustain** | Sell branded merchandise with zero-fee manual payment verification (GCash, Maya, PalawanPay) to raise funds for the community |
+| 🛍️ | **Fund & Sustain** | Sell branded merchandise with zero-fee manual payment verification through an admin-configured payment provider |
 
 ---
 
 ## 📚 Documentation
 
 For an in-depth breakdown of the system architecture, database schema, folder structure, UI system, and concurrency mechanics, please refer to the **[Architecture & Developer Documentation](DOCUMENTATION.md)**.
+
+For a ready-to-use visual brief for generating a PCYC Space infographic, see **[Infographic Prompt](INFOGRAPHIC_PROMPT.md)**.
 
 ---
 
@@ -69,10 +71,10 @@ For an in-depth breakdown of the system architecture, database schema, folder st
 ### 👤 Member Portal
 - **Personal Dashboard** — View profile, upcoming registrations, and notification feed
 - **Order Hub** — Dedicated orders page with full lifecycle tracking and receipt management
-- **Receipt Upload** — Submit GCash/Maya/PalawanPay payment screenshots for admin verification
+- **Receipt Upload** — Submit payment screenshots for the provider configured by an admin, then track verification
 - **Product Reviews** — Verified buyers can rate and review purchased products
 - **Account Settings** — Profile editor, password management, and appearance theme selector (Light / Dark / System)
-- **In-App Notifications** — Real-time updates on event registrations, order status, and payment verification
+- **In-App Notifications** — Updates on event registrations, order status, and payment verification
 
 ### 🛡️ Admin Dashboard
 - **Overview & Analytics** — Live metric cards for ecclesias, events, merch, pending receipts, and member count
@@ -82,7 +84,8 @@ For an in-depth breakdown of the system architecture, database schema, folder st
 - **Review Moderation** — Admin panel to review, approve, and hide product reviews
 - **Order Verification Queue** — Review uploaded payment receipts, approve/reject with notes, update shipping status
 - **Ecclesia Directory** — Maintain the Philippine ecclesia directory by region (Luzon, Visayas, Mindanao)
-- **Theme Settings** — Manage site-wide theme and display configuration
+- **Payment Settings** — Configure the payment platform, account details, and QR code shown throughout checkout
+- **Site Metrics** — Manage the home-page youth and friends counter
 
 ### 🔒 Security & Concurrency
 - **Transaction Safety** — Robust Drizzle ORM transactions guarding against race conditions for inventory and event registrations
@@ -94,14 +97,14 @@ For an in-depth breakdown of the system architecture, database schema, folder st
 
 ### 💳 Zero-Fee Payment Flow
 ```
-Buyer places order → Sends payment via GCash/Maya/PalawanPay
+Buyer places order → Sends payment via the configured payment provider
     → Uploads receipt screenshot → Admin verifies in dashboard
         → Order marked as paid → Fulfillment & shipping
 ```
 > No payment gateway fees. Every peso goes to the community.
 
 ### 📧 Transactional Email
-- Powered by **Nodemailer** with Gmail SMTP (replaced Resend for unlimited sends)
+- Powered by **Nodemailer** with Gmail SMTP
 - Order confirmations with payment instructions
 - Receipt verification notifications (approved/rejected)
 - Event registration confirmations
@@ -215,7 +218,7 @@ pcyc-space/
 │   ├── 📂 notifications/            # In-app notification dispatcher
 │   └── 📄 storage.ts                # Supabase Storage helpers
 │
-├── 📂 scripts/                      # CLI utilities (26 scripts)
+├── 📂 scripts/                      # CLI utilities and migration helpers
 │   ├── 📄 seed.ts                   # Populate DB with sample data
 │   ├── 📄 populate-1000-users.ts    # Generate 1,000 realistic test users
 │   ├── 📄 create-admin.ts           # Promote a user to admin role
@@ -355,11 +358,12 @@ npx playwright test
 | `notifications-emails.test.ts` | Notification dispatch & email templates |
 | `orders.test.ts` | Order totals, status transitions, receipt matching |
 
-### CI Pipeline
+### Local Verification
 
-Every push and pull request to `main` triggers:
-1. **TypeScript typecheck** — `tsc --noEmit`
-2. **Production build** — `next build`
+Run the checks available in the repository before deployment:
+1. **TypeScript typecheck** — `npx tsc --noEmit`
+2. **Production build** — `npm run build`
+3. **Automated tests** — `npm run test`
 
 ---
 
@@ -484,7 +488,7 @@ erDiagram
         uuid id PK
         string orderNumber
         int totalAmount
-        enum status "PENDING → VERIFIED → SHIPPED → COMPLETED"
+        enum status "PENDING_PAYMENT → VERIFICATION_QUEUED → PAID → PREPARING → SHIPPED → COMPLETED → CANCELLED"
         jsonb shippingInfo
     }
 

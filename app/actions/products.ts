@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema/products';
+import { orderItems } from '@/lib/db/schema/orders';
 import { getCurrentUserProfile } from '@/lib/db/queries/users';
 import { productSchema } from '@/lib/validators';
 import { logger } from '@/lib/logger';
@@ -280,28 +281,53 @@ export async function updateProductAction(
 /**
  * Server Action for Admins to delete a Product via form submission.
  */
-export async function deleteProductAction(formData: FormData): Promise<void> {
+export async function deleteProductAction(formData: FormData): Promise<AdminProductActionState> {
   try {
     const productId = formData.get('productId') as string;
-    if (!productId) return;
+    if (!productId) {
+      return { success: false, error: 'Product ID is missing.' };
+    }
 
     const profile = await getCurrentUserProfile();
     if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPERADMIN')) {
       logger.warn({ productId }, 'Unauthorized attempt to delete product');
-      return;
+      return { success: false, error: 'Unauthorized: Admin privileges required.' };
     }
 
     try {
-      await db.delete(products).where(eq(products.id, productId));
-      logger.info({ productId, adminId: profile.id }, 'Product deleted by administrator');
+      const [existingOrder] = await db
+        .select({ id: orderItems.id })
+        .from(orderItems)
+        .where(eq(orderItems.productId, productId))
+        .limit(1);
+
+      if (existingOrder) {
+        await db
+          .update(products)
+          .set({ isAvailable: false, updatedAt: new Date() })
+          .where(eq(products.id, productId));
+        logger.info({ productId, adminId: profile.id }, 'Product archived because it has order history');
+      } else {
+        await db.delete(products).where(eq(products.id, productId));
+        logger.info({ productId, adminId: profile.id }, 'Product deleted by administrator');
+      }
+
       invalidateCacheTag(CACHE_TAGS.products, CACHE_TAGS.productsAvailable);
       revalidatePath('/merch');
       revalidatePath('/admin/merch');
       revalidatePath('/');
+      return {
+        success: true,
+        message: existingOrder
+          ? 'Product archived because it has existing orders.'
+          : 'Product permanently deleted.',
+      };
     } catch (error: any) {
       logger.error({ error: error?.message, productId }, 'Failed to delete product');
+      return { success: false, error: 'Unable to delete or archive this product.' };
     }
   } catch (err: any) {
     logger.error({ error: err?.message || err }, 'Unhandled error in deleteProductAction');
+    return { success: false, error: 'An unexpected error occurred.' };
   }
 }

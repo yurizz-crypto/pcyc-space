@@ -13,7 +13,7 @@ PCYC Space is a modern, serverless Next.js 16 (App Router) application. It bridg
 - **Data Layer:** PostgreSQL (via Supabase), interfaced safely with Drizzle ORM.
 - **Auth Layer:** Supabase Auth with granular JWT session tracking.
 - **Styling:** Tailwind CSS v4 featuring native CSS variables and glassmorphism tokenization.
-- **Motion:** Framer Motion (`motion/react`) for purposeful scroll reveals, layout animations, and interactive spring physics.
+- **Motion:** Motion (`motion/react`) for purposeful scroll reveals, layout animations, and interactive spring physics.
 
 ### Request Lifecycle
 1. **Middleware (`middleware.ts`):** All requests hit the middleware first. It performs O(1) sliding-window rate limiting, establishes the Supabase session, checks the user's role/zone authorization (Public, Member, Admin, Superadmin), and rewrites/redirects appropriately.
@@ -34,8 +34,8 @@ The relational schema is built to scale community operations with strict foreign
 * **`events`**: Scheduled youth camps, classes, and gatherings. Supports max capacity restrictions and publish states.
 * **`event_registrations`**: Junction table mapping `profiles` to `events`.
 * **`products`**: Merch catalog items. Tracks inventory `stockQty` and live availability.
-* **`orders` & `order_items`**: User-placed merch orders with tracking statuses (PENDING, VERIFIED, SHIPPED, COMPLETED).
-* **`payment_receipts`**: Records of manual payment screenshots (GCash, Maya, PalawanPay). Validated by admins before order fulfillment.
+* **`orders` & `order_items`**: User-placed merch orders with statuses `PENDING_PAYMENT`, `VERIFICATION_QUEUED`, `PAID`, `PREPARING`, `SHIPPED`, `COMPLETED`, and `CANCELLED`.
+* **`payment_receipts`**: Records of manual payment screenshots. The provider is selected from the admin-configured platform and normalized to `GCASH`, `PALAWAN_PAY`, `BANK_TRANSFER`, `MAYA`, or `OTHER`; receipts are validated by admins before fulfillment.
 * **`product_reviews`**: Verified buyers can rate purchases (1-5 stars) and leave comments. Includes moderation controls (`isHidden`).
 * **`audit_logs`**: Immutable enterprise-grade ledger logging all admin interactions (PII reveal, role modification, data mutation).
 
@@ -57,7 +57,7 @@ Understanding the layout is crucial for extending features:
   * **`security/`**: Rate limiters, PII maskers, and Role-Based Access Guards.
   * **`validators/`**: Zod schemas used to validate form inputs and server action payloads.
   * **`geo/`**: Hardcoded coordinates and utilities for the Leaflet maps logic.
-* **`tests/`**: Suite of Playwright and native Node.js tests for E2E validation, security, and component integrity.
+* **`tests/`**: Native Node.js test suite for validation, security, email templates, orders, events, and reviews. Playwright configuration is available for browser-level testing.
 
 ---
 
@@ -86,8 +86,11 @@ This safeguards against race conditions during high-demand event releases or lim
 
 ---
 
-## 6. Email Delivery Pipeline
-We implement a zero-cost transactional email gateway using **Nodemailer** through standard Gmail SMTP. HTML templates are dynamically compiled and sent for:
+## 6. Payment and Email Pipelines
+
+Payment is intentionally manual. Admins configure the provider name, receiving account, and optional QR code in the admin dashboard. The same settings are rendered in the merchandise store, product checkout, and member receipt-upload modal. Members upload a screenshot and reference number; admins approve or reject the receipt.
+
+Transactional email uses **Nodemailer** through standard Gmail SMTP. HTML templates are dynamically compiled and sent for:
 - Payment verifications.
 - Event registration confirmations.
 - Password resets & welcome onboarding.

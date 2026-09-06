@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/components/ui/toast';
 import { PriceTag } from '@/components/molecules/price-tag';
 import { Pagination } from '@/components/ui/pagination';
 import { deleteProductAction } from '@/app/actions/products';
@@ -34,6 +35,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
   const [isDeleting, startDeleteTransition] = useTransition();
+  const { success, error } = useToast();
 
   // Compute counts
   const totalCount = products.length;
@@ -83,8 +85,13 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
 
     const formData = new FormData(e.currentTarget);
     startDeleteTransition(async () => {
-      await deleteProductAction(formData);
+      const result = await deleteProductAction(formData);
+      if (!result.success) {
+        error(result.error || 'Unable to update this product.');
+        return;
+      }
       setDeleteProductTarget(null);
+      success(result.message || 'Product removed.');
     });
   };
 
@@ -268,7 +275,7 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
         </CardContent>
       </Card>
 
-      {/* Confirmation Modal with Framer Motion and Active Deletion Spinner */}
+      {/* Confirmation Modal with archive fallback for products with order history */}
       <AnimatePresence>
         {deleteProductTarget && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -294,10 +301,10 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                   </div>
                   <div>
                     <h3 className="font-serif font-bold text-xl text-[#2c3324] dark:text-[#fefcf1]">
-                      Delete Merchandise Item?
+                      Remove Merchandise Item?
                     </h3>
                     <p className="text-xs text-[#707666] dark:text-[#a3ab98]">
-                      Permanent catalog action
+                      Deletes unused items or archives items with orders
                     </p>
                   </div>
                 </div>
@@ -313,14 +320,14 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
 
               <div className="p-4 rounded-2xl bg-white dark:bg-[#252e1f] border border-[#e6dfcb] dark:border-[#323d2b] text-xs text-[#505748] dark:text-[#a3ab98] space-y-3">
                 <p>
-                  You are about to permanently delete{' '}
+                  You are about to remove{' '}
                   <strong className="text-[#2c3324] dark:text-[#fefcf1] font-bold">
                     {deleteProductTarget.name}
                   </strong>
-                  .
+                  from the catalog.
                 </p>
                 <p className="text-[#c0392b] dark:text-[#ef5350] font-semibold bg-[#fdf2f2] dark:bg-[#2d1815] p-3 rounded-xl border border-[#f5c6cb] dark:border-[#4d201b] leading-relaxed">
-                  ⚠️ This product will be removed from the store and admin inventory.
+                  ⚠️ Products with existing orders are archived to preserve order history. Products without orders are permanently deleted.
                 </p>
               </div>
 
@@ -348,12 +355,12 @@ export function AdminMerchList({ products }: AdminMerchListProps) {
                     {isDeleting ? (
                       <>
                         <CircleNotch weight="bold" className="h-4 w-4 animate-spin" />
-                        <span>Deleting Product...</span>
+                        <span>Removing Product...</span>
                       </>
                     ) : (
                       <>
                         <Trash weight="bold" className="h-4 w-4" />
-                        <span>Confirm Delete</span>
+                        <span>Confirm Remove</span>
                       </>
                     )}
                   </Button>
