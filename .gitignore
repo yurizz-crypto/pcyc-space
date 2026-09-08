@@ -82,14 +82,4 @@ ehthumbs_vista.db
 !.vscode/extensions.json
 *.code-workspace
 
-# AI Tooling, Vendor Skills & Local Workspaces
-.agents/
-agent/
-.claude/
-.impeccable/
-.codex/*
-!.codex/hooks.json
-.github/skills/
-.skills/
 commit-docs/
-scratch/
