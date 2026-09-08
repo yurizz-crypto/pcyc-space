@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getAllOrdersWithReceipts } from '@/lib/db/queries/orders';
+import { getCachedPaymentSettings } from '@/lib/db/queries/cached';
 import { AdminOrdersList } from './admin-orders-list';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -13,7 +14,10 @@ export const metadata = {
 };
 
 export default async function AdminOrdersPage() {
-  const ordersList = await getAllOrdersWithReceipts();
+  const [ordersList, paymentSettings] = await Promise.all([
+    getAllOrdersWithReceipts(),
+    getCachedPaymentSettings(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -37,7 +41,7 @@ export default async function AdminOrdersPage() {
       </div>
 
       {/* Orders List with Search, Filter Tabs & Pagination */}
-      <AdminOrdersList orders={ordersList} />
+      <AdminOrdersList orders={ordersList} paymentSettings={paymentSettings} />
     </div>
   );
 }

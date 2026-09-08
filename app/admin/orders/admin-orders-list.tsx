@@ -36,6 +36,12 @@ import {
 
 interface AdminOrdersListProps {
   orders: OrderWithDetails[];
+  paymentSettings: {
+    platform: string;
+    accountName: string;
+    accountNumber: string;
+    qrUrl: string;
+  };
 }
 
 const PAGE_SIZE = 8;
@@ -56,7 +62,7 @@ function VerifyButton({ children, variant = 'primary', size = 'sm', className = 
   );
 }
 
-export function AdminOrdersList({ orders }: AdminOrdersListProps) {
+export function AdminOrdersList({ orders, paymentSettings }: AdminOrdersListProps) {
   const [filterTab, setFilterTab] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,7 +72,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
   
   // Selected Order for Full Details Modal
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<OrderWithDetails | null>(null);
-  const [rejectionReason, setRejectionReason] = useState<string>('Reference number did not match GCash account transaction.');
+  const [rejectionReason, setRejectionReason] = useState<string>(`Reference number did not match ${paymentSettings.platform} account transaction.`);
   const [copiedRef, setCopiedRef] = useState(false);
 
   // Multi-Selection State for Bulk Operations
@@ -363,7 +369,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
               Merchandise Transactions ({filteredOrders.length})
             </CardTitle>
             <CardDescription>
-              Live database records of merchandise transactions, GCash payment verification, and fulfillment logistics.
+              Live database records of merchandise transactions, {paymentSettings.platform} payment verification, and fulfillment logistics.
             </CardDescription>
           </div>
 
@@ -472,7 +478,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                             {logistics.recipientName}
                           </div>
                           <div className="text-[11px] text-[#707666] dark:text-[#a3ab98]">
-                            Phone / GCash: <span className="font-mono font-semibold">{logistics.contactNumber}</span>
+                            Phone / {paymentSettings.platform}: <span className="font-mono font-semibold">{logistics.contactNumber}</span>
                           </div>
                         </div>
 
@@ -537,7 +543,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                             <div className="space-y-1 text-xs">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-bold text-[#2c3324] dark:text-[#fefcf1]">
-                                  GCash Payment Proof
+                                  {paymentSettings.platform} Payment Proof
                                 </span>
                                 <Badge
                                   variant={
@@ -555,7 +561,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
 
                               {receipt.referenceNumber && (
                                 <div className="dark:text-[#a3ab98]">
-                                  GCash Ref No:{' '}
+                                  {paymentSettings.platform} Ref No:{' '}
                                   <span className="font-mono font-bold text-[#2c3324] dark:text-[#fefcf1]">
                                     {receipt.referenceNumber}
                                   </span>
@@ -608,7 +614,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                                   <input
                                     type="hidden"
                                     name="adminNotes"
-                                    value="Payment screenshot reference did not match GCash account record."
+                                    value={`Payment screenshot reference did not match ${paymentSettings.platform} account record.`}
                                   />
                                   <VerifyButton
                                     variant="destructive"
@@ -654,7 +660,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
       <Modal
         isOpen={!!selectedReceiptOrder}
         onClose={() => setSelectedReceiptOrder(null)}
-        title="GCash Payment Verification Proof"
+        title={`${paymentSettings.platform} Payment Verification Proof`}
         description={`Order #${selectedReceiptOrder?.orderNumber} • Placed by ${selectedReceiptOrder?.shippingInfo?.recipientName || 'Member'}`}
         className="max-w-4xl"
       >
@@ -668,7 +674,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                     <div className="relative max-h-[460px] overflow-auto rounded-xl border border-white/10 shadow-inner bg-black/40">
                       <img
                         src={selectedReceiptOrder.receipt.receiptImageUrl}
-                        alt="GCash Payment Proof Full Resolution"
+                        alt={`${paymentSettings.platform} Payment Proof Full Resolution`}
                         className="w-full object-contain max-h-[460px] mx-auto rounded-lg"
                       />
                     </div>
@@ -726,7 +732,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                     </div>
                     <div>
                       <span className="text-[10px] text-[#707666] dark:text-[#a3ab98] block">Payment Channel</span>
-                      <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">GCash Philippines</span>
+                      <span className="font-semibold text-[#2c3324] dark:text-[#fefcf1]">{paymentSettings.platform}</span>
                     </div>
                   </div>
 
@@ -781,7 +787,7 @@ export function AdminOrdersList({ orders }: AdminOrdersListProps) {
                       </label>
                       <div className="flex flex-wrap gap-1">
                         {[
-                          'Reference did not match GCash record',
+                          `Reference did not match ${paymentSettings.platform} record`,
                           'Screenshot unreadable or cut off',
                           'Incorrect payment amount',
                         ].map((preset) => (
