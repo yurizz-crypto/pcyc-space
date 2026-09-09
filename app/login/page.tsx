@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useActionState, Suspense } from 'react';
+import React, { useActionState, Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { loginAction, ActionState } from '@/app/actions/auth';
-import { SignIn, WarningCircle, CircleNotch } from '@phosphor-icons/react/dist/ssr';
+import { SignIn, WarningCircle, CircleNotch, ArrowClockwise } from '@phosphor-icons/react/dist/ssr';
 import { motion } from 'motion/react';
 
 const initialState: ActionState = {
@@ -20,6 +20,40 @@ function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect') || '';
+  const errorParam = searchParams.get('error');
+
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 1. Check query parameter error
+    if (errorParam === 'auth_callback_failed') {
+      setUrlError('The recovery or confirmation link is invalid or has expired.');
+    } else if (errorParam === 'auth_network_failure') {
+      setUrlError('Unable to connect to the authentication server. Please try again.');
+    }
+
+    // 2. Check window.location.hash for Supabase auth error fragments (e.g. #error_code=otp_expired)
+    if (typeof window !== 'undefined' && window.location.hash) {
+      try {
+        const hash = window.location.hash.startsWith('#')
+          ? window.location.hash.substring(1)
+          : window.location.hash;
+        const params = new URLSearchParams(hash);
+        const errorCode = params.get('error_code');
+        const errorDesc = params.get('error_description');
+
+        if (errorCode === 'otp_expired') {
+          setUrlError('This password recovery link is invalid or has already expired. Please request a new one.');
+        } else if (errorDesc) {
+          setUrlError(decodeURIComponent(errorDesc.replace(/\+/g, ' ')));
+        }
+      } catch {
+        // Ignore hash parsing errors
+      }
+    }
+  }, [errorParam]);
+
+  const activeError = state?.error || urlError;
 
   return (
     <Card className="border-[#e6dfcb] dark:border-[#323d2b] shadow-xl rounded-3xl bg-white dark:bg-[#1b2117]">
@@ -36,10 +70,23 @@ function LoginForm() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {state?.error && (
-            <div className="p-3.5 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex items-center gap-2.5 shadow-xs">
-              <WarningCircle weight="fill" className="h-4 w-4 shrink-0" />
-              <span>{state.error}</span>
+          {activeError && (
+            <div className="p-3.5 rounded-2xl bg-[#fdf2f2] dark:bg-[#2d1815] border border-[#f5c6cb] dark:border-[#4d201b] text-[#c0392b] dark:text-[#ef5350] text-xs flex flex-col gap-2 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <WarningCircle weight="fill" className="h-4 w-4 shrink-0" />
+                <span className="font-medium leading-relaxed">{activeError}</span>
+              </div>
+              {urlError && (
+                <div className="pt-1">
+                  <Link
+                    href="/reset-password"
+                    className="inline-flex items-center gap-1.5 font-bold text-[#c0392b] dark:text-[#ef5350] hover:underline"
+                  >
+                    <ArrowClockwise weight="bold" className="h-3.5 w-3.5" />
+                    <span>Request New Reset Link &rarr;</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
